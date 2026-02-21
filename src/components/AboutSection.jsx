@@ -30,9 +30,9 @@ export const AboutSection = () => {
   ];
 
   const tabContent = {
-    personal: "Passionate about creating digital solutions that make a difference. When I'm not coding, I'm exploring new technologies, contributing to open-source, and mentoring aspiring developers.",
-    professional: "With 1+ years in full-stack development, I've delivered 15+ successful projects using modern technologies. I specialize in scalable architecture and performance optimization.",
-    approach: "I believe in clean code, thorough testing, and user-centered design. My process emphasizes collaboration, agile methodologies, and continuous improvement."
+    personal: "I'm a Computer Science student who enjoys building useful digital products and learning through hands-on work.",
+    professional: "I work as a web developer and graphic designer, combining development skills with visual thinking to create sites that are clear and easy to use.",
+    approach: "My interests in website development, UI/UX design, and cybersecurity shape how I build: simple interfaces, thoughtful structure, and attention to safety basics."
   };
 
   useEffect(() => {
@@ -78,11 +78,11 @@ export const AboutSection = () => {
             <span className="text-sm sm:text-base font-semibold text-primary tracking-wide">ABOUT ME</span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6">
-            <span className="bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">Transforming</span>
-            <span className="block text-primary animate-pulse">Ideas Into Reality</span>
+            <span className="bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">About</span>
+            <span className="block text-primary animate-pulse">Dev Fraol</span>
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Building digital experiences that combine <span className="text-primary font-semibold">innovation</span>, <span className="text-primary font-semibold">performance</span>, and <span className="text-primary font-semibold">elegance</span>
+            I study computer science and work across web development, graphic design, UI/UX, and cybersecurity-focused problem solving.
           </p>
         </div>
 
@@ -111,8 +111,8 @@ export const AboutSection = () => {
 
                   {/* Achievements */}
                   <div className="flex-1 text-center md:text-left">
-                    <h2 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">MD Sahil</h2>
-                    <p className="text-primary text-base sm:text-lg font-semibold mb-3 sm:mb-4">Full Stack Developer</p>
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">Dev Fraol</h2>
+                    <p className="text-primary text-base sm:text-lg font-semibold mb-3 sm:mb-4">Computer Science Student | Web Developer | Graphic Designer</p>
                     <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
                       {achievements.map((achievement, index) => (
                         <div key={index} className={`p-2 sm:p-3 rounded-xl bg-background/50 border border-border transition-all duration-300 hover:scale-105 hover:border-primary/30 ${counter === index ? 'bg-primary/10 border-primary/50' : ''}`}>
