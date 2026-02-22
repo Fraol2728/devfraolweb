@@ -24,12 +24,15 @@ import { Login } from "@/pages/Login";
 import { Signup } from "@/pages/Signup";
 import { CourseLearning } from "@/pages/CourseLearning";
 import AuthRedirectPlaceholder from "@/pages/AuthRedirectPlaceholder";
+import { UserProvider } from "@/context/UserContext";
+import { SimplePlaceholderPage } from "@/pages/SimplePlaceholderPage";
 
 function App() {
   const [welcomeComplete, setWelcomeComplete] = useState(false);
 
   return (
     <AppProviders>
+      <UserProvider>
       {!welcomeComplete ? (
         <WelcomePage onWelcomeComplete={() => setWelcomeComplete(true)} />
       ) : (
@@ -61,6 +64,8 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/auth/google" element={<AuthRedirectPlaceholder />} />
                 <Route path="/auth/github" element={<AuthRedirectPlaceholder />} />
+                <Route path="/my-courses" element={<SimplePlaceholderPage title="My Courses" />} />
+                <Route path="/settings" element={<SimplePlaceholderPage title="Settings" />} />
               </Route>
               <Route path="/admin" element={<Admin />} />
               <Route path="/home" element={<Navigate to="/" replace />} />
@@ -70,6 +75,7 @@ function App() {
           </BrowserRouter>
         </motion.div>
       )}
+          </UserProvider>
     </AppProviders>
   );
 }

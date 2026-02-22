@@ -1,14 +1,23 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { NavbarDock } from "@/features/home/NavbarDock";
+import { TopNavbar } from "@/features/navbar/TopNavbar";
 import { StarBackground } from "@/components/common/Background";
 import { Footer } from "@/features/footer/Footer";
 
 export const MainLayout = () => {
+  const location = useLocation();
+
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
       <StarBackground />
-      <main className="relative z-10 pb-28 pt-8 md:pt-10">
-        <Outlet />
+      <TopNavbar />
+      <main className="relative z-10 pb-28 pt-4 md:pt-6">
+        <AnimatePresence mode="wait">
+          <motion.div key={location.pathname} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.3 }}>
+            <Outlet />
+          </motion.div>
+        </AnimatePresence>
       </main>
       <NavbarDock />
       <Footer />
