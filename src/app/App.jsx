@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import WelcomeScreen from "@/components/common/WelcomeScreen";
 import { Analytics } from "@vercel/analytics/react";
 import { AppProviders } from "@/app/providers";
+import { ScrollToTop } from "@/components/common/ScrollToTop";
 import { MainLayout } from "@/pages/MainLayout";
 import { Home } from "@/pages/Home";
 import { Courses } from "@/pages/Courses";
@@ -25,6 +26,7 @@ function App() {
         <WelcomeScreen onWelcomeComplete={() => setWelcomeComplete(true)} />
       ) : (
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route element={<MainLayout />}>
               <Route path="/" element={<Home />} />

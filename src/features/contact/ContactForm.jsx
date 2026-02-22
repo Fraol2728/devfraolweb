@@ -11,6 +11,7 @@ const initialState = {
 };
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const CONTACT_ENDPOINT = import.meta.env.VITE_CONTACT_ENDPOINT ?? "https://formspree.io/f/xwpbojaj";
 
 export const ContactForm = () => {
   const { toast } = useToast();
@@ -56,7 +57,7 @@ export const ContactForm = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("https://formspree.io/f/xwpbojaj", {
+      const response = await fetch(CONTACT_ENDPOINT, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
