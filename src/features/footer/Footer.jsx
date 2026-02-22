@@ -23,12 +23,12 @@ export const Footer = () => {
   const quickLinks = [
     { name: "Home", href: "#hero" },
     { name: "About", href: "#about" },
-    { name: "Work", href: "#work" },
+    { name: "Work", href: "#projects" },
     { name: "Contact", href: "#contact" },
   ];
 
   const contactInfo = [
-    { icon: <Mail size={16} />, text: "codewithkinu@gmail.com", href: "mailto:codewithkinu@gmail.com.com" },
+    { icon: <Mail size={16} />, text: "codewithkinu@gmail.com", href: "mailto:codewithkinu@gmail.com" },
     { icon: <Phone size={16} />, text: "+91 9315145594", href: "tel:+919315145594" },
   ];
 

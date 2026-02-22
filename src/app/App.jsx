@@ -1,23 +1,16 @@
 import { useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { ThemeProvider } from "next-themes";
-import { Home } from "./pages/Home";
-import { NotFound } from "./pages/NotFound";
-import { Toaster } from "@/components/ui/toaster";
-import WelcomeScreen from "@/components/WelcomeScreen";
-import { Analytics } from "@vercel/analytics/react"; 
+import { Home } from "@/pages/Home";
+import { NotFound } from "@/pages/NotFound";
+import WelcomeScreen from "@/components/common/WelcomeScreen";
+import { Analytics } from "@vercel/analytics/react";
+import { AppProviders } from "@/app/providers";
 
 function App() {
   const [welcomeComplete, setWelcomeComplete] = useState(false);
 
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <Toaster />
+    <AppProviders>
       {!welcomeComplete ? (
         <WelcomeScreen onWelcomeComplete={() => setWelcomeComplete(true)} />
       ) : (
@@ -29,7 +22,7 @@ function App() {
           <Analytics />
         </BrowserRouter>
       )}
-    </ThemeProvider>
+    </AppProviders>
   );
 }
 
