@@ -1,29 +1,29 @@
-import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { blogPosts } from "@/data/blog";
+import { useEffect } from "react";
+import { BlogPage } from "@/features/blog/BlogPage";
 
 export const Blog = () => {
-  return (
-    <section className="px-4 sm:px-6 py-16">
-      <div className="container max-w-6xl mx-auto text-left">
-        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-5xl">
-          Blog
-        </motion.h1>
-        <p className="mt-3 text-muted-foreground">Insights for developers, designers, and students building modern portfolios.</p>
-        <div className="mt-8 grid gap-5 md:grid-cols-2">
-          {blogPosts.map((post) => (
-            <article key={post.slug} className="rounded-2xl border border-border bg-card/70 p-6">
-              <p className="text-xs uppercase text-primary">{post.category}</p>
-              <h2 className="mt-2 text-2xl">{post.title}</h2>
-              <p className="mt-3 text-muted-foreground">{post.excerpt}</p>
-              <p className="mt-4 text-sm text-muted-foreground">{post.date}</p>
-              <Link to={`/blog/${post.slug}`} className="mt-4 inline-block text-primary font-semibold hover:underline">
-                Read More
-              </Link>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+  useEffect(() => {
+    document.title = "Dev Fraol Academy Blog | Web Development & Design Insights";
+
+    const description = "Stay updated with Dev Fraol Academy courses, web development guides, and graphic design insights.";
+    const image = "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1400&q=80";
+
+    const setMeta = (name, content, property = false) => {
+      const selector = property ? `meta[property='${name}']` : `meta[name='${name}']`;
+      let element = document.head.querySelector(selector);
+      if (!element) {
+        element = document.createElement("meta");
+        element.setAttribute(property ? "property" : "name", name);
+        document.head.appendChild(element);
+      }
+      element.setAttribute("content", content);
+    };
+
+    setMeta("description", description);
+    setMeta("og:title", "Dev Fraol Academy Blog", true);
+    setMeta("og:description", description, true);
+    setMeta("og:image", image, true);
+  }, []);
+
+  return <BlogPage />;
 };
