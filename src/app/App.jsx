@@ -47,22 +47,18 @@ function App() {
               <Route element={<MainLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/courses" element={<Courses />} />
-                <Route path="/courses/:slug" element={<CourseDetail />} />
+                <Route path="/courses/:id" element={<CourseDetail />} />
+                <Route path="/courses/:id/enroll" element={<CourseLearning />} />
                 <Route path="/learn/:courseId" element={<CourseLearning />} />
                 <Route path="/instructor" element={<Instructor />} />
+                <Route path="/instructor/:id" element={<Instructor />} />
                 <Route path="/testimonials" element={<Testimonials />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogDetail />} />
                 <Route path="/apps" element={<Apps />} />
-                <Route path="/apps/youtube-downloader" element={<AppDetail appId="youtube-downloader" />} />
-                <Route path="/apps/tiktok-downloader" element={<AppDetail appId="tiktok-downloader" />} />
-                <Route path="/apps/instagram-downloader" element={<AppDetail appId="instagram-downloader" />} />
-                <Route path="/apps/background-remover" element={<AppDetail appId="background-remover" />} />
-                <Route path="/apps/code-editor" element={<AppDetail appId="code-editor" />} />
-                <Route path="/apps/file-converter" element={<AppDetail appId="file-converter" />} />
-                <Route path="/apps/web-recommended" element={<AppDetail appId="web-recommended" />} />
+                <Route path="/apps/:id" element={<AppDetail />} />
                 <Route path="/code-editor" element={<CodeEditor />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />

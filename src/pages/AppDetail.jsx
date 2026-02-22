@@ -1,10 +1,12 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { AppDetail as AppDetailFeature } from "@/features/apps/AppDetail";
-import { appDetailPages, webRecommendations } from "@/data/apps";
+import { useMockApi } from "@/context/MockApiContext";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 
-export const AppDetail = ({ appId }) => {
-  const app = appDetailPages.find((item) => item.id === appId);
+export const AppDetail = () => {
+  const { id } = useParams();
+  const { appDetails, webRecommendations } = useMockApi();
+  const app = appDetails.find((item) => item.id === id);
 
   useSeoMeta({
     title: app ? `${app.name} | Dev Fraol Academy` : "App Detail | Dev Fraol Academy",
