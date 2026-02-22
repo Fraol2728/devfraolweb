@@ -1,54 +1,31 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { ArrowUpRight } from "lucide-react";
 
-export const CourseCard = ({ course, index }) => {
+export const CourseCard = ({ title, description, icon: Icon, index = 0, href = "#" }) => {
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
+    <motion.a
+      href={href}
+      initial={{ opacity: 0, y: 24, x: -10 }}
+      whileInView={{ opacity: 1, y: 0, x: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.35, delay: index * 0.06 }}
-      whileHover={{ y: -6, scale: 1.015 }}
-      className="group relative overflow-hidden rounded-2xl border border-border bg-card/70 p-6 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/60 hover:shadow-[0_8px_32px_rgba(255,59,48,0.15)]"
+      transition={{ duration: 0.4, delay: index * 0.06 }}
+      whileHover={{ y: -6, scale: 1.02 }}
+      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 shadow-[0_10px_32px_rgba(0,0,0,0.24)] backdrop-blur-sm transition-all duration-300 hover:border-[#FF3B30]/70 hover:shadow-[0_0_0_1px_rgba(255,59,48,0.3),0_15px_34px_rgba(255,59,48,0.22)]"
     >
-      <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-primary/0 via-primary/0 to-primary/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:from-primary/4 group-hover:to-primary/10" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#FF3B30]/0 via-[#FF3B30]/0 to-[#FF3B30]/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-      <div className="relative z-10">
-        <div className="flex items-start justify-between gap-3">
-          <p className="text-xs uppercase tracking-[0.15em] text-primary">{course.category}</p>
-          {course.badge ? (
-            <span className="rounded-full border border-primary/45 bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary">
-              {course.badge}
-            </span>
-          ) : null}
+      <div className="relative z-10 flex items-start justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold leading-snug sm:text-xl">{title}</h3>
+          {description ? <p className="mt-2 text-sm text-muted-foreground">{description}</p> : null}
         </div>
-
-        <h2 className="mt-3 text-2xl font-bold leading-tight">{course.title}</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{course.shortDescription}</p>
-
-        <div className="mt-5 grid grid-cols-2 gap-3 text-sm text-muted-foreground">
-          <div className="rounded-xl border border-border/60 bg-background/35 px-3 py-2">
-            <p className="text-[11px] uppercase tracking-wide">Level</p>
-            <p className="mt-0.5 text-foreground">{course.level}</p>
-          </div>
-          <div className="rounded-xl border border-border/60 bg-background/35 px-3 py-2">
-            <p className="text-[11px] uppercase tracking-wide">Duration</p>
-            <p className="mt-0.5 text-foreground">{course.duration}</p>
-          </div>
-        </div>
-
-        <div className="mt-4 rounded-xl border border-border/60 bg-background/35 px-3 py-2 text-sm text-muted-foreground">
-          <p className="text-[11px] uppercase tracking-wide">Modules</p>
-          <p className="mt-0.5 text-foreground">{course.moduleCount} modules (placeholder)</p>
-        </div>
-
-        <Link
-          to={`/courses/${course.slug}`}
-          className="mt-6 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,59,48,0.6)]"
-        >
-          View Details
-        </Link>
+        {Icon ? <Icon className="h-5 w-5 shrink-0 text-[#FF3B30]" aria-hidden="true" /> : null}
       </div>
-    </motion.article>
+
+      <span className="relative z-10 mt-5 inline-flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-[#FF3B30]">
+        Open details
+        <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+      </span>
+    </motion.a>
   );
 };
