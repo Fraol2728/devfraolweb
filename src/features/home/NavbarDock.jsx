@@ -7,6 +7,7 @@ import {
   NotebookPen,
   Sparkles,
   Sun,
+  Code2,
   UserRound,
   MessagesSquare,
 } from "lucide-react";
@@ -20,6 +21,7 @@ const dockItems = [
   { label: "Instructor", to: "/instructor", icon: UserRound },
   { label: "Testimonials", to: "/testimonials", icon: MessagesSquare },
   { label: "Blog", to: "/blog", icon: NotebookPen },
+  { label: "Editor", to: "/code-editor", icon: Code2 },
   { label: "Contact", to: "/contact", icon: Mail },
 ];
 

@@ -14,6 +14,7 @@ import { Blog } from "@/pages/Blog";
 import { BlogDetail } from "@/pages/BlogDetail";
 import { FAQ } from "@/pages/FAQ";
 import { NotFound } from "@/pages/NotFound";
+import { CodeEditor } from "@/pages/CodeEditor";
 
 function App() {
   const [welcomeComplete, setWelcomeComplete] = useState(false);
@@ -35,6 +36,7 @@ function App() {
               <Route path="/faq" element={<FAQ />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogDetail />} />
+              <Route path="/code-editor" element={<CodeEditor />} />
             </Route>
             <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFound />} />
