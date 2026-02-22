@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import { courses } from "@/data/courses";
 import { CourseCard } from "@/features/courses/CourseCard";
 import { CourseFilter } from "@/features/courses/CourseFilter";
+import { useSeoMeta } from "@/hooks/useSeoMeta";
 
 const levelOrder = {
   Beginner: 1,
@@ -14,6 +15,11 @@ const levelOrder = {
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export const Courses = () => {
+  useSeoMeta({
+    title: "Courses | Dev Fraol Academy",
+    description: "Browse project-driven web development and graphic design courses with filtering, search, and modular backend-ready data architecture.",
+  });
+
   const [activeCategory, setActiveCategory] = useState("All");
   const [sortBy, setSortBy] = useState("popularity");
   const [query, setQuery] = useState("");

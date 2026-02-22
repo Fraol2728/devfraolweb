@@ -6,10 +6,24 @@ import { CourseHero } from "@/features/courses/CourseHero";
 import { CourseInstructor } from "@/features/courses/CourseInstructor";
 import { CourseOverview } from "@/features/courses/CourseOverview";
 import { RelatedCourses } from "@/features/courses/RelatedCourses";
+import { useSeoMeta } from "@/hooks/useSeoMeta";
 
 export const CourseDetail = () => {
   const { slug } = useParams();
   const course = getCourseBySlug(slug);
+
+  useSeoMeta(
+    course
+      ? {
+          title: `${course.title} | Dev Fraol Academy Courses`,
+          description: course.description,
+          ogTitle: `${course.title} | Dev Fraol Academy`,
+        }
+      : {
+          title: "Course not found | Dev Fraol Academy",
+          description: "This course is currently unavailable. Explore our full course catalog for updated learning paths.",
+        },
+  );
 
   if (!course) {
     return (

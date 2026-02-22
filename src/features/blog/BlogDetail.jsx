@@ -29,7 +29,7 @@ export const BlogDetailContent = () => {
           animate={{ opacity: 1, y: 0 }}
           className="relative overflow-hidden rounded-3xl border border-border"
         >
-          <img src={post.image} alt={post.imageAlt} className="h-72 w-full object-cover md:h-96" />
+          <img src={post.image} alt={post.imageAlt} loading="eager" decoding="async" className="h-72 w-full object-cover md:h-96" />
           <div className="absolute inset-0 bg-linear-to-t from-background via-background/60 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-6 md:p-10">
             <p className="text-xs uppercase tracking-[0.24em] text-primary">

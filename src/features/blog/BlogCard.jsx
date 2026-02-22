@@ -14,6 +14,8 @@ export const BlogCard = ({ post, index = 0, compact = false }) => {
       <img
         src={post.image}
         alt={post.imageAlt}
+        loading={index === 0 ? "eager" : "lazy"}
+        decoding="async"
         className={`w-full object-cover transition-transform duration-500 group-hover:scale-105 ${
           compact ? "h-38" : "h-52"
         }`}
