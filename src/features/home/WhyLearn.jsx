@@ -8,7 +8,7 @@ const points = [
 
 export const WhyLearn = () => {
   return (
-    <section className="px-4 sm:px-6 py-16">
+    <section id="why-learn" className="px-4 sm:px-6 py-16">
       <div className="container max-w-6xl mx-auto text-left rounded-2xl border border-border bg-card/60 p-7 sm:p-10">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}

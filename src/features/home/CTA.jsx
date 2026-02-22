@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export const CTA = () => {
   return (
-    <section className="px-4 sm:px-6 py-16">
+    <section id="cta" className="px-4 sm:px-6 py-16">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
