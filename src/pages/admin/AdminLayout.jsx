@@ -41,7 +41,7 @@ export const AdminLayout = () => {
   );
 
   return (
-    <main className="min-h-screen bg-[#070707] text-white">
+    <main className="min-h-screen text-white">
       <div className="mx-auto flex max-w-[1480px]">
         <Sidebar
           activeSection={activeSection}
