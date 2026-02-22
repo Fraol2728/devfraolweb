@@ -1,4 +1,5 @@
 import {
+  Download,
   Code2,
   FileCog,
   FileImage,
@@ -60,6 +61,62 @@ export const appsCatalog = [
 ];
 
 export const webRecommendations = [
+  {
+    name: "Uptodown",
+    description: "Massive catalog of free software downloads for Windows and Android.",
+    link: "https://www.uptodown.com",
+    category: "Download",
+    icon: Download,
+  },
+  {
+    name: "GetIntoPC",
+    description: "Curated free PC software installers, tools, and productivity apps.",
+    link: "https://getintopc.com",
+    category: "Download",
+    icon: Download,
+  },
+  {
+    name: "Softpedia",
+    description: "Trusted software directory with reviews and freeware updates.",
+    link: "https://www.softpedia.com",
+    category: "Download",
+    icon: Download,
+  },
+  {
+    name: "FileHorse",
+    description: "Clean portal for popular Windows and Mac apps with old versions.",
+    link: "https://www.filehorse.com",
+    category: "Download",
+    icon: Download,
+  },
+  {
+    name: "MajorGeeks",
+    description: "Security, utilities, and troubleshooting tools for PC users.",
+    link: "https://www.majorgeeks.com",
+    category: "Download",
+    icon: Download,
+  },
+  {
+    name: "FossHub",
+    description: "Fast mirrors for open-source desktop software distributions.",
+    link: "https://www.fosshub.com",
+    category: "Download",
+    icon: Download,
+  },
+  {
+    name: "Ninite",
+    description: "Install and update multiple popular apps with one lightweight installer.",
+    link: "https://ninite.com",
+    category: "Download",
+    icon: Download,
+  },
+  {
+    name: "AlternativeTo",
+    description: "Find software alternatives by platform, pricing model, and features.",
+    link: "https://alternativeto.net",
+    category: "Download",
+    icon: Download,
+  },
   {
     name: "MDN Web Docs",
     description: "Authoritative HTML, CSS, and JavaScript documentation.",
