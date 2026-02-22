@@ -7,7 +7,7 @@ export const MainLayout = () => {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <StarBackground />
-      <main className="relative z-10 pb-28">
+      <main className="relative z-10 pt-28 pb-20 md:pt-30">
         <Outlet />
       </main>
       <Footer />

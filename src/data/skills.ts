@@ -29,8 +29,8 @@ export const skills = [
 ]
 
 export const skillCategories = [
-  { id: "all", label: "All Skills", color: "bg-gradient-to-r from-purple-500 to-pink-500" },
-  { id: "frontend", label: "Frontend", color: "bg-gradient-to-r from-blue-500 to-cyan-500" },
+  { id: "all", label: "All Skills", color: "bg-gradient-to-r from-red-500 to-rose-500" },
+  { id: "frontend", label: "Frontend", color: "bg-gradient-to-r from-red-500 to-orange-500" },
   { id: "backend", label: "Backend", color: "bg-gradient-to-r from-green-500 to-emerald-500" },
   { id: "tools", label: "Tools", color: "bg-gradient-to-r from-orange-500 to-yellow-500" },
 ]
