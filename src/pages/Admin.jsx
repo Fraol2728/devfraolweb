@@ -1,4 +1,4 @@
-import { AdminLayout } from "@/pages/AdminLayout";
+import { AdminLayout } from "@/pages/admin/AdminLayout";
 
 export const Admin = () => {
   return <AdminLayout />;
