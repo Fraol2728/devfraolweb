@@ -1,47 +1,138 @@
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
-import { appsCatalog } from "@/data/apps";
+import { ArrowLeft, ArrowUpRight, Search } from "lucide-react";
+import { Link } from "react-router-dom";
+import { toast } from "@/hooks/useToastStore";
+import { ResourceCategory } from "./ResourceCategory";
 
-export const AppDetail = () => {
-  const { appId } = useParams();
-  const app = appsCatalog.find((item) => item.id === appId);
+export const AppDetail = ({ title, description, icon: Icon, features = [], demoUrl, categoryData = null, resources = [] }) => {
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("All");
 
-  if (!app) {
-    return (
-      <section className="px-4 py-20 sm:px-6">
-        <div className="mx-auto max-w-4xl rounded-3xl border border-white/10 bg-white/5 p-8 text-left backdrop-blur-xl">
-          <h1 className="text-3xl font-bold">App not found</h1>
-          <Link to="/apps" className="mt-6 inline-flex items-center gap-2 font-semibold text-[#FF3B30]">
-            <ArrowLeft className="h-4 w-4" /> Back to Apps
-          </Link>
-        </div>
-      </section>
-    );
-  }
+  const categories = useMemo(() => {
+    if (!categoryData?.length) return ["All"];
+    return ["All", ...new Set(categoryData.map((item) => item.category))];
+  }, [categoryData]);
 
-  const Icon = app.icon;
+  const filteredCategories = useMemo(() => {
+    if (!categoryData?.length) return [];
+    const cleanQuery = query.trim().toLowerCase();
+
+    return categoryData.filter((item) => {
+      const categoryMatch = category === "All" || item.category === category;
+      const queryMatch = !cleanQuery || `${item.name} ${item.description} ${item.link}`.toLowerCase().includes(cleanQuery);
+      return categoryMatch && queryMatch;
+    });
+  }, [categoryData, category, query]);
+
+  const handleOpenApp = () => {
+    toast({
+      title: "App launched",
+      description: `Opened ${title}`,
+    });
+  };
 
   return (
-    <section className="px-4 py-16 sm:px-6">
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-4xl rounded-3xl border border-white/10 bg-white/5 p-8 text-left backdrop-blur-2xl">
-        <Link to="/apps" className="inline-flex items-center gap-2 text-sm font-semibold text-[#FF3B30] hover:underline">
-          <ArrowLeft className="h-4 w-4" /> Back to Apps
-        </Link>
-        <div className="mt-6 inline-flex rounded-2xl bg-[#FF3B30]/20 p-4 text-[#FF3B30]">
-          <Icon className="h-8 w-8" />
-        </div>
-        <h1 className="mt-5 text-4xl font-extrabold">{app.name}</h1>
-        <p className="mt-4 text-lg text-foreground/75">{app.description}</p>
-        <div className="mt-8 rounded-2xl border border-white/10 bg-black/25 p-5">
-          <h2 className="text-xl font-bold">How this app works</h2>
-          <p className="mt-3 text-foreground/75">Paste your source, choose options, and process your request. The UI is modular and ready for backend API connection for production behavior.</p>
-        </div>
-        <button className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#FF3B30] px-5 py-3 font-semibold text-white transition hover:shadow-[0_12px_30px_rgba(255,59,48,0.35)]">
-          Launch App
-          <ArrowUpRight className="h-4 w-4" />
-        </button>
-      </motion.div>
-    </section>
+    <main className="px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 text-left">
+        <motion.section initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-10">
+          <div className="inline-flex rounded-2xl bg-[#FF3B30]/15 p-4 text-[#FF3B30]">
+            <Icon className="h-8 w-8" />
+          </div>
+          <h1 className="mt-5 text-4xl font-black sm:text-5xl">{title}</h1>
+          <p className="mt-4 max-w-3xl text-base text-foreground/75 sm:text-lg">{description}</p>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <button onClick={handleOpenApp} type="button" className="inline-flex items-center gap-2 rounded-xl border border-[#FF3B30]/70 bg-[#FF3B30]/85 px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(255,59,48,0.35)] backdrop-blur-xl transition hover:scale-[1.03] hover:shadow-[0_16px_35px_rgba(255,59,48,0.45)]">
+              Open App
+              <ArrowUpRight className="h-4 w-4" />
+            </button>
+            <Link to="/apps" className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-foreground backdrop-blur-xl transition hover:scale-[1.02] hover:border-[#FF3B30]/60 hover:text-[#FF3B30]">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Apps
+            </Link>
+            <a href="#details" className="inline-flex items-center rounded-xl border border-white/20 bg-black/30 px-5 py-3 text-sm font-semibold text-foreground/90 transition hover:border-[#FF3B30]/60 hover:text-[#FF3B30]">
+              Explore Details
+            </a>
+          </div>
+        </motion.section>
+
+        <section id="details" className="scroll-mt-24">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-9">
+            <h2 className="text-2xl font-bold sm:text-3xl">Features & Instructions</h2>
+            <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {features.map((feature, index) => (
+                <motion.article key={feature} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.06 }} className="rounded-2xl border border-white/10 bg-black/30 p-5">
+                  <p className="text-sm leading-relaxed text-foreground/80">{feature}</p>
+                </motion.article>
+              ))}
+            </div>
+
+            {demoUrl && (
+              <div className="mt-8 rounded-2xl border border-white/10 bg-black/25 p-5">
+                <h3 className="text-lg font-semibold">Quick Demo</h3>
+                <a href={demoUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-xl bg-[#FF3B30] px-4 py-2 text-sm font-semibold text-white transition hover:shadow-[0_10px_25px_rgba(255,59,48,0.35)]">
+                  Watch Demo
+                  <ArrowUpRight className="h-4 w-4" />
+                </a>
+              </div>
+            )}
+          </motion.div>
+        </section>
+
+        {categoryData?.length > 0 && (
+          <section className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-9">
+            <h2 className="text-2xl font-bold sm:text-3xl">Website Categories</h2>
+            <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-white/10 bg-black/30 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <label className="relative w-full sm:max-w-sm">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/45" />
+                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search websites" className="w-full rounded-xl border border-white/10 bg-black/25 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#FF3B30]/65" />
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {categories.map((item) => (
+                  <motion.button key={item} type="button" whileTap={{ scale: 0.96 }} onClick={() => setCategory(item)} className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${category === item ? "bg-[#FF3B30] text-white" : "border border-white/10 text-foreground/75 hover:border-[#FF3B30]/50 hover:text-[#FF3B30]"}`}>
+                    {item}
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <ResourceCategory websites={filteredCategories} />
+            </div>
+          </section>
+        )}
+
+        <section className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-9">
+          <h2 className="text-2xl font-bold">Additional Resources</h2>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {resources.map((resource) => {
+              const isExternal = resource.link?.startsWith("http");
+
+              if (isExternal) {
+                return (
+                  <a key={resource.name} href={resource.link} target="_blank" rel="noreferrer" className="rounded-xl border border-white/10 bg-black/30 px-4 py-2 text-sm font-semibold text-foreground transition hover:border-[#FF3B30]/60 hover:text-[#FF3B30]">
+                    {resource.name}
+                  </a>
+                );
+              }
+
+              return (
+                <Link key={resource.name} to={resource.link} className="rounded-xl border border-white/10 bg-black/30 px-4 py-2 text-sm font-semibold text-foreground transition hover:border-[#FF3B30]/60 hover:text-[#FF3B30]">
+                  {resource.name}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        <footer className="pb-2">
+          <Link to="/apps" className="inline-flex items-center gap-2 rounded-xl border border-[#FF3B30]/55 bg-[#FF3B30]/15 px-5 py-3 text-sm font-semibold text-[#FF3B30] transition hover:scale-[1.02]">
+            Return to Apps Page
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </footer>
+      </div>
+    </main>
   );
 };

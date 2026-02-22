@@ -47,7 +47,13 @@ function App() {
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogDetail />} />
                 <Route path="/apps" element={<Apps />} />
-                <Route path="/apps/:appId" element={<AppDetail />} />
+                <Route path="/apps/youtube-downloader" element={<AppDetail appId="youtube-downloader" />} />
+                <Route path="/apps/tiktok-downloader" element={<AppDetail appId="tiktok-downloader" />} />
+                <Route path="/apps/instagram-downloader" element={<AppDetail appId="instagram-downloader" />} />
+                <Route path="/apps/background-remover" element={<AppDetail appId="background-remover" />} />
+                <Route path="/apps/code-editor" element={<AppDetail appId="code-editor" />} />
+                <Route path="/apps/file-converter" element={<AppDetail appId="file-converter" />} />
+                <Route path="/apps/web-recommended" element={<AppDetail appId="web-recommended" />} />
                 <Route path="/code-editor" element={<CodeEditor />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/login" element={<Login />} />
