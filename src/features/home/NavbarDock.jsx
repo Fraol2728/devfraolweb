@@ -7,9 +7,9 @@ const dockItems = [
   { label: "Home", to: "/", icon: House },
   { label: "Courses", to: "/courses", icon: BookOpen },
   { label: "Apps", to: "/apps", icon: Smartphone },
-  { label: "Instructor", to: "/instructor", icon: UserRound },
+  { label: "Instructor", to: "/instructors", icon: UserRound },
   { label: "Testimonials", to: "/testimonials", icon: MessagesSquare },
-  { label: "Blog", to: "/blog", icon: NotebookPen },
+  { label: "Blog", to: "/blogs", icon: NotebookPen },
   { label: "Contact", to: "/contact", icon: Mail },
 ];
 
