@@ -28,11 +28,11 @@ const WelcomeScreen = ({ onWelcomeComplete }) => {
   };
 
   const currentColors = colors[theme] || colors.dark;
-  const portfolioUrl = "www.devlyhub.in";
+  const portfolioUrl = "www.devfraol.academy";
   const welcomeMessages = [
-    "Crafting digital experiences",
-    "Software Engineer",
-    "Full-stack development"
+    "Booting Dev Fraol Academy",
+    "Web Development Track",
+    "Graphic Design Track"
   ];
 
   useEffect(() => {
@@ -194,7 +194,7 @@ const WelcomeScreen = ({ onWelcomeComplete }) => {
                 style={{ color: currentColors.primary }}
                 variants={contentVariants}
               >
-                <span className="inline-block">Hello</span>
+                <span className="inline-block">Welcome</span>
                 <motion.span 
                   className="inline-block ml-2 sm:ml-3 relative"
                   style={{ color: currentColors.secondary }}

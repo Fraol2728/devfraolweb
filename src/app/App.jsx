@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { Home } from "@/pages/Home";
-import { AboutPage } from "@/pages/AboutPage";
-import { SkillsPage } from "@/pages/SkillsPage";
-import { ProjectsPage } from "@/pages/ProjectsPage";
-import { TestimonialsPage } from "@/pages/TestimonialsPage";
-import { ContactPage } from "@/pages/ContactPage";
-import { NotFound } from "@/pages/NotFound";
 import WelcomeScreen from "@/components/common/WelcomeScreen";
 import { Analytics } from "@vercel/analytics/react";
 import { AppProviders } from "@/app/providers";
 import { MainLayout } from "@/pages/MainLayout";
+import { Home } from "@/pages/Home";
+import { Courses } from "@/pages/Courses";
+import { CourseDetail } from "@/pages/CourseDetail";
+import { Instructor } from "@/pages/Instructor";
+import { Testimonials } from "@/pages/Testimonials";
+import { Contact } from "@/pages/Contact";
+import { NotFound } from "@/pages/NotFound";
 
 function App() {
   const [welcomeComplete, setWelcomeComplete] = useState(false);
@@ -24,11 +24,11 @@ function App() {
           <Routes>
             <Route element={<MainLayout />}>
               <Route path="/" element={<Home />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/skills" element={<SkillsPage />} />
-              <Route path="/projects" element={<ProjectsPage />} />
-              <Route path="/testimonials" element={<TestimonialsPage />} />
-              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/courses" element={<Courses />} />
+              <Route path="/courses/:slug" element={<CourseDetail />} />
+              <Route path="/instructor" element={<Instructor />} />
+              <Route path="/testimonials" element={<Testimonials />} />
+              <Route path="/contact" element={<Contact />} />
             </Route>
             <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFound />} />
