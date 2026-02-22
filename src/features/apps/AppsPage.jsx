@@ -1,217 +1,110 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useTheme } from "next-themes";
-import { ArrowRight, Moon, Sparkles, Sun } from "lucide-react";
-import { useLocation } from "react-router-dom";
-import { appsCatalog } from "@/data/apps";
-import { apiFetch } from "@/lib/api";
-import { AppCard } from "@/features/apps/AppCard";
-import { ResourceCard } from "@/features/apps/ResourceCard";
-import { SearchFilter } from "@/features/apps/SearchFilter";
-import { FileConverter } from "@/features/apps/FileConverter";
-import { VideoDownloader } from "@/features/apps/VideoDownloader";
-import { BackgroundRemover } from "@/features/apps/BackgroundRemover";
-import { CodeEditor } from "@/features/apps/CodeEditor";
+import { Search } from "lucide-react";
+import { Link } from "react-router-dom";
+import { appsCatalog, webRecommendations } from "@/data/apps";
 
-const categories = ["All", "Converters", "Downloaders", "Editors"];
-
-const API_ENDPOINTS = {
-  convert: "/api/convert",
-  videoDownload: "/api/video/download",
-  backgroundRemove: "/api/bg-remove",
-  codeRun: "/api/code/run",
-  resources: "/api/resources",
-};
-
-const toolComponents = {
-  converter: FileConverter,
-  downloader: VideoDownloader,
-  "background-remover": BackgroundRemover,
-  "code-editor": CodeEditor,
-};
+const appCategories = ["All", "Downloaders", "Editors", "Converters"];
+const webCategories = ["All", "Documentation", "Design", "Learning", "Tools"];
 
 export const AppsPage = () => {
-  const { resolvedTheme, setTheme } = useTheme();
-  const { hash } = useLocation();
-  const [query, setQuery] = useState("");
-  const [apps, setApps] = useState(appsCatalog.map((a) => ({ ...a, title: a.name })));
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [activeTool, setActiveTool] = useState("converter");
-  const [highlightedAppId, setHighlightedAppId] = useState("");
-  const [resourceQuery, setResourceQuery] = useState("");
-  const [resources, setResources] = useState([]);
-  const [isResourcesLoading, setIsResourcesLoading] = useState(false);
-  const isDark = resolvedTheme !== "light";
-
-  useEffect(() => {
-    setIsResourcesLoading(true);
-    Promise.all([apiFetch("/api/catalog/resources"), apiFetch("/api/catalog/apps")])
-      .then(([resourcesRes, appsRes]) => {
-        setResources(Array.isArray(resourcesRes.data) ? resourcesRes.data : []);
-        if (Array.isArray(appsRes.data) && appsRes.data.length) {
-          const normalizedApps = appsRes.data.map((app) => {
-            const fallback = appsCatalog.find((entry) => entry.id === app.id);
-            return {
-              id: app.id,
-              name: app.title,
-              title: app.title,
-              description: app.description,
-              buttonLabel: "Use Tool",
-              category: app.category,
-              tool: app.tool || "converter",
-              icon: fallback?.icon,
-              featuredLabel: app.featured ? "Featured" : "",
-            };
-          });
-          setApps(normalizedApps);
-        }
-      })
-      .catch(() => {
-        setResources([]);
-      })
-      .finally(() => setIsResourcesLoading(false));
-  }, []);
-
-  useEffect(() => {
-    if (!hash) return;
-
-    const appId = hash.replace("#", "");
-    const selectedApp = apps.find((app) => app.id === appId);
-
-    if (!selectedApp) return;
-
-    setActiveTool(selectedApp.tool);
-    setHighlightedAppId(appId);
-
-    requestAnimationFrame(() => {
-      const targetSection = document.getElementById(appId);
-      targetSection?.scrollIntoView({ behavior: "smooth", block: "center" });
-    });
-
-    const timeoutId = window.setTimeout(() => {
-      setHighlightedAppId("");
-    }, 1800);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [hash, apps]);
+  const [appQuery, setAppQuery] = useState("");
+  const [appCategory, setAppCategory] = useState("All");
+  const [webQuery, setWebQuery] = useState("");
+  const [webCategory, setWebCategory] = useState("All");
 
   const filteredApps = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-
-    return apps.filter((app) => {
-      const categoryMatch = activeCategory === "All" || app.category === activeCategory;
-      const queryMatch = !normalized || `${app.name} ${app.description}`.toLowerCase().includes(normalized);
+    const q = appQuery.trim().toLowerCase();
+    return appsCatalog.filter((app) => {
+      const categoryMatch = appCategory === "All" || app.category === appCategory;
+      const queryMatch = !q || `${app.name} ${app.description}`.toLowerCase().includes(q);
       return categoryMatch && queryMatch;
     });
-  }, [query, activeCategory, apps]);
+  }, [appQuery, appCategory]);
 
-  const ActiveTool = toolComponents[activeTool] ?? VideoDownloader;
-
-  const filteredResources = useMemo(() => {
-    const normalizedQuery = resourceQuery.trim().toLowerCase();
-    return resources.filter((resource) => {
-      if (!normalizedQuery) return true;
-      return `${resource.title ?? ""} ${resource.description ?? ""} ${resource.link ?? ""}`.toLowerCase().includes(normalizedQuery);
+  const filteredWebsites = useMemo(() => {
+    const q = webQuery.trim().toLowerCase();
+    return webRecommendations.filter((item) => {
+      const categoryMatch = webCategory === "All" || item.category === webCategory;
+      const queryMatch = !q || `${item.name} ${item.description} ${item.link}`.toLowerCase().includes(q);
+      return categoryMatch && queryMatch;
     });
-  }, [resourceQuery, resources]);
+  }, [webQuery, webCategory]);
 
   return (
     <main className="px-4 py-14 sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-6xl">
-        <motion.header
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-          className="rounded-3xl border border-border/65 bg-gradient-to-br from-card/80 to-card/40 px-6 py-10 shadow-[0_16px_40px_rgba(0,0,0,0.2)] backdrop-blur-2xl"
-        >
+      <div className="mx-auto w-full max-w-6xl text-left">
+        <motion.header initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="rounded-3xl border border-white/10 bg-white/5 px-6 py-10 backdrop-blur-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#FF3B30]">Dev Fraol Academy</p>
-          <h1 className="mt-3 text-4xl font-extrabold text-foreground sm:text-5xl">Apps & Resources Hub</h1>
-          <p className="mt-4 max-w-3xl text-base text-foreground/75 sm:text-lg">
-            Responsive, animated utilities with dark-red branding. Each module is structured for future API/backend integration.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#FF3B30]/40 bg-[#FF3B30]/10 px-4 py-2 text-sm font-semibold text-[#FF3B30]">
-              <Sparkles className="h-4 w-4" />
-              Featured: File Converter
-            </div>
-            <button
-              type="button"
-              onClick={() => setTheme(isDark ? "light" : "dark")}
-              className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/60 px-4 py-2 text-sm font-semibold text-foreground/85 backdrop-blur transition-all duration-300 hover:border-[#FF3B30]/60 hover:text-[#FF3B30]"
-              aria-label="Toggle dark and light mode"
-            >
-              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              {isDark ? "Light mode" : "Dark mode"}
-            </button>
-          </div>
+          <h1 className="mt-3 text-4xl font-extrabold sm:text-5xl">Apps</h1>
+          <p className="mt-4 max-w-3xl text-foreground/75">Discover every utility app in one place. Open any card for its dedicated detail page.</p>
         </motion.header>
 
-        <section className="mt-10" aria-label="Apps catalog">
-          <SearchFilter
-            query={query}
-            onQueryChange={setQuery}
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-            categories={categories}
-          />
-
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {filteredApps.map((app, index) => (
-              <AppCard key={app.id} app={app} index={index} onSelectTool={setActiveTool} isHighlighted={highlightedAppId === app.id} />
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-10" aria-label="Tool workspace">
-          <motion.div initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} className="grid gap-5 lg:grid-cols-2">
-            <ActiveTool endpoints={API_ENDPOINTS} />
-            <div className="rounded-2xl border border-border/70 bg-card/45 p-5 backdrop-blur-xl">
-              <h3 className="text-xl font-bold text-foreground">Integration Notes</h3>
-              <ul className="mt-3 space-y-2 text-sm text-foreground/75">
-                <li>• API endpoints are passed from AppsPage to every tool component as props.</li>
-                <li>• Upload/download flows now call your Express endpoints and return live results.</li>
-                <li>• Progress states, toaster notifications, and error boundaries are handled per module.</li>
-                <li>• Components remain modular for future admin features and backend extensions.</li>
-              </ul>
+        <section className="mt-10">
+          <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+            <label className="relative w-full sm:max-w-sm">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/45" />
+              <input value={appQuery} onChange={(e) => setAppQuery(e.target.value)} placeholder="Search apps" className="w-full rounded-xl border border-white/10 bg-black/25 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#FF3B30]/65" />
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {appCategories.map((category) => (
+                <button key={category} type="button" onClick={() => setAppCategory(category)} className={`rounded-full px-3 py-1.5 text-xs font-semibold ${appCategory === category ? "bg-[#FF3B30] text-white" : "border border-white/10 text-foreground/75 hover:border-[#FF3B30]/50 hover:text-[#FF3B30]"}`}>
+                  {category}
+                </button>
+              ))}
             </div>
-          </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {filteredApps.map((app, index) => {
+              const Icon = app.icon;
+              return (
+                <motion.article key={app.id} initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.06 }} whileHover={{ scale: 1.03, y: -5 }} className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-2xl hover:shadow-[0_14px_30px_rgba(255,59,48,0.2)]">
+                  <div className="inline-flex rounded-xl bg-[#FF3B30]/15 p-3 text-[#FF3B30]">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-4 text-xl font-bold">{app.name}</h3>
+                  <p className="mt-2 text-sm text-foreground/75">{app.description}</p>
+                  <Link to={`/apps/${app.id}`} className="mt-5 inline-flex items-center rounded-lg bg-[#FF3B30] px-4 py-2 text-sm font-semibold text-white transition hover:shadow-[0_8px_22px_rgba(255,59,48,0.35)]">
+                    Open App
+                  </Link>
+                </motion.article>
+              );
+            })}
+          </div>
         </section>
 
         <section className="mt-16">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.35 }}
-            className="mb-8"
-          >
-            <h2 className="text-3xl font-bold text-foreground">Recommended Resources</h2>
-            <p className="mt-2 text-foreground/70">Fetched dynamically from your backend API with copy and quick-visit actions.</p>
-            <a href="#" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#FF3B30] transition-all duration-300 hover:translate-x-1">
-              Explore more resource collections
-              <ArrowRight className="h-4 w-4" />
-            </a>
-          </motion.div>
+          <h2 className="text-3xl font-bold">Web Recommended</h2>
+          <p className="mt-2 text-foreground/75">Massive collection of useful websites with category filters and search.</p>
 
-          <div className="space-y-6">
-            <input
-              value={resourceQuery}
-              onChange={(event) => setResourceQuery(event.target.value)}
-              placeholder="Search recommended resources"
-              className="w-full rounded-xl border border-border/80 bg-background/60 px-3 py-2.5 text-sm outline-none focus:border-[#FF3B30]/70"
-            />
-
-            {isResourcesLoading ? <p className="text-sm text-foreground/70">Loading resources...</p> : null}
-
-            {!isResourcesLoading && filteredResources.length === 0 ? (
-              <p className="rounded-xl border border-border/65 bg-card/40 p-4 text-sm text-foreground/75">No resources found from the backend response.</p>
-            ) : null}
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {filteredResources.map((resource, index) => (
-                <ResourceCard key={resource.id ?? `${resource.link}-${index}`} resource={resource} index={index} />
+          <div className="mt-6 mb-6 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+            <label className="relative w-full sm:max-w-sm">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/45" />
+              <input value={webQuery} onChange={(e) => setWebQuery(e.target.value)} placeholder="Search websites" className="w-full rounded-xl border border-white/10 bg-black/25 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#FF3B30]/65" />
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {webCategories.map((category) => (
+                <button key={category} type="button" onClick={() => setWebCategory(category)} className={`rounded-full px-3 py-1.5 text-xs font-semibold ${webCategory === category ? "bg-[#FF3B30] text-white" : "border border-white/10 text-foreground/75 hover:border-[#FF3B30]/50 hover:text-[#FF3B30]"}`}>
+                  {category}
+                </button>
               ))}
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {filteredWebsites.map((site, index) => {
+              const Icon = site.icon;
+              return (
+                <motion.a key={site.name} href={site.link} target="_blank" rel="noreferrer" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.04 }} whileHover={{ y: -4 }} className="block rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl hover:border-[#FF3B30]/55">
+                  <span className="inline-flex rounded-lg bg-[#FF3B30]/15 p-2 text-[#FF3B30]">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <h3 className="mt-3 font-bold">{site.name}</h3>
+                  <p className="mt-2 text-sm text-foreground/70">{site.description}</p>
+                </motion.a>
+              );
+            })}
           </div>
         </section>
       </div>

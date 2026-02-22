@@ -107,18 +107,22 @@ export const Hero = () => {
             Learn in a practice-first curriculum with guided modules, mentor-style explanations, and project workflows that mirror creative tech teams.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <Link
-              to="/courses"
-              className="inline-flex items-center justify-center rounded-lg bg-[#FF3B30] px-7 py-3 text-base font-semibold text-white transition hover:bg-[#ff5449]"
-            >
-              Start Learning
-            </Link>
-            <Link
-              to="/code-editor"
-              className="inline-flex items-center justify-center rounded-lg bg-[#1E1E1E] px-7 py-3 text-base font-semibold text-white transition hover:bg-[#FF3B30]"
-            >
-              Editor
-            </Link>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+              <Link
+                to="/courses"
+                className="inline-flex items-center justify-center rounded-lg bg-[#FF3B30] px-7 py-3 text-base font-semibold text-white transition hover:shadow-[0_0_20px_rgba(255,59,48,0.4)]"
+              >
+                Start Learning
+              </Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+              <Link
+                to="/apps"
+                className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-[#1E1E1E] px-7 py-3 text-base font-semibold text-white transition hover:border-[#FF3B30]/60 hover:text-[#FF3B30]"
+              >
+                Apps
+              </Link>
+            </motion.div>
           </div>
         </motion.div>
 

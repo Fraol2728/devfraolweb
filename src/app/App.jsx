@@ -18,6 +18,7 @@ import { NotFound } from "@/pages/NotFound";
 import { CodeEditor } from "@/pages/CodeEditor";
 import { Apps } from "@/pages/Apps";
 import { Admin } from "@/pages/Admin";
+import { AppDetail } from "@/pages/AppDetail";
 
 function App() {
   const [welcomeComplete, setWelcomeComplete] = useState(false);
@@ -41,6 +42,7 @@ function App() {
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogDetail />} />
               <Route path="/apps" element={<Apps />} />
+              <Route path="/apps/:appId" element={<AppDetail />} />
               <Route path="/code-editor" element={<CodeEditor />} />
               <Route path="/admin" element={<Admin />} />
             </Route>
