@@ -55,13 +55,13 @@ export const Navbar = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45 }}
-      className="fixed top-3 left-1/2 -translate-x-1/2 z-50 w-[min(96%,56rem)]"
+      className="sticky top-3 z-50 mx-auto w-[min(96%,56rem)]"
     >
       <div
         className={cn(
-          "flex items-center justify-between gap-1 rounded-2xl border px-2 py-2 backdrop-blur-xl transition-all duration-300",
-          "bg-background/55 shadow-[0_8px_30px_rgba(0,0,0,0.16)]",
-          isScrolled ? "border-primary/35" : "border-border/70"
+          "flex items-center justify-between gap-1 rounded-2xl border px-2 py-2 transition-all duration-300",
+          "bg-background/60 supports-[backdrop-filter]:bg-background/45 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_12px_35px_rgba(0,0,0,0.2)]",
+          isScrolled ? "border-primary/35 shadow-[0_16px_40px_rgba(255,59,48,0.15)]" : "border-border/70"
         )}
       >
         <div className="flex items-center gap-1">
@@ -79,7 +79,7 @@ export const Navbar = () => {
                     : "text-foreground/75 hover:text-foreground hover:bg-primary/10"
                 )}
               >
-                <item.icon className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+                <item.icon className="h-4 w-4 transition-transform duration-300 group-hover:scale-115 group-hover:-translate-y-0.5" />
                 <span className="hidden sm:inline">{item.name}</span>
               </Link>
             );

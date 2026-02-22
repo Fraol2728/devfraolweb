@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { SendHorizontal } from "lucide-react";
+import { LoaderCircle, SendHorizontal } from "lucide-react";
 import { toast } from "@/hooks/useToastStore";
 
 export const NewsletterForm = () => {
@@ -18,7 +18,13 @@ export const NewsletterForm = () => {
 
     setLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 800));
+    const failed = Math.random() < 0.2;
     setLoading(false);
+
+    if (failed) {
+      toast({ title: "Subscription failed", description: "Please try again in a moment.", variant: "destructive" });
+      return;
+    }
 
     toast({ title: "Subscribed", description: "You're now on the Dev Fraol Academy newsletter.", variant: "success" });
     setEmail("");
@@ -51,7 +57,7 @@ export const NewsletterForm = () => {
               className="cosmic-button inline-flex items-center justify-center gap-2 disabled:opacity-70"
             >
               {loading ? "Submitting..." : "Subscribe"}
-              <SendHorizontal className="h-4 w-4" />
+              {loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <SendHorizontal className="h-4 w-4" />}
             </motion.button>
           </form>
         </motion.div>

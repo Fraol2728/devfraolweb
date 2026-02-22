@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { courses } from "@/data/courses";
+import { cardReveal, staggerContainer } from "@/lib/animations";
 
 export const HomeCoursesSection = () => {
   return (
@@ -8,14 +9,18 @@ export const HomeCoursesSection = () => {
       <div className="container max-w-6xl mx-auto text-left">
         <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">Featured Courses</h2>
         <p className="text-muted-foreground mb-8 text-lg">Build practical skills with Dev Fraol's most popular learning paths.</p>
-        <div className="grid md:grid-cols-2 gap-6">
-          {courses.slice(0, 4).map((course, index) => (
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          className="grid md:grid-cols-2 gap-6"
+        >
+          {courses.slice(0, 4).map((course) => (
             <motion.article
               key={course.slug}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.08 }}
+              variants={cardReveal}
+              transition={{ duration: 0.4 }}
               className="rounded-2xl border border-border bg-card/70 p-6 card-hover"
             >
               <p className="text-xs uppercase tracking-wide text-primary">{course.category}</p>
@@ -30,7 +35,7 @@ export const HomeCoursesSection = () => {
               </Link>
             </motion.article>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
