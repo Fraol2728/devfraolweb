@@ -1,16 +1,12 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { appsCatalog } from "@/data/apps";
 import { cardReveal, staggerContainer } from "@/lib/animations";
 
 export const FeaturedApps = () => {
   const navigate = useNavigate();
-  const featuredApps = appsCatalog;
-
-  const handleOpenApp = (appId) => {
-    navigate(`/apps#${appId}`);
-  };
+  const featuredApps = appsCatalog.slice(0, 4);
 
   return (
     <section id="featured-apps" className="px-4 py-16 sm:px-6">
@@ -19,13 +15,13 @@ export const FeaturedApps = () => {
           <div>
             <h2 className="text-3xl sm:text-4xl">Featured Apps</h2>
             <p className="mt-3 max-w-3xl text-muted-foreground">
-              Jump straight into our most-used tools. Each card opens the Apps hub and auto-focuses the selected utility.
+              Explore top utility apps and jump directly to each app page.
             </p>
           </div>
           <button
             type="button"
             onClick={() => navigate("/apps")}
-            className="rounded-xl border border-border/70 bg-card/50 px-4 py-2 text-sm font-semibold text-foreground transition hover:border-[#FF3B30]/60 hover:text-[#FF3B30]"
+            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-foreground backdrop-blur-xl transition hover:border-[#FF3B30]/60 hover:text-[#FF3B30]"
           >
             See More
           </button>
@@ -36,7 +32,7 @@ export const FeaturedApps = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
-          className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4"
+          className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4"
         >
           {featuredApps.map((app) => {
             const Icon = app.icon;
@@ -45,23 +41,18 @@ export const FeaturedApps = () => {
               <motion.article
                 key={app.id}
                 variants={cardReveal}
-                whileHover={{ y: -6, scale: 1.01 }}
-                transition={{ duration: 0.25 }}
-                className="group rounded-2xl border border-border/70 bg-linear-to-br from-card/85 to-card/45 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.2)] backdrop-blur-xl"
+                whileHover={{ y: -6, scale: 1.03 }}
+                className="group rounded-2xl border border-white/10 bg-white/5 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur-2xl"
               >
                 <div className="inline-flex rounded-xl bg-[#FF3B30]/15 p-3 text-[#FF3B30] transition-transform duration-300 group-hover:scale-110">
                   <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="mt-4 text-xl font-bold">{app.featuredLabel}</h3>
+                <h3 className="mt-4 text-xl font-bold">{app.shortName}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{app.description}</p>
-                <button
-                  type="button"
-                  onClick={() => handleOpenApp(app.id)}
-                  className="mt-5 inline-flex items-center gap-2 font-semibold text-[#FF3B30] hover:underline"
-                >
-                  Open Tool
+                <Link to={`/apps/${app.id}`} className="mt-5 inline-flex items-center gap-2 font-semibold text-[#FF3B30] hover:underline">
+                  Open App
                   <ArrowUpRight className="h-4 w-4" />
-                </button>
+                </Link>
               </motion.article>
             );
           })}
