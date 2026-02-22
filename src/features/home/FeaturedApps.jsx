@@ -47,9 +47,9 @@ export const FeaturedApps = () => {
                 <div className="inline-flex rounded-xl bg-[#FF3B30]/15 p-3 text-[#FF3B30] transition-transform duration-300 group-hover:scale-110">
                   <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="mt-4 text-xl font-bold">{app.shortName}</h3>
+                <h3 className="mt-4 text-xl font-bold">{app.name}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{app.description}</p>
-                <Link to={`/apps/${app.id}`} className="mt-5 inline-flex items-center gap-2 font-semibold text-[#FF3B30] hover:underline">
+                <Link to={app.route} className="mt-5 inline-flex items-center gap-2 font-semibold text-[#FF3B30] hover:underline">
                   Open App
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
