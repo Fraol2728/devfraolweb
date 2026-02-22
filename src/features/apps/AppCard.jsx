@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { AppWindow, ArrowUpRight } from "lucide-react";
 
 export const AppCard = ({ app, index, onSelectTool, isHighlighted = false }) => {
-  const Icon = app.icon;
+  const Icon = app.icon || AppWindow;
 
   return (
     <motion.article

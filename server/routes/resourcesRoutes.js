@@ -1,8 +1,7 @@
 import { Router } from "express";
-import { getResourcesController } from "../controllers/resources.js";
+import { getPublicResources } from "../controllers/catalogController.js";
 
 const router = Router();
-
-router.get("/", getResourcesController);
+router.get("/", getPublicResources);
 
 export default router;
