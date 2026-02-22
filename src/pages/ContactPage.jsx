@@ -1,5 +1,5 @@
-import { ContactSection } from "@/features/contact/Contact";
+import { ContactPage as ContactPageFeature } from "@/features/contact/ContactPage";
 
 export const ContactPage = () => {
-  return <ContactSection />;
+  return <ContactPageFeature />;
 };
