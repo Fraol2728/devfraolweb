@@ -1,272 +1,213 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { MenuBar } from "@/features/code-editor/MenuBar";
+import { FileExplorer } from "@/features/code-editor/FileExplorer";
 import { EditorPane } from "@/features/code-editor/EditorPane";
-import { PreviewPane, buildPreviewDocument } from "@/features/code-editor/PreviewPane";
 import { TabBar } from "@/features/code-editor/TabBar";
-import { Toolbar } from "@/features/code-editor/Toolbar";
-import { createProjectFromCourse, getLanguageMeta, starterExamples, supportedLanguages } from "@/data/examples";
+import { PreviewPane, buildPreviewDocument } from "@/features/code-editor/PreviewPane";
+import { Terminal } from "@/features/code-editor/Terminal";
+import { useFileSystem } from "@/hooks/useFileSystem";
 
-const STORAGE_KEY = "devfraol-editor-state-v2";
-const DEFAULT_SPLIT = 54;
-
-const copyToClipboard = async (content) => navigator.clipboard.writeText(content);
-
-const downloadFile = (fileName, content) => {
-  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = fileName;
-  link.click();
-  URL.revokeObjectURL(link.href);
+const appendLog = (setter, type, value) => {
+  setter((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, type, value }]);
 };
 
 export const CodeEditor = () => {
-  const editorActionsRef = useRef(null);
-  const [searchParams] = useSearchParams();
-  const [projects, setProjects] = useState(starterExamples);
-  const [activeProjectId, setActiveProjectId] = useState(starterExamples[0].id);
-  const [activeFileId, setActiveFileId] = useState(starterExamples[0].files[0].id);
-  const [previewDoc, setPreviewDoc] = useState("");
-  const [editorTheme, setEditorTheme] = useState("dark");
-  const [split, setSplit] = useState(DEFAULT_SPLIT);
-  const [isDragging, setIsDragging] = useState(false);
+  const { nodes, files, activeFile, activeFileId, tabFiles, setActiveFile, closeTab, createFile, createFolder, renameNode, deleteNode, updateFileContent } = useFileSystem();
+
+  const [leftVisible, setLeftVisible] = useState(true);
+  const [rightVisible, setRightVisible] = useState(true);
+  const [terminalVisible, setTerminalVisible] = useState(true);
+  const [leftWidth, setLeftWidth] = useState(260);
+  const [rightWidth, setRightWidth] = useState(360);
+  const [terminalHeight, setTerminalHeight] = useState(180);
+  const [expandedFolders, setExpandedFolders] = useState([]);
+  const [theme, setTheme] = useState("dark");
+  const [previewDevice, setPreviewDevice] = useState("desktop");
+  const [logs, setLogs] = useState([{ id: "boot", type: "log", value: "Terminal ready." }]);
+
+  const previewDoc = useMemo(() => buildPreviewDocument(files), [files]);
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) {
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed.projects) && parsed.projects.length > 0) {
-        setProjects(parsed.projects);
-        setActiveProjectId(parsed.activeProjectId || parsed.projects[0].id);
-        setEditorTheme(parsed.editorTheme || "dark");
-      }
-    } catch {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    const listener = (event) => {
+      if (event.data?.source !== "devfraol-preview") return;
+      appendLog(setLogs, event.data.type === "error" ? "error" : "log", event.data.value);
+    };
+    window.addEventListener("message", listener);
+    return () => window.removeEventListener("message", listener);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ projects, activeProjectId, editorTheme }));
-  }, [projects, activeProjectId, editorTheme]);
+    const onKeyDown = (event) => {
+      if (!event.ctrlKey) return;
 
-  useEffect(() => {
-    const course = searchParams.get("course");
-    if (!course) {
-      return;
-    }
-
-    const courseProject = createProjectFromCourse(course);
-    if (!courseProject) {
-      return;
-    }
-
-    setProjects((prev) => {
-      const existing = prev.find((project) => project.name.toLowerCase() === course.toLowerCase());
-      if (existing) {
-        setActiveProjectId(existing.id);
-        setActiveFileId(existing.files[0]?.id || "");
-        return prev;
+      if (event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        appendLog(setLogs, "log", "Save action triggered (placeholder).");
       }
 
-      return [courseProject, ...prev];
-    });
-
-    setActiveProjectId(courseProject.id);
-    setActiveFileId(courseProject.files[0]?.id || "");
-  }, [searchParams]);
-
-  const activeProject = useMemo(() => projects.find((project) => project.id === activeProjectId) || projects[0], [projects, activeProjectId]);
-
-  useEffect(() => {
-    if (!activeProject?.files.find((file) => file.id === activeFileId)) {
-      setActiveFileId(activeProject?.files[0]?.id || "");
-    }
-  }, [activeProject, activeFileId]);
-
-  const activeFile = useMemo(() => {
-    const file = activeProject?.files.find((item) => item.id === activeFileId) || activeProject?.files[0];
-    if (!file) {
-      return null;
-    }
-
-    return {
-      ...file,
-      monacoLanguage: getLanguageMeta(file.language).monaco,
-    };
-  }, [activeProject, activeFileId]);
-
-  useEffect(() => {
-    if (!activeProject || !activeFile) {
-      return;
-    }
-
-    const timeout = setTimeout(() => {
-      setPreviewDoc(buildPreviewDocument({ files: activeProject.files, activeLanguage: activeFile.language }));
-    }, 180);
-
-    return () => clearTimeout(timeout);
-  }, [activeProject, activeFile]);
-
-  useEffect(() => {
-    const onPointerMove = (event) => {
-      if (!isDragging) {
-        return;
+      if (event.key.toLowerCase() === "p") {
+        event.preventDefault();
+        const query = window.prompt("Find file:");
+        if (!query) return;
+        const found = files.find((file) => file.name.toLowerCase().includes(query.toLowerCase()));
+        if (found) {
+          setActiveFile(found.id);
+        }
       }
 
-      const percentage = Math.min(70, Math.max(30, (event.clientX / window.innerWidth) * 100));
-      setSplit(percentage);
+      if (event.key === "`") {
+        event.preventDefault();
+        setTerminalVisible((prev) => !prev);
+      }
     };
 
-    const onPointerUp = () => setIsDragging(false);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [files, setActiveFile]);
 
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", onPointerUp);
-    return () => {
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", onPointerUp);
-    };
-  }, [isDragging]);
-
-  const updateCode = (code) => {
-    if (!activeFile) {
-      return;
-    }
-
-    setProjects((prev) =>
-      prev.map((project) =>
-        project.id === activeProject.id
-          ? {
-              ...project,
-              files: project.files.map((file) => (file.id === activeFile.id ? { ...file, content: code } : file)),
-            }
-          : project
-      )
-    );
+  const handleCreateFile = (parentId) => {
+    const name = window.prompt("File name", "new-file.js");
+    if (!name) return;
+    createFile(parentId, name);
   };
 
-  const addProject = () => {
-    const id = `project-${Date.now()}`;
-    const newProject = {
-      id,
-      name: `Snippet ${projects.length + 1}`,
-      files: [
-        {
-          id: `file-${Date.now()}`,
-          name: "index.html",
-          language: "html",
-          content: "<main>\n  <h1>New project</h1>\n</main>",
-        },
-      ],
-    };
-
-    setProjects((prev) => [...prev, newProject]);
-    setActiveProjectId(id);
-    setActiveFileId(newProject.files[0].id);
+  const handleCreateFolder = (parentId) => {
+    const name = window.prompt("Folder name", "new-folder");
+    if (!name) return;
+    const folder = createFolder(parentId, name);
+    setExpandedFolders((prev) => [...prev, folder.id]);
   };
 
-  const addFile = () => {
-    const picked = supportedLanguages[(activeProject.files.length + 1) % supportedLanguages.length];
-    const file = {
-      id: `file-${Date.now()}`,
-      name: `untitled${picked.extension}`,
-      language: picked.id,
-      content: "",
-    };
-
-    setProjects((prev) => prev.map((project) => (project.id === activeProject.id ? { ...project, files: [...project.files, file] } : project)));
-    setActiveFileId(file.id);
+  const handleMenuAction = (action) => {
+    if (action === "new-file") handleCreateFile(null);
+    if (action === "save") appendLog(setLogs, "log", "Saved (placeholder).");
+    if (action === "delete" && activeFileId) deleteNode(activeFileId);
+    if (action === "toggle-terminal") setTerminalVisible((prev) => !prev);
+    if (action === "toggle-left") setLeftVisible((prev) => !prev);
+    if (action === "toggle-right") setRightVisible((prev) => !prev);
+    if (action === "run") appendLog(setLogs, "log", "Code executed.");
+    if (action === "help") appendLog(setLogs, "log", "Shortcuts: Ctrl+S, Ctrl+P, Ctrl+`.");
+    if (action === "find") document.dispatchEvent(new KeyboardEvent("keydown", { key: "f", ctrlKey: true }));
   };
-
-  const removeFile = (fileId) => {
-    if (activeProject.files.length <= 1) {
-      return;
-    }
-
-    const updatedFiles = activeProject.files.filter((file) => file.id !== fileId);
-    setProjects((prev) => prev.map((project) => (project.id === activeProject.id ? { ...project, files: updatedFiles } : project)));
-
-    if (activeFileId === fileId) {
-      setActiveFileId(updatedFiles[0].id);
-    }
-  };
-
-  if (!activeProject || !activeFile) {
-    return null;
-  }
-
-  const isDarkMode = editorTheme === "dark";
 
   return (
-    <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-auto w-[min(96%,1320px)] space-y-4 pb-36">
-      <div className="rounded-2xl border border-[#FF3B30]/30 bg-[#1E1E1E] p-4 text-white shadow-[0_18px_45px_rgba(255,59,48,0.15)]">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold">Dev Fraol Code Editor</h1>
-            <p className="text-sm text-white/65">Multi-language editor with live preview and VS Code-like toolbar.</p>
+    <section className={`${theme === "dark" ? "dark" : ""} h-screen w-screen overflow-hidden bg-[#1E1E1E] text-zinc-100`}>
+      <div className="flex h-full flex-col">
+        <MenuBar onAction={handleMenuAction} />
+
+        <div className="flex min-h-0 flex-1">
+          {leftVisible && (
+            <div className="relative border-r border-zinc-700" style={{ width: leftWidth }}>
+              <FileExplorer
+                nodes={nodes}
+                activeFileId={activeFileId}
+                expandedFolders={expandedFolders}
+                setExpandedFolders={setExpandedFolders}
+                onOpenFile={setActiveFile}
+                onCreateFile={handleCreateFile}
+                onCreateFolder={handleCreateFolder}
+                onRename={(id) => {
+                  const value = window.prompt("Rename to:");
+                  if (value) renameNode(id, value);
+                }}
+                onDelete={deleteNode}
+              />
+              <div
+                role="separator"
+                onPointerDown={(event) => {
+                  const startX = event.clientX;
+                  const initial = leftWidth;
+                  const onMove = (moveEvent) => setLeftWidth(Math.max(180, Math.min(420, initial + moveEvent.clientX - startX)));
+                  const onUp = () => {
+                    window.removeEventListener("pointermove", onMove);
+                    window.removeEventListener("pointerup", onUp);
+                  };
+                  window.addEventListener("pointermove", onMove);
+                  window.addEventListener("pointerup", onUp);
+                }}
+                className="absolute right-0 top-0 h-full w-1 cursor-col-resize bg-zinc-700"
+              />
+            </div>
+          )}
+
+          <div className="flex min-w-0 flex-1 flex-col">
+            <TabBar tabs={tabFiles} activeFileId={activeFileId} onSelectFile={setActiveFile} onCloseTab={closeTab} />
+            <div className="relative flex min-h-0 flex-1">
+              <div className="min-w-0 flex-1 bg-zinc-900">
+                {activeFile ? <EditorPane activeFile={activeFile} onChange={(value) => updateFileContent(activeFile.id, value)} theme={theme} /> : null}
+              </div>
+
+              {rightVisible && (
+                <div className="relative border-l border-zinc-700" style={{ width: rightWidth }}>
+                  <div className="flex h-9 items-center justify-end gap-1 border-b border-zinc-700 bg-zinc-900 px-2">
+                    {[
+                      { key: "desktop", label: "Desktop" },
+                      { key: "tablet", label: "Tablet" },
+                      { key: "mobile", label: "Mobile" },
+                    ].map((option) => (
+                      <button
+                        key={option.key}
+                        type="button"
+                        onClick={() => setPreviewDevice(option.key)}
+                        className={`rounded px-2 py-1 text-xs ${previewDevice === option.key ? "bg-[#FF3B30]/20 text-[#FF3B30]" : "text-zinc-300"}`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="h-[calc(100%-2.25rem)]">
+                    <PreviewPane srcDoc={previewDoc} device={previewDevice} />
+                  </div>
+                  <div
+                    role="separator"
+                    onPointerDown={(event) => {
+                      const startX = event.clientX;
+                      const initial = rightWidth;
+                      const onMove = (moveEvent) => setRightWidth(Math.max(260, Math.min(620, initial - (moveEvent.clientX - startX))));
+                      const onUp = () => {
+                        window.removeEventListener("pointermove", onMove);
+                        window.removeEventListener("pointerup", onUp);
+                      };
+                      window.addEventListener("pointermove", onMove);
+                      window.addEventListener("pointerup", onUp);
+                    }}
+                    className="absolute left-0 top-0 h-full w-1 cursor-col-resize bg-zinc-700"
+                  />
+                </div>
+              )}
+            </div>
+
+            {terminalVisible && (
+              <div className="relative border-t border-zinc-700" style={{ height: terminalHeight }}>
+                <div
+                  role="separator"
+                  className="absolute left-0 top-0 h-1 w-full cursor-row-resize bg-zinc-700"
+                  onPointerDown={(event) => {
+                    const startY = event.clientY;
+                    const initial = terminalHeight;
+                    const onMove = (moveEvent) => setTerminalHeight(Math.max(120, Math.min(360, initial - (moveEvent.clientY - startY))));
+                    const onUp = () => {
+                      window.removeEventListener("pointermove", onMove);
+                      window.removeEventListener("pointerup", onUp);
+                    };
+                    window.addEventListener("pointermove", onMove);
+                    window.addEventListener("pointerup", onUp);
+                  }}
+                />
+                <Terminal logs={logs} onClear={() => setLogs([])} />
+              </div>
+            )}
           </div>
-          <button
-            type="button"
-            onClick={addProject}
-            className="rounded-lg border border-[#FF3B30]/60 bg-[#FF3B30]/20 px-3 py-2 text-sm transition hover:bg-[#FF3B30]/35"
-          >
-            + New Snippet
-          </button>
         </div>
 
-        <div className="mb-3 flex flex-wrap gap-2">
-          {projects.map((project) => {
-            const active = project.id === activeProject.id;
-            return (
-              <button
-                key={project.id}
-                type="button"
-                onClick={() => setActiveProjectId(project.id)}
-                className={`rounded-lg border px-3 py-1.5 text-xs transition hover:border-[#FF3B30]/60 ${
-                  active ? "border-[#FF3B30] bg-[#FF3B30]/20 text-white" : "border-white/10 bg-white/5 text-white/70"
-                }`}
-              >
-                {project.name}
-              </button>
-            );
-          })}
-        </div>
-
-        <Toolbar
-          isDarkMode={isDarkMode}
-          onToggleTheme={() => setEditorTheme(isDarkMode ? "light" : "dark")}
-          onRun={() => setPreviewDoc(buildPreviewDocument({ files: activeProject.files, activeLanguage: activeFile.language }))}
-          onUndo={() => editorActionsRef.current?.undo()}
-          onRedo={() => editorActionsRef.current?.redo()}
-          onCopy={() => copyToClipboard(activeFile.content)}
-          onDownload={() => downloadFile(activeFile.name, activeFile.content)}
-        />
-
-        <div className="my-3">
-          <TabBar files={activeProject.files} activeFileId={activeFile.id} onSelectFile={setActiveFileId} onAddFile={addFile} onRemoveFile={removeFile} />
-        </div>
-
-        <div className="flex flex-col gap-3 lg:flex-row">
-          <div className="min-w-0" style={{ flexBasis: `${split}%` }}>
-            <EditorPane ref={editorActionsRef} activeFile={activeFile} onChange={updateCode} isDarkMode={isDarkMode} />
-          </div>
-
-          <div
-            className="hidden w-2 cursor-col-resize rounded-full bg-white/10 transition hover:bg-[#FF3B30]/60 lg:block"
-            onPointerDown={() => setIsDragging(true)}
-            role="separator"
-            aria-label="Resize panes"
-          />
-
-          <div className="min-w-0 flex-1" style={{ flexBasis: `${100 - split}%` }}>
-            <PreviewPane srcDoc={previewDoc} />
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={() => setTheme((prev) => (prev === "dark" ? "light" : "dark"))}
+          className="absolute bottom-3 right-3 rounded bg-[#FF3B30] px-3 py-1 text-xs text-white"
+        >
+          Toggle Theme
+        </button>
       </div>
-    </motion.section>
+    </section>
   );
 };
