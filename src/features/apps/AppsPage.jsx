@@ -1,21 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import {
   ArrowRight,
-  Bot,
-  Brush,
   Code2,
   FileCog,
   FileImage,
-  Figma,
-  Globe,
-  Instagram,
   Moon,
-  Palette,
   Sparkles,
   Sun,
-  Wrench,
+  Video,
 } from "lucide-react";
 import { AppCard } from "@/features/apps/AppCard";
 import { ResourceCard } from "@/features/apps/ResourceCard";
@@ -27,16 +21,16 @@ import { CodeEditor } from "@/features/apps/CodeEditor";
 
 const apps = [
   {
-    name: "Instagram Downloader",
-    description: "Input URL, generate a preview, and start downloads with a backend-ready placeholder fetch.",
+    name: "Video Downloader",
+    description: "Paste a YouTube/TikTok/Instagram URL, fetch details, and download through the backend.",
     buttonLabel: "Use Tool",
     category: "Downloaders",
-    icon: Instagram,
+    icon: Video,
     tool: "downloader",
   },
   {
     name: "Background Remover",
-    description: "Upload an image, simulate background removal, and export the processed preview instantly.",
+    description: "Upload an image, remove its background using the backend API, and download the result.",
     buttonLabel: "Use Tool",
     category: "Editors",
     icon: FileImage,
@@ -44,7 +38,7 @@ const apps = [
   },
   {
     name: "Online Code Editor",
-    description: "Multi-language editor with line numbers, theme-friendly UI, and JS/Python run preview flow.",
+    description: "Run JavaScript in-browser or execute code snippets through the backend runtime endpoint.",
     buttonLabel: "Use Tool",
     category: "Editors",
     icon: Code2,
@@ -52,7 +46,7 @@ const apps = [
   },
   {
     name: "File Converter",
-    description: "Pluggable file conversion UI that is modular and prepared for backend API integrations.",
+    description: "Drag files in, convert formats through the API, and auto-download the converted output.",
     buttonLabel: "Use Tool",
     category: "Converters",
     icon: FileCog,
@@ -60,26 +54,15 @@ const apps = [
   },
 ];
 
-const resourceGroups = {
-  "AI Websites": [
-    { name: "ChatGPT", description: "AI assistant for writing, coding, and ideation.", href: "https://chatgpt.com", icon: Bot },
-    { name: "Claude", description: "Conversational AI for analysis and long-form tasks.", href: "https://claude.ai", icon: Sparkles },
-  ],
-  "Software Downloads": [
-    { name: "VS Code", description: "Developer-focused source code editor from Microsoft.", href: "https://code.visualstudio.com", icon: Wrench },
-    { name: "Figma Desktop", description: "Collaborative design tooling for UI/UX teams.", href: "https://www.figma.com/downloads", icon: Figma },
-  ],
-  "Developer Tools": [
-    { name: "GitHub", description: "Code hosting, version control, and CI/CD workflows.", href: "https://github.com", icon: Globe },
-    { name: "Vite", description: "Fast frontend build tooling and development server.", href: "https://vite.dev", icon: Code2 },
-  ],
-  "Design Tools": [
-    { name: "Coolors", description: "Generate modern color palettes for web projects.", href: "https://coolors.co", icon: Palette },
-    { name: "Dribbble", description: "Discover design inspiration and creative portfolios.", href: "https://dribbble.com", icon: Brush },
-  ],
-};
-
 const categories = ["All", "Converters", "Downloaders", "Editors"];
+
+const API_ENDPOINTS = {
+  convert: "/api/convert",
+  videoDownload: "/api/video/download",
+  backgroundRemove: "/api/bg-remove",
+  codeRun: "/api/code/run",
+  resources: "/api/resources",
+};
 
 const toolComponents = {
   converter: FileConverter,
@@ -92,8 +75,39 @@ export const AppsPage = () => {
   const { resolvedTheme, setTheme } = useTheme();
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-  const [activeTool, setActiveTool] = useState("downloader");
+  const [activeTool, setActiveTool] = useState("converter");
+  const [resourceQuery, setResourceQuery] = useState("");
+  const [resources, setResources] = useState([]);
+  const [isResourcesLoading, setIsResourcesLoading] = useState(false);
   const isDark = resolvedTheme !== "light";
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadResources = async () => {
+      setIsResourcesLoading(true);
+      try {
+        const response = await fetch(API_ENDPOINTS.resources, { signal: controller.signal });
+        if (!response.ok) {
+          throw new Error("Unable to fetch resources right now.");
+        }
+
+        const data = await response.json();
+        const normalized = Array.isArray(data) ? data : data.resources;
+        setResources(Array.isArray(normalized) ? normalized : []);
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          setResources([]);
+        }
+      } finally {
+        setIsResourcesLoading(false);
+      }
+    };
+
+    loadResources();
+
+    return () => controller.abort();
+  }, []);
 
   const filteredApps = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -106,6 +120,14 @@ export const AppsPage = () => {
   }, [query, activeCategory]);
 
   const ActiveTool = toolComponents[activeTool] ?? VideoDownloader;
+
+  const filteredResources = useMemo(() => {
+    const normalizedQuery = resourceQuery.trim().toLowerCase();
+    return resources.filter((resource) => {
+      if (!normalizedQuery) return true;
+      return `${resource.title ?? ""} ${resource.description ?? ""} ${resource.link ?? ""}`.toLowerCase().includes(normalizedQuery);
+    });
+  }, [resourceQuery, resources]);
 
   return (
     <main className="px-4 py-14 sm:px-6 lg:px-8">
@@ -124,7 +146,7 @@ export const AppsPage = () => {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#FF3B30]/40 bg-[#FF3B30]/10 px-4 py-2 text-sm font-semibold text-[#FF3B30]">
               <Sparkles className="h-4 w-4" />
-              Featured: Instagram Downloader
+              Featured: File Converter
             </div>
             <button
               type="button"
@@ -156,14 +178,14 @@ export const AppsPage = () => {
 
         <section className="mt-10" aria-label="Tool workspace">
           <motion.div initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} className="grid gap-5 lg:grid-cols-2">
-            <ActiveTool />
+            <ActiveTool endpoints={API_ENDPOINTS} />
             <div className="rounded-2xl border border-border/70 bg-card/45 p-5 backdrop-blur-xl">
               <h3 className="text-xl font-bold text-foreground">Integration Notes</h3>
               <ul className="mt-3 space-y-2 text-sm text-foreground/75">
-                <li>• Replace placeholder async actions with backend APIs.</li>
-                <li>• Existing toast states support success/error feedback for all modules.</li>
-                <li>• Components are split for maintainability and dynamic search/filter wiring.</li>
-                <li>• Framer Motion animations handle entrance, hover, and micro-interactions.</li>
+                <li>• API endpoints are passed from AppsPage to every tool component as props.</li>
+                <li>• Upload/download flows now call your Express endpoints and return live results.</li>
+                <li>• Progress states, toaster notifications, and error boundaries are handled per module.</li>
+                <li>• Components remain modular for future admin features and backend extensions.</li>
               </ul>
             </div>
           </motion.div>
@@ -178,24 +200,32 @@ export const AppsPage = () => {
             className="mb-8"
           >
             <h2 className="text-3xl font-bold text-foreground">Recommended Resources</h2>
-            <p className="mt-2 text-foreground/70">Curated platforms grouped by category with quick actions and fade-in cards.</p>
+            <p className="mt-2 text-foreground/70">Fetched dynamically from your backend API with copy and quick-visit actions.</p>
             <a href="#" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#FF3B30] transition-all duration-300 hover:translate-x-1">
               Explore more resource collections
               <ArrowRight className="h-4 w-4" />
             </a>
           </motion.div>
 
-          <div className="space-y-10">
-            {Object.entries(resourceGroups).map(([title, resources]) => (
-              <section key={title}>
-                <h3 className="mb-4 text-xl font-semibold text-foreground">{title}</h3>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  {resources.map((resource, index) => (
-                    <ResourceCard key={resource.name} resource={resource} index={index} />
-                  ))}
-                </div>
-              </section>
-            ))}
+          <div className="space-y-6">
+            <input
+              value={resourceQuery}
+              onChange={(event) => setResourceQuery(event.target.value)}
+              placeholder="Search recommended resources"
+              className="w-full rounded-xl border border-border/80 bg-background/60 px-3 py-2.5 text-sm outline-none focus:border-[#FF3B30]/70"
+            />
+
+            {isResourcesLoading ? <p className="text-sm text-foreground/70">Loading resources...</p> : null}
+
+            {!isResourcesLoading && filteredResources.length === 0 ? (
+              <p className="rounded-xl border border-border/65 bg-card/40 p-4 text-sm text-foreground/75">No resources found from the backend response.</p>
+            ) : null}
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {filteredResources.map((resource, index) => (
+                <ResourceCard key={resource.id ?? `${resource.link}-${index}`} resource={resource} index={index} />
+              ))}
+            </div>
           </div>
         </section>
       </div>
