@@ -60,7 +60,7 @@ export const HeroSection = () => {
             <Link to="/courses" className="cosmic-button inline-flex items-center gap-2">
               Explore Courses <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link to="/instructor" className="px-6 py-2 rounded-full border border-border hover:bg-card transition-colors">
+            <Link to="/instructors" className="px-6 py-2 rounded-full border border-border hover:bg-card transition-colors">
               Meet the Instructor
             </Link>
           </div>

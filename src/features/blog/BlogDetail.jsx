@@ -13,7 +13,7 @@ export const BlogDetailContent = () => {
       <section className="rounded-2xl border border-border bg-card/60 p-8 text-left">
         <h1 className="text-3xl">Post not found</h1>
         <p className="mt-3 text-muted-foreground">The article you're looking for is unavailable.</p>
-        <Link to="/blog" className="mt-5 inline-flex rounded-full border border-primary px-4 py-2 text-primary">Back to Blog</Link>
+        <Link to="/blogs" className="mt-5 inline-flex rounded-full border border-primary px-4 py-2 text-primary">Back to Blog</Link>
       </section>
     );
   }
@@ -72,7 +72,7 @@ export const BlogDetailContent = () => {
 
         <div className="mt-10 flex flex-wrap gap-4">
           <Link
-            to="/blog"
+            to="/blogs"
             className="rounded-full border border-border px-5 py-2 font-medium hover:border-[#FF3B30] hover:text-[#FF3B30]"
           >
             Back to Blog

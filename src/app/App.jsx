@@ -28,6 +28,7 @@ import { UserProvider } from "@/context/UserContext";
 import { SimplePlaceholderPage } from "@/pages/SimplePlaceholderPage";
 import { FixedAuthActions } from "@/features/auth/FixedAuthActions";
 import { CodeFlowBackground } from "@/components/common/CodeFlowBackground";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
 function App() {
   const [welcomeComplete, setWelcomeComplete] = useState(false);
@@ -35,47 +36,53 @@ function App() {
   return (
     <AppProviders>
       <UserProvider>
-      <CodeFlowBackground />
-      {!welcomeComplete ? (
-        <WelcomePage onWelcomeComplete={() => setWelcomeComplete(true)} />
-      ) : (
-        <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, ease: "easeOut" }}>
-          <BrowserRouter>
-            <ScrollToTop />
-            <FixedAuthActions />
-            <Routes>
-              <Route element={<MainLayout />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/courses" element={<Courses />} />
-                <Route path="/courses/:id" element={<CourseDetail />} />
-                <Route path="/courses/:id/enroll" element={<CourseLearning />} />
-                <Route path="/learn/:courseId" element={<CourseLearning />} />
-                <Route path="/instructor" element={<Instructor />} />
-                <Route path="/instructor/:id" element={<Instructor />} />
-                <Route path="/testimonials" element={<Testimonials />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:slug" element={<BlogDetail />} />
-                <Route path="/apps" element={<Apps />} />
-                <Route path="/apps/:id" element={<AppDetail />} />
-                <Route path="/code-editor" element={<CodeEditor />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/auth/google" element={<AuthRedirectPlaceholder />} />
-                <Route path="/auth/github" element={<AuthRedirectPlaceholder />} />
-                <Route path="/my-courses" element={<SimplePlaceholderPage title="My Courses" />} />
-                <Route path="/settings" element={<SimplePlaceholderPage title="Settings" />} />
-              </Route>
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/home" element={<Navigate to="/" replace />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Analytics />
-          </BrowserRouter>
-        </motion.div>
-      )}
-          </UserProvider>
+        <ErrorBoundary>
+          <CodeFlowBackground />
+          {!welcomeComplete ? (
+            <WelcomePage onWelcomeComplete={() => setWelcomeComplete(true)} />
+          ) : (
+            <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, ease: "easeOut" }}>
+              <BrowserRouter>
+                <ScrollToTop />
+                <FixedAuthActions />
+                <Routes>
+                  <Route element={<MainLayout />}>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/courses" element={<Courses />} />
+                    <Route path="/courses/:id" element={<CourseDetail />} />
+                    <Route path="/courses/:id/enroll" element={<CourseLearning />} />
+                    <Route path="/learn/:courseId" element={<CourseLearning />} />
+                    <Route path="/instructors" element={<Instructor />} />
+                    <Route path="/instructors/:id" element={<Instructor />} />
+                    <Route path="/instructor" element={<Navigate to="/instructors" replace />} />
+                    <Route path="/instructor/:id" element={<Instructor />} />
+                    <Route path="/testimonials" element={<Testimonials />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/blogs" element={<Blog />} />
+                    <Route path="/blogs/:slug" element={<BlogDetail />} />
+                    <Route path="/blog" element={<Navigate to="/blogs" replace />} />
+                    <Route path="/blog/:slug" element={<BlogDetail />} />
+                    <Route path="/apps" element={<Apps />} />
+                    <Route path="/apps/:id" element={<AppDetail />} />
+                    <Route path="/code-editor" element={<CodeEditor />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/auth/google" element={<AuthRedirectPlaceholder />} />
+                    <Route path="/auth/github" element={<AuthRedirectPlaceholder />} />
+                    <Route path="/my-courses" element={<SimplePlaceholderPage title="My Courses" />} />
+                    <Route path="/settings" element={<SimplePlaceholderPage title="Settings" />} />
+                  </Route>
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/home" element={<Navigate to="/" replace />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Analytics />
+              </BrowserRouter>
+            </motion.div>
+          )}
+        </ErrorBoundary>
+      </UserProvider>
     </AppProviders>
   );
 }

@@ -29,7 +29,7 @@ export const BlogPreview = () => {
             </motion.article>
           ))}
         </div>
-        <Link to="/blog" className="mt-6 inline-flex cosmic-button">
+        <Link to="/blogs" className="mt-6 inline-flex cosmic-button">
           See More
         </Link>
       </div>
