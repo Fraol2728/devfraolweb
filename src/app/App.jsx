@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import WelcomeScreen from "@/components/common/WelcomeScreen";
+import { motion } from "framer-motion";
+import WelcomePage from "@/components/common/WelcomePage";
 import { Analytics } from "@vercel/analytics/react";
 import { AppProviders } from "@/app/providers";
 import { ScrollToTop } from "@/components/common/ScrollToTop";
@@ -26,31 +27,33 @@ function App() {
   return (
     <AppProviders>
       {!welcomeComplete ? (
-        <WelcomeScreen onWelcomeComplete={() => setWelcomeComplete(true)} />
+        <WelcomePage onWelcomeComplete={() => setWelcomeComplete(true)} />
       ) : (
-        <BrowserRouter>
-          <ScrollToTop />
-          <Routes>
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/courses" element={<Courses />} />
-              <Route path="/courses/:slug" element={<CourseDetail />} />
-              <Route path="/instructor" element={<Instructor />} />
-              <Route path="/testimonials" element={<Testimonials />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogDetail />} />
-              <Route path="/apps" element={<Apps />} />
-              <Route path="/apps/:appId" element={<AppDetail />} />
-              <Route path="/code-editor" element={<CodeEditor />} />
-              <Route path="/admin" element={<Admin />} />
-            </Route>
-            <Route path="/home" element={<Navigate to="/" replace />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Analytics />
-        </BrowserRouter>
+        <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, ease: "easeOut" }}>
+          <BrowserRouter>
+            <ScrollToTop />
+            <Routes>
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/courses" element={<Courses />} />
+                <Route path="/courses/:slug" element={<CourseDetail />} />
+                <Route path="/instructor" element={<Instructor />} />
+                <Route path="/testimonials" element={<Testimonials />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogDetail />} />
+                <Route path="/apps" element={<Apps />} />
+                <Route path="/apps/:appId" element={<AppDetail />} />
+                <Route path="/code-editor" element={<CodeEditor />} />
+                <Route path="/admin" element={<Admin />} />
+              </Route>
+              <Route path="/home" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Analytics />
+          </BrowserRouter>
+        </motion.div>
       )}
     </AppProviders>
   );
