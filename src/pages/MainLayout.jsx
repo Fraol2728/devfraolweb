@@ -7,11 +7,11 @@ export const MainLayout = () => {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <StarBackground />
-      <Navbar />
-      <main>
+      <main className="relative z-10 pb-28">
         <Outlet />
       </main>
       <Footer />
+      <Navbar />
     </div>
   );
 };
