@@ -3,6 +3,7 @@ import { Hero } from "@/features/home/Hero";
 import { TracksOverview } from "@/features/home/TracksOverview";
 import { FeaturedCourses } from "@/features/home/FeaturedCourses";
 import { CTA } from "@/features/home/CTA";
+import { FeaturedApps } from "@/features/home/FeaturedApps";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 
 const FAQPreview = lazy(() => import("@/features/home/FAQPreview").then((m) => ({ default: m.FAQPreview })));
@@ -23,6 +24,7 @@ export const Home = () => {
       <Hero />
       <TracksOverview />
       <FeaturedCourses />
+      <FeaturedApps />
       <Suspense fallback={<SectionSkeleton />}>
         <BlogPreview />
       </Suspense>
