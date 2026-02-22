@@ -10,6 +10,9 @@ import { CourseDetail } from "@/pages/CourseDetail";
 import { Instructor } from "@/pages/Instructor";
 import { Testimonials } from "@/pages/Testimonials";
 import { Contact } from "@/pages/Contact";
+import { Blog } from "@/pages/Blog";
+import { BlogDetail } from "@/pages/BlogDetail";
+import { FAQ } from "@/pages/FAQ";
 import { NotFound } from "@/pages/NotFound";
 
 function App() {
@@ -29,6 +32,9 @@ function App() {
               <Route path="/instructor" element={<Instructor />} />
               <Route path="/testimonials" element={<Testimonials />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogDetail />} />
             </Route>
             <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFound />} />
