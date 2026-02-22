@@ -1,16 +1,17 @@
 import { Link, useParams } from "react-router-dom";
-import { courses, getCourseBySlug } from "@/data/courses";
 import { CTAButtons } from "@/features/courses/CTAButtons";
 import { CourseCurriculum } from "@/features/courses/CourseCurriculum";
 import { CourseHero } from "@/features/courses/CourseHero";
 import { CourseInstructor } from "@/features/courses/CourseInstructor";
 import { CourseOverview } from "@/features/courses/CourseOverview";
 import { RelatedCourses } from "@/features/courses/RelatedCourses";
+import { useMockApi } from "@/context/MockApiContext";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 
 export const CourseDetail = () => {
-  const { slug } = useParams();
-  const course = getCourseBySlug(slug);
+  const { id } = useParams();
+  const { courses } = useMockApi();
+  const course = courses.find((item) => item.slug === id || item.id === id);
 
   useSeoMeta(
     course

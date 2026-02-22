@@ -40,8 +40,9 @@ const getFallbackCourse = (courseId) => ({
 });
 
 export const CourseLearning = () => {
-  const { courseId } = useParams();
-  const course = courseCatalog[courseId] ?? getFallbackCourse(courseId);
+  const { courseId, id } = useParams();
+  const resolvedId = courseId || id;
+  const course = courseCatalog[resolvedId] ?? getFallbackCourse(resolvedId);
 
   const allLessons = useMemo(
     () =>

@@ -5,7 +5,7 @@ export const CTAButtons = ({ course }) => {
   const navigate = useNavigate();
 
   const handleEnroll = () => {
-    navigate(`/learn/${course.slug}`);
+    navigate(`/courses/${course.slug}/enroll`);
   };
 
   return (

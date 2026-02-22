@@ -1,11 +1,12 @@
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { blogPosts, getBlogBySlug } from "@/data/blog";
+import { useMockApi } from "@/context/MockApiContext";
 import { BlogCard } from "@/features/blog/BlogCard";
 
 export const BlogDetailContent = () => {
   const { slug } = useParams();
-  const post = getBlogBySlug(slug);
+  const { blogs: blogPosts } = useMockApi();
+  const post = blogPosts.find((item) => item.slug === slug);
 
   if (!post) {
     return (

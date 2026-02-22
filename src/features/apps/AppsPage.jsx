@@ -2,11 +2,12 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import { Link } from "react-router-dom";
-import { appsCatalog, webRecommendations } from "@/data/apps";
+import { useMockApi } from "@/context/MockApiContext";
 import { ResourceCategory } from "./ResourceCategory";
 
 const appCategories = ["All", "Downloaders", "Editors", "Converters", "Resources"];
 export const AppsPage = () => {
+  const { apps: appsCatalog, webRecommendations } = useMockApi();
   const [appQuery, setAppQuery] = useState("");
   const [appCategory, setAppCategory] = useState("All");
   const [webQuery, setWebQuery] = useState("");
@@ -68,7 +69,7 @@ export const AppsPage = () => {
                   </div>
                   <h3 className="mt-4 text-xl font-bold">{app.name}</h3>
                   <p className="mt-2 text-sm text-foreground/75">{app.description}</p>
-                  <Link to={app.route} className="mt-5 inline-flex items-center rounded-lg bg-[#FF3B30] px-4 py-2 text-sm font-semibold text-white transition hover:shadow-[0_8px_22px_rgba(255,59,48,0.35)]">
+                  <Link to={app.route || `/apps/${app.id}`} className="mt-5 inline-flex items-center rounded-lg bg-[#FF3B30] px-4 py-2 text-sm font-semibold text-white transition hover:shadow-[0_8px_22px_rgba(255,59,48,0.35)]">
                     Open App
                   </Link>
                 </motion.article>

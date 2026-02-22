@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { blogPosts } from "@/data/blog";
+import { useMockApi } from "@/context/MockApiContext";
 import { BlogCard } from "@/features/blog/BlogCard";
 import { BlogFilter } from "@/features/blog/BlogFilter";
 
 const PAGE_STEP = 6;
 
 export const BlogPage = () => {
+  const { blogs: blogPosts } = useMockApi();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedSort, setSelectedSort] = useState("Latest");
   const [visibleCount, setVisibleCount] = useState(PAGE_STEP);

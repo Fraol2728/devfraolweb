@@ -2,6 +2,7 @@ import { Loader2, Send } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useToast } from "@/hooks/useToastStore";
+import { useMockApi } from "@/context/MockApiContext";
 
 const initialState = {
   name: "",
@@ -11,13 +12,12 @@ const initialState = {
 };
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const CONTACT_ENDPOINT = import.meta.env.VITE_CONTACT_ENDPOINT ?? "https://formspree.io/f/xwpbojaj";
 
 export const ContactForm = () => {
   const { toast } = useToast();
+  const { submitContact, loading } = useMockApi();
   const [formData, setFormData] = useState(initialState);
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = ({ target: { name, value } }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -54,35 +54,23 @@ export const ContactForm = () => {
       return;
     }
 
-    setIsSubmitting(true);
+    const response = await submitContact(formData);
 
-    try {
-      const response = await fetch(CONTACT_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) throw new Error("Failed to send message");
-
+    if (response.ok) {
       toast({
         title: "Message sent",
         description: "Thanks for reaching out! We'll get back to you soon.",
         variant: "success",
       });
       setFormData(initialState);
-    } catch {
-      toast({
-        title: "Unable to send message",
-        description: "Please try again in a moment.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+      return;
     }
+
+    toast({
+      title: "Unable to send message",
+      description: "Please try again in a moment.",
+      variant: "destructive",
+    });
   };
 
   return (
@@ -151,11 +139,11 @@ export const ContactForm = () => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           type="submit"
-          disabled={isSubmitting}
+          disabled={loading.submit}
           className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF3B30] px-4 py-3 font-semibold text-white transition hover:bg-[#ff5248] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          {isSubmitting ? "Sending..." : "Submit Message"}
+          {loading.submit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          {loading.submit ? "Sending..." : "Submit Message"}
         </motion.button>
       </form>
     </motion.article>

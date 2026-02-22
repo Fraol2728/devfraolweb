@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
-import { courses as seedCourses } from "@/data/courses";
-import { apiFetch } from "@/lib/api";
+import { useMockApi } from "@/context/MockApiContext";
 import { CourseCard } from "@/features/courses/CourseCard";
 import { CourseFilter } from "@/features/courses/CourseFilter";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
@@ -16,25 +15,17 @@ const levelOrder = {
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export const Courses = () => {
+  const { courses, loading } = useMockApi();
   useSeoMeta({
     title: "Courses | Dev Fraol Academy",
     description: "Browse project-driven web development and graphic design courses with filtering, search, and modular backend-ready data architecture.",
   });
 
   const [activeCategory, setActiveCategory] = useState("All");
-  const [courses, setCourses] = useState(seedCourses);
   const [sortBy, setSortBy] = useState("popularity");
   const [query, setQuery] = useState("");
   const [visibleCount, setVisibleCount] = useState(6);
 
-
-  useEffect(() => {
-    apiFetch("/api/catalog/courses")
-      .then((res) => {
-        if (Array.isArray(res.data) && res.data.length > 0) setCourses(res.data);
-      })
-      .catch(() => undefined);
-  }, []);
   const normalizedQuery = query.trim().toLowerCase();
 
   const suggestions = useMemo(() => {
@@ -165,6 +156,8 @@ export const Courses = () => {
           ) : null}
         </motion.section>
 
+        {loading.list ? <p className="mb-3 text-sm text-gray-400">Loading courses...</p> : null}
+
         <CourseFilter
           activeCategory={activeCategory}
           onCategoryChange={(category) => {
@@ -176,6 +169,7 @@ export const Courses = () => {
         />
 
         <motion.section layout className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {coursesToRender.length === 0 ? <p className="text-sm text-gray-400">No courses match your filters.</p> : null}
           {coursesToRender.map((course, index) => (
             <CourseCard key={course.id} course={course} index={index} highlightedTitle={highlightTitle(course.title)} />
           ))}
