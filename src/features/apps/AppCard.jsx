@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 
-export const AppCard = ({ app, index }) => {
+export const AppCard = ({ app, index, onSelectTool }) => {
   const Icon = app.icon;
 
   return (
@@ -18,15 +18,14 @@ export const AppCard = ({ app, index }) => {
       </div>
       <h3 className="text-xl font-bold text-foreground">{app.name}</h3>
       <p className="mt-2 min-h-14 text-sm text-foreground/75">{app.description}</p>
-      <a
-        href={app.href}
-        target={app.external ? "_blank" : undefined}
-        rel={app.external ? "noreferrer" : undefined}
+      <button
+        type="button"
+        onClick={() => onSelectTool?.(app.tool)}
         className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#FF3B30] px-4 py-2 text-sm font-semibold text-white transition-all duration-300 hover:translate-y-[-1px] hover:shadow-[0_10px_24px_rgba(255,59,48,0.35)]"
       >
         {app.buttonLabel}
         <ArrowUpRight className="h-4 w-4" />
-      </a>
+      </button>
     </motion.article>
   );
 };
