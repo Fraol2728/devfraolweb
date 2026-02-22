@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { appsCatalog } from "@/data/apps";
 import { cardReveal, staggerContainer } from "@/lib/animations";
+import { NavButton } from "@/components/common/NavButton";
 
 export const FeaturedApps = () => {
-  const navigate = useNavigate();
   const featuredApps = appsCatalog.slice(0, 4);
 
   return (
@@ -18,13 +18,12 @@ export const FeaturedApps = () => {
               Explore top utility apps and jump directly to each app page.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => navigate("/apps")}
+          <NavButton
+            to="/apps"
             className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-foreground backdrop-blur-xl transition hover:border-[#FF3B30]/60 hover:text-[#FF3B30]"
           >
             See More
-          </button>
+          </NavButton>
         </div>
 
         <motion.div
