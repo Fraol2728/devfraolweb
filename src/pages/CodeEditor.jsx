@@ -1,45 +1,44 @@
-import { useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Copy, Download, Play, Plus, RotateCcw } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { EditorPane } from "@/features/code-editor/EditorPane";
 import { PreviewPane, buildPreviewDocument } from "@/features/code-editor/PreviewPane";
 import { TabBar } from "@/features/code-editor/TabBar";
-import { starterExamples } from "@/data/examples";
+import { Toolbar } from "@/features/code-editor/Toolbar";
+import { getLanguageMeta, starterExamples, supportedLanguages } from "@/data/examples";
 
-const STORAGE_KEY = "devfraol-editor-projects-v1";
-const DEFAULT_SPLIT = 52;
+const STORAGE_KEY = "devfraol-editor-state-v2";
+const DEFAULT_SPLIT = 54;
 
-const copyToClipboard = async (content) => {
-  await navigator.clipboard.writeText(content);
-};
+const copyToClipboard = async (content) => navigator.clipboard.writeText(content);
 
-const downloadFile = (filename, content) => {
+const downloadFile = (fileName, content) => {
   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = filename;
+  link.download = fileName;
   link.click();
   URL.revokeObjectURL(link.href);
 };
 
 export const CodeEditor = () => {
+  const editorActionsRef = useRef(null);
   const [projects, setProjects] = useState(starterExamples);
   const [activeProjectId, setActiveProjectId] = useState(starterExamples[0].id);
-  const [activeTab, setActiveTab] = useState("html");
+  const [activeFileId, setActiveFileId] = useState(starterExamples[0].files[0].id);
   const [previewDoc, setPreviewDoc] = useState("");
+  const [editorTheme, setEditorTheme] = useState("dark");
   const [split, setSplit] = useState(DEFAULT_SPLIT);
   const [isDragging, setIsDragging] = useState(false);
-  const [editorTheme, setEditorTheme] = useState("dark");
 
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) {
       return;
     }
 
     try {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed?.projects) && parsed.projects.length > 0) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed.projects) && parsed.projects.length > 0) {
         setProjects(parsed.projects);
         setActiveProjectId(parsed.activeProjectId || parsed.projects[0].id);
         setEditorTheme(parsed.editorTheme || "dark");
@@ -50,28 +49,40 @@ export const CodeEditor = () => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        projects,
-        activeProjectId,
-        editorTheme,
-      })
-    );
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ projects, activeProjectId, editorTheme }));
   }, [projects, activeProjectId, editorTheme]);
 
-  const activeProject = useMemo(
-    () => projects.find((project) => project.id === activeProjectId) || projects[0],
-    [projects, activeProjectId]
-  );
+  const activeProject = useMemo(() => projects.find((project) => project.id === activeProjectId) || projects[0], [projects, activeProjectId]);
 
   useEffect(() => {
-    if (!activeProject) {
+    if (!activeProject?.files.find((file) => file.id === activeFileId)) {
+      setActiveFileId(activeProject?.files[0]?.id || "");
+    }
+  }, [activeProject, activeFileId]);
+
+  const activeFile = useMemo(() => {
+    const file = activeProject?.files.find((item) => item.id === activeFileId) || activeProject?.files[0];
+    if (!file) {
+      return null;
+    }
+
+    return {
+      ...file,
+      monacoLanguage: getLanguageMeta(file.language).monaco,
+    };
+  }, [activeProject, activeFileId]);
+
+  useEffect(() => {
+    if (!activeProject || !activeFile) {
       return;
     }
 
-    setPreviewDoc(buildPreviewDocument(activeProject.files));
-  }, [activeProject]);
+    const timeout = setTimeout(() => {
+      setPreviewDoc(buildPreviewDocument({ files: activeProject.files, activeLanguage: activeFile.language }));
+    }, 180);
+
+    return () => clearTimeout(timeout);
+  }, [activeProject, activeFile]);
 
   useEffect(() => {
     const onPointerMove = (event) => {
@@ -87,7 +98,6 @@ export const CodeEditor = () => {
 
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", onPointerUp);
-
     return () => {
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
@@ -95,133 +105,140 @@ export const CodeEditor = () => {
   }, [isDragging]);
 
   const updateCode = (code) => {
+    if (!activeFile) {
+      return;
+    }
+
     setProjects((prev) =>
       prev.map((project) =>
         project.id === activeProject.id
           ? {
               ...project,
-              files: {
-                ...project.files,
-                [activeTab]: code,
-              },
+              files: project.files.map((file) => (file.id === activeFile.id ? { ...file, content: code } : file)),
             }
           : project
       )
     );
   };
 
-  const refreshPreview = () => setPreviewDoc(buildPreviewDocument(activeProject.files));
-
   const addProject = () => {
-    const id = `custom-${Date.now()}`;
+    const id = `project-${Date.now()}`;
     const newProject = {
       id,
       name: `Snippet ${projects.length + 1}`,
-      files: {
-        html: "<main>\n  <h1>New Project</h1>\n</main>",
-        css: "body {\n  margin: 0;\n  font-family: Inter, sans-serif;\n}",
-        js: "console.log('Start coding!');",
-      },
+      files: [
+        {
+          id: `file-${Date.now()}`,
+          name: "index.html",
+          language: "html",
+          content: "<main>\n  <h1>New project</h1>\n</main>",
+        },
+      ],
     };
 
     setProjects((prev) => [...prev, newProject]);
     setActiveProjectId(id);
+    setActiveFileId(newProject.files[0].id);
   };
+
+  const addFile = () => {
+    const picked = supportedLanguages[(activeProject.files.length + 1) % supportedLanguages.length];
+    const file = {
+      id: `file-${Date.now()}`,
+      name: `untitled${picked.extension}`,
+      language: picked.id,
+      content: "",
+    };
+
+    setProjects((prev) => prev.map((project) => (project.id === activeProject.id ? { ...project, files: [...project.files, file] } : project)));
+    setActiveFileId(file.id);
+  };
+
+  const removeFile = (fileId) => {
+    if (activeProject.files.length <= 1) {
+      return;
+    }
+
+    const updatedFiles = activeProject.files.filter((file) => file.id !== fileId);
+    setProjects((prev) => prev.map((project) => (project.id === activeProject.id ? { ...project, files: updatedFiles } : project)));
+
+    if (activeFileId === fileId) {
+      setActiveFileId(updatedFiles[0].id);
+    }
+  };
+
+  if (!activeProject || !activeFile) {
+    return null;
+  }
 
   const isDarkMode = editorTheme === "dark";
 
   return (
-    <section className="mx-auto w-[min(96%,1300px)] space-y-4 pb-36">
-      <div className="rounded-2xl border border-[#FF3B30]/30 bg-black/50 p-4 shadow-[0_20px_50px_rgba(255,59,48,0.12)] backdrop-blur">
+    <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-auto w-[min(96%,1320px)] space-y-4 pb-36">
+      <div className="rounded-2xl border border-[#FF3B30]/30 bg-[#1E1E1E] p-4 text-white shadow-[0_18px_45px_rgba(255,59,48,0.15)]">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-white">Code Editor</h1>
-            <p className="text-sm text-white/60">Write HTML, CSS, and JavaScript with instant preview.</p>
+            <h1 className="text-2xl font-bold">Dev Fraol Code Editor</h1>
+            <p className="text-sm text-white/65">Multi-language editor with live preview and VS Code-like toolbar.</p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setEditorTheme(isDarkMode ? "light" : "dark")}
-              className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-white hover:border-[#FF3B30]/60"
-            >
-              Theme: {isDarkMode ? "Dark" : "Light"}
-            </button>
-            <button
-              type="button"
-              onClick={addProject}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#FF3B30] px-3 py-2 text-sm font-semibold text-white hover:brightness-110"
-            >
-              <Plus className="h-4 w-4" /> New Snippet
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={addProject}
+            className="rounded-lg border border-[#FF3B30]/60 bg-[#FF3B30]/20 px-3 py-2 text-sm transition hover:bg-[#FF3B30]/35"
+          >
+            + New Snippet
+          </button>
         </div>
 
         <div className="mb-3 flex flex-wrap gap-2">
           {projects.map((project) => {
             const active = project.id === activeProject.id;
             return (
-              <motion.button
+              <button
                 key={project.id}
                 type="button"
-                whileHover={{ y: -1 }}
-                className={`rounded-lg border px-3 py-1.5 text-xs md:text-sm ${
-                  active ? "border-[#FF3B30] bg-[#FF3B30]/15 text-white" : "border-white/10 bg-white/5 text-white/60"
-                }`}
                 onClick={() => setActiveProjectId(project.id)}
+                className={`rounded-lg border px-3 py-1.5 text-xs transition hover:border-[#FF3B30]/60 ${
+                  active ? "border-[#FF3B30] bg-[#FF3B30]/20 text-white" : "border-white/10 bg-white/5 text-white/70"
+                }`}
               >
                 {project.name}
-              </motion.button>
+              </button>
             );
           })}
         </div>
 
-        <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+        <Toolbar
+          isDarkMode={isDarkMode}
+          onToggleTheme={() => setEditorTheme(isDarkMode ? "light" : "dark")}
+          onRun={() => setPreviewDoc(buildPreviewDocument({ files: activeProject.files, activeLanguage: activeFile.language }))}
+          onUndo={() => editorActionsRef.current?.undo()}
+          onRedo={() => editorActionsRef.current?.redo()}
+          onCopy={() => copyToClipboard(activeFile.content)}
+          onDownload={() => downloadFile(activeFile.name, activeFile.content)}
+        />
 
-        <div className="mt-3 flex flex-wrap gap-2">
-          <motion.button whileHover={{ scale: 1.02 }} type="button" onClick={refreshPreview} className="inline-flex items-center gap-2 rounded-lg border border-[#FF3B30]/50 bg-[#FF3B30]/15 px-3 py-2 text-sm text-white">
-            <Play className="h-4 w-4" /> Run
-          </motion.button>
-          <button type="button" onClick={refreshPreview} className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-white/80">
-            <RotateCcw className="h-4 w-4" /> Refresh
-          </button>
-          <button type="button" onClick={() => copyToClipboard(activeProject.files[activeTab])} className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-white/80">
-            <Copy className="h-4 w-4" /> Copy
-          </button>
-          <button
-            type="button"
-            onClick={() => downloadFile(`${activeProject.name}-${activeTab}.${activeTab === "js" ? "js" : activeTab}`, activeProject.files[activeTab])}
-            className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-white/80"
-          >
-            <Download className="h-4 w-4" /> Download
-          </button>
+        <div className="my-3">
+          <TabBar files={activeProject.files} activeFileId={activeFile.id} onSelectFile={setActiveFileId} onAddFile={addFile} onRemoveFile={removeFile} />
         </div>
-      </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeProject.id + activeTab}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.25 }}
-          className="flex flex-col gap-3 lg:flex-row"
-        >
-          <motion.div animate={{ width: `${split}%` }} transition={{ type: "spring", stiffness: 130, damping: 22 }} className="w-full lg:w-auto">
-            <EditorPane value={activeProject.files[activeTab]} language={activeTab} onChange={updateCode} isDarkMode={isDarkMode} />
-          </motion.div>
+        <div className="flex flex-col gap-3 lg:flex-row">
+          <div className="min-w-0" style={{ flexBasis: `${split}%` }}>
+            <EditorPane ref={editorActionsRef} activeFile={activeFile} onChange={updateCode} isDarkMode={isDarkMode} />
+          </div>
 
           <div
+            className="hidden w-2 cursor-col-resize rounded-full bg-white/10 transition hover:bg-[#FF3B30]/60 lg:block"
+            onPointerDown={() => setIsDragging(true)}
             role="separator"
             aria-label="Resize panes"
-            onPointerDown={() => setIsDragging(true)}
-            className="hidden w-2 cursor-col-resize rounded-full bg-[#FF3B30]/30 transition hover:bg-[#FF3B30]/80 lg:block"
           />
 
-          <motion.div animate={{ width: `${100 - split}%` }} transition={{ type: "spring", stiffness: 130, damping: 22 }} className="w-full lg:w-auto">
+          <div className="min-w-0 flex-1" style={{ flexBasis: `${100 - split}%` }}>
             <PreviewPane srcDoc={previewDoc} />
-          </motion.div>
-        </motion.div>
-      </AnimatePresence>
-    </section>
+          </div>
+        </div>
+      </div>
+    </motion.section>
   );
 };
