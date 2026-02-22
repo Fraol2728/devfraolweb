@@ -107,18 +107,22 @@ export const Hero = () => {
             Learn in a practice-first curriculum with guided modules, mentor-style explanations, and project workflows that mirror creative tech teams.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <Link
-              to="/courses"
-              className="inline-flex items-center justify-center rounded-lg bg-[#FF3B30] px-7 py-3 text-base font-semibold text-white transition hover:bg-[#ff5449]"
-            >
-              Start Learning
-            </Link>
-            <Link
-              to="/code-editor"
-              className="inline-flex items-center justify-center rounded-lg bg-[#1E1E1E] px-7 py-3 text-base font-semibold text-white transition hover:bg-[#FF3B30]"
-            >
-              Editor
-            </Link>
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.2 }}>
+              <Link
+                to="/courses"
+                className="inline-flex items-center justify-center rounded-lg bg-[#FF3B30] px-7 py-3 text-base font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#ff5449]"
+              >
+                Start Learning
+              </Link>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.3 }}>
+              <Link
+                to="/apps"
+                className="inline-flex items-center justify-center rounded-lg border border-[#FF3B30]/50 bg-[#1E1E1E] px-7 py-3 text-base font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-[#FF3B30] hover:bg-[#FF3B30]"
+              >
+                Apps
+              </Link>
+            </motion.div>
           </div>
         </motion.div>
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AppWindow, BookOpen, Home, Mail, MessageSquareQuote, Moon, Newspaper, Sun, UserRound } from "lucide-react";
+import { AppWindow, BookOpen, Home, Mail, Moon, Newspaper, Sun } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTheme } from "next-themes";
@@ -8,10 +8,8 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { name: "Home", href: "/", icon: Home },
   { name: "Courses", href: "/courses", icon: BookOpen },
-  { name: "Instructor", href: "/instructor", icon: UserRound },
-  { name: "Testimonials", href: "/testimonials", icon: MessageSquareQuote },
-  { name: "Blog", href: "/blog", icon: Newspaper },
   { name: "Apps", href: "/apps", icon: AppWindow },
+  { name: "Blog", href: "/blog", icon: Newspaper },
   { name: "Contact", href: "/contact", icon: Mail },
 ];
 
@@ -22,7 +20,7 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="p-2 rounded-full border border-border/50 hover:border-primary/60 hover:bg-primary/10 transition-all duration-300 hover:scale-105"
+      className="rounded-full border border-border/50 p-2 transition-all duration-300 hover:scale-105 hover:border-primary/60 hover:bg-primary/10"
       aria-label="Toggle theme"
     >
       <AnimatePresence mode="wait" initial={false}>
@@ -57,12 +55,12 @@ export const Navbar = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45 }}
-      className="sticky top-3 z-50 mx-auto w-[min(96%,56rem)]"
+      className="sticky top-3 z-50 mx-auto w-[min(96%,62rem)]"
     >
       <div
         className={cn(
           "flex items-center justify-between gap-1 rounded-2xl border px-2 py-2 transition-all duration-300",
-          "bg-background/60 supports-[backdrop-filter]:bg-background/45 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_12px_35px_rgba(0,0,0,0.2)]",
+          "bg-background/60 supports-[backdrop-filter]:bg-background/45 shadow-[0_12px_35px_rgba(0,0,0,0.2)] backdrop-blur-2xl backdrop-saturate-150",
           isScrolled ? "border-primary/35 shadow-[0_16px_40px_rgba(255,59,48,0.15)]" : "border-border/70"
         )}
       >
@@ -74,15 +72,14 @@ export const Navbar = () => {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "group px-3 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition-all duration-300",
+                  "group relative flex items-center gap-2 rounded-xl px-3 py-2 text-xs transition-all duration-300 sm:text-sm",
                   "hover:scale-[1.03]",
-                  active
-                    ? "bg-primary text-primary-foreground shadow-[0_8px_20px_rgba(255,59,48,0.35)]"
-                    : "text-foreground/75 hover:text-foreground hover:bg-primary/10"
+                  active ? "text-primary-foreground" : "text-foreground/75 hover:bg-primary/10 hover:text-foreground"
                 )}
               >
-                <item.icon className="h-4 w-4 transition-transform duration-300 group-hover:scale-115 group-hover:-translate-y-0.5" />
-                <span className="hidden sm:inline">{item.name}</span>
+                {active ? <motion.span layoutId="active-nav-pill" className="absolute inset-0 rounded-xl bg-primary shadow-[0_8px_20px_rgba(255,59,48,0.35)]" /> : null}
+                <item.icon className="relative z-10 h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-115" />
+                <span className="relative z-10 hidden sm:inline">{item.name}</span>
               </Link>
             );
           })}
