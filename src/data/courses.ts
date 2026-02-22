@@ -1,10 +1,15 @@
 export const courses = [
   {
+    id: "course-frontend-mastery",
     slug: "frontend-mastery",
     title: "Frontend Mastery with React",
     category: "Web Development",
     level: "Intermediate",
-    duration: "10 weeks",
+    duration: "10 Weeks",
+    durationWeeks: 10,
+    popularity: 94,
+    badge: "Popular",
+    moduleCount: 14,
     shortDescription:
       "Build production-ready React applications with modern tooling, routing, state, and UI systems.",
     overview:
@@ -21,11 +26,16 @@ export const courses = [
     ],
   },
   {
+    id: "course-backend-api-bootcamp",
     slug: "backend-api-bootcamp",
     title: "Backend API Bootcamp",
     category: "Web Development",
-    level: "Beginner to Intermediate",
-    duration: "8 weeks",
+    level: "Beginner",
+    duration: "8 Weeks",
+    durationWeeks: 8,
+    popularity: 89,
+    badge: "New",
+    moduleCount: 12,
     shortDescription:
       "Design and build scalable backend services using Node.js, Express, databases, authentication, and deployment.",
     overview:
@@ -42,11 +52,16 @@ export const courses = [
     ],
   },
   {
+    id: "course-ui-ux-design-foundations",
     slug: "ui-ux-design-foundations",
     title: "UI/UX Design Foundations",
     category: "Graphic Design",
     level: "Beginner",
-    duration: "6 weeks",
+    duration: "6 Weeks",
+    durationWeeks: 6,
+    popularity: 91,
+    badge: "Beginner",
+    moduleCount: 10,
     shortDescription:
       "Learn visual hierarchy, typography, color systems, and UX fundamentals for modern digital products.",
     overview:
@@ -63,11 +78,16 @@ export const courses = [
     ],
   },
   {
+    id: "course-brand-identity-lab",
     slug: "brand-identity-lab",
     title: "Brand Identity Lab",
     category: "Graphic Design",
-    level: "Intermediate",
-    duration: "7 weeks",
+    level: "Advanced",
+    duration: "7 Weeks",
+    durationWeeks: 7,
+    popularity: 84,
+    badge: "Popular",
+    moduleCount: 11,
     shortDescription:
       "Craft complete visual identities including logos, brand systems, social assets, and client-ready presentations.",
     overview:
