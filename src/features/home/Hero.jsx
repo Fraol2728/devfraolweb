@@ -12,6 +12,11 @@ const terminalLines = [
   "student.startProjects();",
 ];
 
+const keywordPattern = /\b(import|const|new)\b/g;
+const keywordExactPattern = /^(import|const|new)$/;
+const stringPattern = /('[^']*'|"[^"]*")/g;
+const stringExactPattern = /^('[^']*'|"[^"]*")$/;
+
 const typeSpeedMs = 28;
 const linePauseMs = 320;
 
@@ -21,6 +26,46 @@ export const Hero = () => {
   const [completedLines, setCompletedLines] = useState([]);
 
   const currentLine = useMemo(() => terminalLines[lineIndex] ?? "", [lineIndex]);
+  const renderedLines = useMemo(() => {
+    const activeLine = currentLine.slice(0, charIndex);
+    return [...completedLines, ...(lineIndex < terminalLines.length ? [activeLine] : [])];
+  }, [charIndex, completedLines, currentLine, lineIndex]);
+
+  const highlightLine = (line, lineKey) => {
+    if (!line) {
+      return <span key={`${lineKey}-empty`}>&nbsp;</span>;
+    }
+
+    const segments = line.split(stringPattern);
+
+    return segments.map((segment, segmentIndex) => {
+      if (!segment) {
+        return null;
+      }
+
+      if (stringExactPattern.test(segment)) {
+        return (
+          <span key={`${lineKey}-s-${segmentIndex}`} className="text-[#FFA500]">
+            {segment}
+          </span>
+        );
+      }
+
+      const parts = segment.split(keywordPattern);
+      return parts.map((part, partIndex) => {
+        if (!part) {
+          return null;
+        }
+
+        const isKeyword = keywordExactPattern.test(part);
+        return (
+          <span key={`${lineKey}-p-${segmentIndex}-${partIndex}`} className={isKeyword ? "text-[#FF3B30]" : "text-[#D4D4D4]"}>
+            {part}
+          </span>
+        );
+      });
+    });
+  };
 
   useEffect(() => {
     if (lineIndex >= terminalLines.length) {
@@ -72,18 +117,31 @@ export const Hero = () => {
           initial={{ opacity: 0, y: 20, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.1 }}
-          className="rounded-2xl border border-primary/30 bg-linear-to-b from-card to-background p-5 sm:p-6 shadow-[0_20px_50px_rgba(255,59,48,0.12)]"
+          className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#121212] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.55)] sm:p-6"
         >
-          <div className="mb-5 flex items-center gap-2">
+          <motion.div
+            className="pointer-events-none absolute inset-0 bg-radial-[circle_at_top_right] from-[#FF3B30]/25 via-transparent to-transparent"
+            animate={{ opacity: [0.25, 0.45, 0.25] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          <div className="relative mb-4 flex items-center gap-2 border-b border-white/10 pb-3">
             <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
             <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
             <span className="h-3 w-3 rounded-full bg-[#28c840]" />
-            <span className="ml-3 text-xs text-muted-foreground">devfraol-terminal</span>
+            <span className="ml-3 text-xs text-[#A8A8A8]">devfraol-terminal</span>
           </div>
-          <div className="min-h-64 rounded-xl border border-border/80 bg-background/80 p-4 text-left font-mono text-[13px] sm:text-sm leading-7">
-            <pre className="m-0 whitespace-pre-wrap text-foreground/90">{`${completedLines.join("\n")}${completedLines.length ? "\n" : ""}${currentLine.slice(0, charIndex) || "\u00A0"}`}</pre>
+
+          <div className="relative min-h-64 rounded-xl border border-white/10 bg-[#181818] p-4 text-left font-mono text-[13px] leading-7 sm:text-sm">
+            <code className="m-0 block whitespace-pre-wrap">
+              {renderedLines.map((line, index) => (
+                <span key={`line-${index}`} className="block">
+                  {highlightLine(line, `line-${index}`)}
+                </span>
+              ))}
+            </code>
             {lineIndex < terminalLines.length && (
-              <span className="inline-block h-5 w-2 translate-y-1 bg-primary animate-pulse" />
+              <span className="inline-block h-5 w-2 translate-y-1 animate-pulse bg-[#FF3B30]" />
             )}
           </div>
         </motion.div>

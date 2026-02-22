@@ -5,7 +5,6 @@ import {
   Mail,
   Moon,
   NotebookPen,
-  Sparkles,
   Sun,
   Code2,
   UserRound,
@@ -32,7 +31,7 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="grid h-10 w-10 place-items-center rounded-xl border border-border/60 bg-background/45 text-foreground/80 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#FF3B30]/60 hover:text-[#FF3B30] md:h-11 md:w-11"
+      className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-[#2A2A2A] text-[#D4D4D4] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#FF3B30]/60 hover:text-[#FF3B30] sm:h-10 sm:w-10 md:h-11 md:w-11"
       aria-label="Toggle theme"
     >
       <AnimatePresence mode="wait" initial={false}>
@@ -56,10 +55,10 @@ const NavItem = ({ icon: Icon, label, to, isActive }) => {
       <Link
         to={to}
         className={cn(
-          "group relative flex h-10 items-center gap-2 rounded-xl border px-2.5 text-xs font-medium transition-all duration-300 md:h-11 md:px-3 md:text-sm",
+          "group relative flex h-9 items-center gap-1.5 rounded-lg border px-2 text-xs font-medium transition-all duration-300 sm:h-10 sm:px-2.5 md:h-11 md:gap-2 md:rounded-xl md:px-3 md:text-sm",
           isActive
-            ? "border-[#FF3B30]/70 bg-[#FF3B30]/15 text-[#FF3B30] shadow-[0_0_20px_rgba(255,59,48,0.35)]"
-            : "border-white/10 bg-background/30 text-foreground/75 hover:border-[#FF3B30]/45 hover:text-[#FF3B30]"
+            ? "border-[#FF3B30]/65 bg-[#3A1D1A] text-[#FF3B30] shadow-[0_0_18px_rgba(255,59,48,0.3)]"
+            : "border-white/10 bg-[#2A2A2A] text-[#D4D4D4] hover:border-[#FF3B30]/45 hover:text-[#FF3B30]"
         )}
       >
         <Icon className="h-[16px] w-[16px] shrink-0" />
@@ -67,7 +66,7 @@ const NavItem = ({ icon: Icon, label, to, isActive }) => {
           initial={false}
           animate={{ opacity: 1, scale: isActive ? 1.02 : 1 }}
           whileHover={{ opacity: 1, scale: 1.05 }}
-          className={cn("hidden whitespace-nowrap sm:inline", isActive ? "text-[#FF3B30]" : "text-current")}
+          className={cn("hidden whitespace-nowrap md:inline", isActive ? "text-[#FF3B30]" : "text-current")}
         >
           {label}
         </motion.span>
@@ -89,7 +88,7 @@ export const NavbarDock = () => {
       className="fixed inset-x-0 bottom-3 z-50 px-3 sm:bottom-4"
       aria-label="Primary"
     >
-      <div className="mx-auto flex w-fit items-center gap-1 rounded-2xl border border-white/15 bg-background/45 p-2 shadow-[0_16px_45px_rgba(0,0,0,0.4)] backdrop-blur-xl supports-[backdrop-filter]:bg-background/35 md:gap-2 md:rounded-3xl">
+      <div className="mx-auto flex w-fit items-center gap-1 rounded-2xl border border-white/10 bg-[#1E1E1E] p-2 shadow-[0_16px_45px_rgba(0,0,0,0.45)] md:gap-2 md:rounded-3xl">
         {dockItems.map((item) => {
           const isActive = pathname === item.to || (item.to !== "/" && pathname.startsWith(`${item.to}/`));
 
@@ -99,11 +98,6 @@ export const NavbarDock = () => {
         <div className="ml-1 border-l border-white/10 pl-2">
           <ThemeToggle />
         </div>
-      </div>
-
-      <div className="pointer-events-none mx-auto mt-2 hidden w-fit items-center gap-1 rounded-full bg-background/45 px-3 py-1 text-[11px] text-muted-foreground backdrop-blur-lg md:flex">
-        <Sparkles className="h-3 w-3 text-[#FF3B30]" />
-        Multi-page Dock Navigation
       </div>
     </motion.nav>
   );
