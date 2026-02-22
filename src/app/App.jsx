@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { motion } from "framer-motion";
-import WelcomePage from "@/components/common/WelcomePage";
+import { WelcomePage } from "@/pages/WelcomePage";
 import { Analytics } from "@vercel/analytics/react";
 import { AppProviders } from "@/app/providers";
 import { ScrollToTop } from "@/components/common/ScrollToTop";
@@ -20,6 +20,9 @@ import { CodeEditor } from "@/pages/CodeEditor";
 import { Apps } from "@/pages/Apps";
 import { Admin } from "@/pages/Admin";
 import { AppDetail } from "@/pages/AppDetail";
+import { Login } from "@/pages/Login";
+import { Signup } from "@/pages/Signup";
+import AuthRedirectPlaceholder from "@/pages/AuthRedirectPlaceholder";
 
 function App() {
   const [welcomeComplete, setWelcomeComplete] = useState(false);
@@ -47,6 +50,10 @@ function App() {
                 <Route path="/apps/:appId" element={<AppDetail />} />
                 <Route path="/code-editor" element={<CodeEditor />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/auth/google" element={<AuthRedirectPlaceholder />} />
+                <Route path="/auth/github" element={<AuthRedirectPlaceholder />} />
               </Route>
               <Route path="/home" element={<Navigate to="/" replace />} />
               <Route path="*" element={<NotFound />} />
