@@ -1,11 +1,14 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { cardReveal } from "@/lib/animations";
+
+const MotionLink = motion(Link);
 
 export const TrackCard = ({ title, description, icon: Icon, highlights = [], href = "/courses" }) => {
   return (
-    <motion.a
-      href={href}
+    <MotionLink
+      to={href}
       variants={cardReveal}
       className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-left shadow-[0_10px_36px_rgb(0_0_0/0.26)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#FF3B30]/70 hover:shadow-[0_0_0_1px_rgba(255,59,48,0.28),0_16px_34px_rgba(255,59,48,0.2)]"
     >
@@ -34,6 +37,6 @@ export const TrackCard = ({ title, description, icon: Icon, highlights = [], hre
         Explore track
         <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
       </span>
-    </motion.a>
+    </MotionLink>
   );
 };
