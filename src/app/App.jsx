@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Home } from "@/pages/Home";
-import { AboutPage } from "@/pages/AboutPage";
-import { SkillsPage } from "@/pages/SkillsPage";
-import { ProjectsPage } from "@/pages/ProjectsPage";
 import { TestimonialsPage } from "@/pages/TestimonialsPage";
 import { ContactPage } from "@/pages/ContactPage";
 import { NotFound } from "@/pages/NotFound";
@@ -11,6 +8,9 @@ import WelcomeScreen from "@/components/common/WelcomeScreen";
 import { Analytics } from "@vercel/analytics/react";
 import { AppProviders } from "@/app/providers";
 import { MainLayout } from "@/pages/MainLayout";
+import { CoursesPage } from "@/pages/CoursesPage";
+import { CourseDetailPage } from "@/pages/CourseDetailPage";
+import { InstructorPage } from "@/pages/InstructorPage";
 
 function App() {
   const [welcomeComplete, setWelcomeComplete] = useState(false);
@@ -24,9 +24,9 @@ function App() {
           <Routes>
             <Route element={<MainLayout />}>
               <Route path="/" element={<Home />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/skills" element={<SkillsPage />} />
-              <Route path="/projects" element={<ProjectsPage />} />
+              <Route path="/courses" element={<CoursesPage />} />
+              <Route path="/courses/:slug" element={<CourseDetailPage />} />
+              <Route path="/instructor" element={<InstructorPage />} />
               <Route path="/testimonials" element={<TestimonialsPage />} />
               <Route path="/contact" element={<ContactPage />} />
             </Route>

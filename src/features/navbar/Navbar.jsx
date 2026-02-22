@@ -1,34 +1,15 @@
 import { useEffect, useState } from "react";
-import {
-  Home,
-  User,
-  Code,
-  Briefcase,
-  MessageSquare,
-  Mail,
-  BookOpen,
-  Sun,
-  Moon,
-  Youtube,
-  Volume2,
-  VolumeX,
-  Github,
-  Linkedin,
-  Globe,
-} from "lucide-react";
+import { Home, GraduationCap, User, MessageSquare, Mail, Sun, Moon } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 
 const navItems = [
   { name: "Home", href: "/", icon: Home },
-  { name: "About", href: "/about", icon: User },
-  { name: "Skills", href: "/skills", icon: Code },
-  { name: "Projects", href: "/projects", icon: Briefcase },
+  { name: "Courses", href: "/courses", icon: GraduationCap },
+  { name: "Instructor", href: "/instructor", icon: User },
   { name: "Testimonials", href: "/testimonials", icon: MessageSquare },
-  { name: "Contact", href: "/contact", icon: Mail },
-  { name: "Blog", href: "https://blogni.vercel.app", icon: BookOpen, external: true },
+  { name: "Contact", href: "/contact", icon: Mail }
 ];
 
 const ThemeToggle = () => {
@@ -50,12 +31,7 @@ const ThemeToggle = () => {
   };
 
   return (
-    <button
-      onClick={toggleTheme}
-      className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800"
-      title="Toggle theme"
-      aria-label="Toggle theme"
-    >
+    <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800" aria-label="Toggle theme">
       {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
     </button>
   );
@@ -63,99 +39,25 @@ const ThemeToggle = () => {
 
 export const Navbar = () => {
   const { pathname } = useLocation();
-  const { isMusicPlaying, isAudioReady, toggleMusic } = useAudioPlayer("/music.mp3");
-  const [showNavbar, setShowNavbar] = useState(true);
-
-  useEffect(() => {
-    let lastScrollY = window.scrollY;
-
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setShowNavbar(!(currentScrollY > lastScrollY && currentScrollY > 100));
-      lastScrollY = currentScrollY;
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
-    <>
-      <motion.div
-        className="fixed top-4 right-4 z-50 flex gap-2"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <motion.a href="https://avoliq.vercel.app" target="_blank" rel="noopener noreferrer" className={cn("p-2 rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-md", "text-green-600 hover:bg-green-100 dark:hover:bg-green-900/50", "border border-gray-200 dark:border-gray-700 shadow-sm", "flex items-center justify-center")} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} title="My Website" aria-label="My Website">
-          <Globe className="w-5 h-5" />
-        </motion.a>
-
-        <motion.a href="https://github.com/sahilmd01" target="_blank" rel="noopener noreferrer" className={cn("p-2 rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-md", "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700/50", "border border-gray-200 dark:border-gray-700 shadow-sm", "flex items-center justify-center")} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} title="GitHub Profile" aria-label="GitHub Profile">
-          <Github className="w-5 h-5" />
-        </motion.a>
-
-        <motion.a href="https://linkedin.com/in/codewithkinu" target="_blank" rel="noopener noreferrer" className={cn("p-2 rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-md", "text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50", "border border-gray-200 dark:border-gray-700 shadow-sm", "flex items-center justify-center")} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} title="LinkedIn Profile" aria-label="LinkedIn Profile">
-          <Linkedin className="w-5 h-5" />
-        </motion.a>
-
-        <motion.a href="https://www.youtube.com/@codewithkinu" target="_blank" rel="noopener noreferrer" className={cn("p-2 rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-md", "text-red-600 hover:bg-red-100 dark:hover:bg-red-900/50", "border border-gray-200 dark:border-gray-700 shadow-sm", "flex items-center justify-center")} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} title="YouTube Channel" aria-label="YouTube Channel">
-          <Youtube className="w-5 h-5" />
-        </motion.a>
-
-        <motion.button onClick={toggleMusic} disabled={!isAudioReady} className={cn("p-2 rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-md", "text-primary hover:bg-primary/10 dark:hover:bg-primary/20", "border border-gray-200 dark:border-gray-700 shadow-sm", "flex items-center justify-center", !isAudioReady && "opacity-50 cursor-not-allowed")} whileHover={{ scale: isAudioReady ? 1.05 : 1 }} whileTap={{ scale: isAudioReady ? 0.95 : 1 }} title={isAudioReady ? (isMusicPlaying ? "Pause music" : "Play music") : "Loading music..."} aria-label={isAudioReady ? (isMusicPlaying ? "Pause music" : "Play music") : "Loading music"}>
-          {isMusicPlaying ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-        </motion.button>
-      </motion.div>
-
-      <motion.div
-        className={cn(
-          "fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50",
-          "transition-transform duration-300 ease-in-out",
-          showNavbar ? "translate-y-0" : "translate-y-full"
-        )}
-        style={{ willChange: "transform" }}
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="flex items-center justify-center bg-white/80 dark:bg-black/80 backdrop-blur-md rounded-full shadow-lg p-2 border border-gray-200 dark:border-gray-700">
-          <div className="flex space-x-1 items-center">
-            {navItems.map((item) => {
-              if (item.external) {
-                return (
-                  <a key={item.name} href={item.href} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full transition-colors flex flex-col items-center text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary" aria-label={item.name}>
-                    <item.icon className="w-5 h-5" />
-                    <span className="text-xs mt-1 hidden md:block">{item.name}</span>
-                  </a>
-                );
-              }
-
-              const isActive = pathname === item.href;
-
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={cn(
-                    "p-2 rounded-full transition-colors flex flex-col items-center",
-                    isActive
-                      ? "bg-primary text-white"
-                      : "text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary"
-                  )}
-                  aria-label={item.name}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="text-xs mt-1 hidden md:block">{item.name}</span>
-                </Link>
-              );
-            })}
-            <div className="flex items-center px-2">
-              <ThemeToggle />
-            </div>
+    <motion.div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.3 }}>
+      <div className="flex items-center justify-center bg-white/80 dark:bg-black/80 backdrop-blur-md rounded-full shadow-lg p-2 border border-gray-200 dark:border-gray-700">
+        <div className="flex space-x-1 items-center">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || (item.href === "/courses" && pathname.startsWith("/courses/"));
+            return (
+              <Link key={item.name} to={item.href} className={cn("p-2 rounded-full transition-colors flex flex-col items-center", isActive ? "bg-primary text-white" : "text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary")} aria-label={item.name}>
+                <item.icon className="w-5 h-5" />
+                <span className="text-xs mt-1 hidden md:block">{item.name}</span>
+              </Link>
+            );
+          })}
+          <div className="flex items-center px-2">
+            <ThemeToggle />
           </div>
         </div>
-      </motion.div>
-    </>
+      </div>
+    </motion.div>
   );
 };

@@ -126,20 +126,20 @@ export const TestimonialSection = () => {
               transition={{ delay: 0.4 }}
             >
               <Star className="h-3 w-3 sm:h-4 sm:w-4" />
-              Client Feedback
+              Student Feedback
               <Star className="h-3 w-3 sm:h-4 sm:w-4" />
             </motion.div>
             <motion.h2
               className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight"
               variants={itemVariants}
             >
-              What People Say
+              What Our Students Say
             </motion.h2>
             <motion.p
               className="text-base sm:text-lg text-muted-foreground mt-3 sm:mt-4 max-w-2xl mx-auto"
               variants={itemVariants}
             >
-              What Clients Will Say About Working with Me.
+              Real reviews from learners across web development and design tracks.
             </motion.p>
           </motion.div>
 

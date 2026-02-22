@@ -83,7 +83,7 @@ export const ContactSection = () => {
       if (response.ok) {
         toast({
           title: "Message sent! 🎉",
-          description: "I'll get back to you within 24 hours.",
+          description: "Our team will get back to you within 24 hours.",
           variant: "success",
           className: "bg-green-600 text-white dark:bg-green-500 border border-green-700 shadow-lg"
         });
@@ -94,7 +94,7 @@ export const ContactSection = () => {
     } catch (error) {
       toast({
         title: "Oops! Something went wrong",
-        description: "Please try again or email me directly at codewithkinu@gmail.com",
+        description: "Please try again or email us directly at hello@devfraol.academy",
         variant: "destructive"
       });
     } finally {
@@ -107,13 +107,13 @@ export const ContactSection = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-12 sm:mb-16">
           <span className="inline-block px-3 py-1 text-xs sm:text-sm font-medium rounded-full bg-primary/10 text-primary mb-3 sm:mb-4">
-            Let's Connect
+            Contact Dev Fraol Academy
           </span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
-            Get In Touch
+            Send an Inquiry
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-            Have a project in mind or just want to say hi? My inbox is always open.
+            Ask about courses, enrollment, schedules, or mentorship and we'll reply shortly.
           </p>
         </div>
 
@@ -122,7 +122,7 @@ export const ContactSection = () => {
           <div className="space-y-6 sm:space-y-8 p-6 sm:p-8 rounded-xl sm:rounded-2xl bg-gradient-to-br from-secondary/20 to-background border border-border">
             <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center gap-2">
               <span className="w-3 sm:w-4 h-3 sm:h-4 rounded-full bg-primary"></span>
-              Contact Details
+              Academy Details
             </h3>
 
             <div className="space-y-4 sm:space-y-6">
@@ -133,10 +133,10 @@ export const ContactSection = () => {
                 <div>
                   <p className="text-xs sm:text-sm text-muted-foreground">Email</p>
                   <a
-                    href="mailto:codewithkinu@gmail.com"
+                    href="mailto:hello@devfraol.academy"
                     className="text-sm sm:text-base font-medium hover:text-primary transition-colors"
                   >
-                    codewithkinu@gmail.com
+                    hello@devfraol.academy
                   </a>
                 </div>
               </div>
@@ -163,7 +163,7 @@ export const ContactSection = () => {
                 <div>
                   <p className="text-xs sm:text-sm text-muted-foreground">Location</p>
                   <span className="text-sm sm:text-base font-medium">
-                    Bengaluru, Karnataka India
+                    Online + Live Remote Sessions
                   </span>
                 </div>
               </div>
@@ -213,7 +213,7 @@ export const ContactSection = () => {
           <div className="p-6 sm:p-8 rounded-xl sm:rounded-2xl bg-card border border-border shadow-sm">
             <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center gap-2">
               <span className="w-3 sm:w-4 h-3 sm:h-4 rounded-full bg-primary"></span>
-              Send Me a Message
+              Course Inquiry Form
             </h3>
 
             <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
