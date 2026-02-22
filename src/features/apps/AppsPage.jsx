@@ -3,10 +3,9 @@ import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { appsCatalog, webRecommendations } from "@/data/apps";
+import { ResourceCategory } from "./ResourceCategory";
 
 const appCategories = ["All", "Downloaders", "Editors", "Converters"];
-const webCategories = ["All", "Documentation", "Design", "Learning", "Tools"];
-
 export const AppsPage = () => {
   const [appQuery, setAppQuery] = useState("");
   const [appCategory, setAppCategory] = useState("All");
@@ -30,6 +29,10 @@ export const AppsPage = () => {
       return categoryMatch && queryMatch;
     });
   }, [webQuery, webCategory]);
+
+  const dynamicWebCategories = useMemo(() => {
+    return ["All", ...new Set(webRecommendations.map((item) => item.category))];
+  }, []);
 
   return (
     <main className="px-4 py-14 sm:px-6 lg:px-8">
@@ -84,7 +87,7 @@ export const AppsPage = () => {
               <input value={webQuery} onChange={(e) => setWebQuery(e.target.value)} placeholder="Search websites" className="w-full rounded-xl border border-white/10 bg-black/25 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#FF3B30]/65" />
             </label>
             <div className="flex flex-wrap gap-2">
-              {webCategories.map((category) => (
+              {dynamicWebCategories.map((category) => (
                 <button key={category} type="button" onClick={() => setWebCategory(category)} className={`rounded-full px-3 py-1.5 text-xs font-semibold ${webCategory === category ? "bg-[#FF3B30] text-white" : "border border-white/10 text-foreground/75 hover:border-[#FF3B30]/50 hover:text-[#FF3B30]"}`}>
                   {category}
                 </button>
@@ -92,20 +95,7 @@ export const AppsPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {filteredWebsites.map((site, index) => {
-              const Icon = site.icon;
-              return (
-                <motion.a key={site.name} href={site.link} target="_blank" rel="noreferrer" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.04 }} whileHover={{ y: -4 }} className="block rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl hover:border-[#FF3B30]/55">
-                  <span className="inline-flex rounded-lg bg-[#FF3B30]/15 p-2 text-[#FF3B30]">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <h3 className="mt-3 font-bold">{site.name}</h3>
-                  <p className="mt-2 text-sm text-foreground/70">{site.description}</p>
-                </motion.a>
-              );
-            })}
-          </div>
+          <ResourceCategory websites={filteredWebsites} />
         </section>
       </div>
     </main>
