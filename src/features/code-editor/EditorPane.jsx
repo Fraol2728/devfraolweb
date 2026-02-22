@@ -1,6 +1,15 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const MONACO_LOADER_ID = "monaco-loader";
+
+const getMonacoLanguage = (language) => {
+  if (language === "javascript") return "javascript";
+  if (language === "python") return "python";
+  if (language === "php") return "php";
+  if (language === "css") return "css";
+  if (language === "html") return "html";
+  return "plaintext";
+};
 
 const loadMonaco = () =>
   new Promise((resolve, reject) => {
@@ -32,99 +41,65 @@ const loadMonaco = () =>
     document.body.appendChild(loader);
   });
 
-export const EditorPane = forwardRef(function EditorPane({ activeFile, onChange, isDarkMode }, ref) {
+export const EditorPane = ({ activeFile, onChange, theme }) => {
   const containerRef = useRef(null);
   const editorRef = useRef(null);
+  const modelMapRef = useRef(new Map());
   const monacoRef = useRef(null);
-  const modelsRef = useRef(new Map());
-
-  useImperativeHandle(ref, () => ({
-    undo: () => editorRef.current?.trigger("toolbar", "undo", null),
-    redo: () => editorRef.current?.trigger("toolbar", "redo", null),
-  }));
 
   useEffect(() => {
     let mounted = true;
+    loadMonaco().then((monaco) => {
+      if (!mounted || !containerRef.current) return;
+      monacoRef.current = monaco;
 
-    loadMonaco()
-      .then((monaco) => {
-        if (!mounted || !containerRef.current || !activeFile) {
-          return;
-        }
+      editorRef.current = monaco.editor.create(containerRef.current, {
+        automaticLayout: true,
+        minimap: { enabled: false },
+        fontSize: 14,
+        scrollBeyondLastLine: false,
+        tabCompletion: "on",
+        quickSuggestions: true,
+        theme: theme === "dark" ? "vs-dark" : "vs",
+        padding: { top: 8 },
+      });
 
-        monacoRef.current = monaco;
-        const model = monaco.editor.createModel(activeFile.content, activeFile.monacoLanguage);
-        modelsRef.current.set(activeFile.id, model);
-
-        editorRef.current = monaco.editor.create(containerRef.current, {
-          model,
-          automaticLayout: true,
-          minimap: { enabled: false },
-          smoothScrolling: true,
-          fontSize: 14,
-          fontFamily: "'Fira Code', 'JetBrains Mono', Consolas, monospace",
-          padding: { top: 10 },
-          theme: isDarkMode ? "vs-dark" : "vs",
-          scrollBeyondLastLine: false,
-          lineNumbers: "on",
-          suggestOnTriggerCharacters: true,
-          quickSuggestions: true,
-          wordBasedSuggestions: "allDocuments",
-          tabCompletion: "on",
-          autoIndent: "full",
-          bracketPairColorization: { enabled: true },
-        });
-
-        editorRef.current.setPosition({ lineNumber: 1, column: 1 });
-
-        editorRef.current.onDidChangeModelContent(() => {
-          const currentFile = editorRef.current?.getModel()?.id;
-          if (!currentFile) {
-            return;
-          }
+      editorRef.current.onDidChangeModelContent(() => {
+        if (activeFile) {
           onChange(editorRef.current.getValue());
-        });
-      })
-      .catch(() => {});
+        }
+      });
+    });
 
     return () => {
       mounted = false;
       editorRef.current?.dispose();
-      modelsRef.current.forEach((model) => model.dispose());
-      modelsRef.current.clear();
+      modelMapRef.current.forEach((model) => model.dispose());
+      modelMapRef.current.clear();
     };
   }, []);
 
   useEffect(() => {
-    const editor = editorRef.current;
+    if (!activeFile || !editorRef.current || !monacoRef.current) return;
+
     const monaco = monacoRef.current;
-
-    if (!editor || !monaco || !activeFile) {
-      return;
-    }
-
-    let model = modelsRef.current.get(activeFile.id);
+    const language = getMonacoLanguage(activeFile.language);
+    let model = modelMapRef.current.get(activeFile.id);
 
     if (!model) {
-      model = monaco.editor.createModel(activeFile.content, activeFile.monacoLanguage);
-      modelsRef.current.set(activeFile.id, model);
+      model = monaco.editor.createModel(activeFile.content || "", language);
+      modelMapRef.current.set(activeFile.id, model);
     }
 
-    if (model.getLanguageId() !== activeFile.monacoLanguage) {
-      monaco.editor.setModelLanguage(model, activeFile.monacoLanguage);
+    if (model.getValue() !== (activeFile.content || "")) {
+      model.setValue(activeFile.content || "");
     }
 
-    if (model.getValue() !== activeFile.content) {
-      model.setValue(activeFile.content);
-    }
+    monaco.editor.setModelLanguage(model, language);
+    editorRef.current.setModel(model);
+    editorRef.current.setPosition({ lineNumber: 1, column: 1 });
+    monaco.editor.setTheme(theme === "dark" ? "vs-dark" : "vs");
+  }, [activeFile, theme]);
 
-    if (editor.getModel() !== model) {
-      editor.setModel(model);
-      editor.setPosition({ lineNumber: 1, column: 1 });
-    }
-
-    monaco.editor.setTheme(isDarkMode ? "vs-dark" : "vs");
-  }, [activeFile, isDarkMode]);
-
-  return <div ref={containerRef} className="h-full min-h-[360px] w-full overflow-hidden rounded-2xl border border-white/10" />;
-});
+  return <div ref={containerRef} className="h-full w-full" />;
+};
