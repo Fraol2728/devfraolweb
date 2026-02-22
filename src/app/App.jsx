@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import { motion } from "framer-motion";
 import { WelcomePage } from "@/pages/WelcomePage";
 import { Analytics } from "@vercel/analytics/react";
@@ -42,7 +42,7 @@ function App() {
             <WelcomePage onWelcomeComplete={() => setWelcomeComplete(true)} />
           ) : (
             <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, ease: "easeOut" }}>
-              <BrowserRouter>
+              <HashRouter>
                 <ScrollToTop />
                 <FixedAuthActions />
                 <Routes>
@@ -78,7 +78,7 @@ function App() {
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <Analytics />
-              </BrowserRouter>
+              </HashRouter>
             </motion.div>
           )}
         </ErrorBoundary>
