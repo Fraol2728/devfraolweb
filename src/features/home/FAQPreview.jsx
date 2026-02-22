@@ -8,7 +8,7 @@ export const FAQPreview = () => {
   const [openId, setOpenId] = useState(faqItems[0].id);
 
   return (
-    <section className="px-4 sm:px-6 py-16">
+    <section id="faq-preview" className="px-4 sm:px-6 py-16">
       <div className="container max-w-5xl mx-auto text-left">
         <h2 className="text-3xl sm:text-4xl">FAQ Preview</h2>
         <div className="mt-6 space-y-3">

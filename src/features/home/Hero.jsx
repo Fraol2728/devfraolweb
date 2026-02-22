@@ -18,7 +18,7 @@ const linePauseMs = 320;
 export const Hero = () => {
   const [lineIndex, setLineIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
-  const [completed, setCompleted] = useState([]);
+  const [completedLines, setCompletedLines] = useState([]);
 
   const currentLine = useMemo(() => terminalLines[lineIndex] ?? "", [lineIndex]);
 
@@ -35,7 +35,7 @@ export const Hero = () => {
     }
 
     const lineTimer = window.setTimeout(() => {
-      setCompleted((prev) => [...prev, currentLine]);
+      setCompletedLines((prev) => [...prev, currentLine]);
       setLineIndex((prev) => prev + 1);
       setCharIndex(0);
     }, linePauseMs);
@@ -44,7 +44,7 @@ export const Hero = () => {
   }, [charIndex, currentLine, lineIndex]);
 
   return (
-    <section className="relative px-4 sm:px-6 pt-6 pb-16">
+    <section id="hero" className="relative px-4 sm:px-6 pt-6 pb-16">
       <div className="container max-w-6xl mx-auto grid gap-10 lg:grid-cols-[1.1fr_1fr] items-center">
         <motion.div
           initial={{ opacity: 0, y: 26 }}
@@ -81,11 +81,7 @@ export const Hero = () => {
             <span className="ml-3 text-xs text-muted-foreground">devfraol-terminal</span>
           </div>
           <div className="min-h-64 rounded-xl border border-border/80 bg-background/80 p-4 text-left font-mono text-[13px] sm:text-sm leading-7">
-            {[...completed, currentLine.slice(0, charIndex)].map((line, idx) => (
-              <p key={`${line}-${idx}`} className="text-foreground/90">
-                {line ? line : "\u00A0"}
-              </p>
-            ))}
+            <pre className="m-0 whitespace-pre-wrap text-foreground/90">{`${completedLines.join("\n")}${completedLines.length ? "\n" : ""}${currentLine.slice(0, charIndex) || "\u00A0"}`}</pre>
             {lineIndex < terminalLines.length && (
               <span className="inline-block h-5 w-2 translate-y-1 bg-primary animate-pulse" />
             )}

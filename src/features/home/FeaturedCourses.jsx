@@ -7,7 +7,7 @@ export const FeaturedCourses = () => {
   const featuredCourses = courses.slice(0, 4);
 
   return (
-    <section className="px-4 sm:px-6 py-16">
+    <section id="featured-courses" className="px-4 sm:px-6 py-16">
       <div className="container max-w-6xl mx-auto text-left">
         <h2 className="text-3xl sm:text-4xl">Featured Courses</h2>
         <p className="mt-3 text-muted-foreground">Start with our most popular programs and grow into advanced modules.</p>

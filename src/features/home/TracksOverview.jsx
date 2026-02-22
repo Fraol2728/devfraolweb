@@ -29,7 +29,7 @@ const tracks = [
 
 export const TracksOverview = () => {
   return (
-    <section className="px-4 sm:px-6 py-16">
+    <section id="tracks" className="px-4 sm:px-6 py-16">
       <div className="container max-w-6xl mx-auto text-left">
         <motion.div
           variants={sectionReveal}

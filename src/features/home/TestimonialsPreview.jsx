@@ -6,7 +6,7 @@ export const TestimonialsPreview = () => {
   const previewTestimonials = testimonials.slice(0, 2);
 
   return (
-    <section className="px-4 sm:px-6 py-16">
+    <section id="testimonials-preview" className="px-4 sm:px-6 py-16">
       <div className="container max-w-6xl mx-auto text-left">
         <h2 className="text-3xl sm:text-4xl">Student Testimonials</h2>
         <div className="mt-8 grid gap-5 md:grid-cols-2">
