@@ -7,8 +7,7 @@ export const Footer = () => {
         <p>© {new Date().getFullYear()} Dev Fraol Academy. All rights reserved.</p>
         <div className="flex gap-4">
           <Link to="/courses" className="hover:text-primary">Courses</Link>
-          <Link to="/apps" className="hover:text-primary">Apps</Link>
-          <Link to="/blog" className="hover:text-primary">Blog</Link>
+          <Link to="/testimonials" className="hover:text-primary">Testimonials</Link>
           <Link to="/contact" className="hover:text-primary">Contact</Link>
         </div>
       </div>
