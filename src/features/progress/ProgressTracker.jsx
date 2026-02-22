@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
-export const ProgressTracker = ({ completed = 4, total = 10, label = "Course Progress" }) => {
+export const ProgressTracker = ({ completed = 4, total = 10, label = "Course Progress", orientation = "horizontal" }) => {
   const safeTotal = Math.max(total, 1);
   const percent = Math.min(100, Math.round((completed / safeTotal) * 100));
+  const isVertical = orientation === "vertical";
 
   return (
     <motion.section
@@ -15,13 +17,16 @@ export const ProgressTracker = ({ completed = 4, total = 10, label = "Course Pro
         <h3 className="text-xl font-bold">{label}</h3>
         <span className="text-sm font-medium text-primary">{completed}/{safeTotal} modules complete</span>
       </div>
-      <div className="mt-4 h-3 rounded-full bg-muted overflow-hidden">
+      <div className={cn("mt-4 bg-muted overflow-hidden", isVertical ? "h-36 w-3 rounded-full" : "h-3 rounded-full")}>
         <motion.div
-          initial={{ width: 0 }}
-          whileInView={{ width: `${percent}%` }}
+          initial={isVertical ? { height: 0 } : { width: 0 }}
+          whileInView={isVertical ? { height: `${percent}%` } : { width: `${percent}%` }}
           viewport={{ once: true }}
           transition={{ duration: 0.9, ease: "easeOut" }}
-          className="h-full rounded-full bg-linear-to-r from-primary to-orange-400"
+          className={cn(
+            "rounded-full",
+            isVertical ? "w-full bg-linear-to-t from-primary to-orange-400" : "h-full bg-linear-to-r from-primary to-orange-400"
+          )}
         />
       </div>
       <p className="mt-2 text-sm text-muted-foreground">Placeholder tracker for module completion UX.</p>

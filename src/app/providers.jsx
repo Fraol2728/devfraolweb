@@ -7,7 +7,7 @@ export const AppProviders = ({ children }) => {
       attribute="class"
       defaultTheme="dark"
       enableSystem={false}
-      disableTransitionOnChange
+      disableTransitionOnChange={false}
     >
       <Toaster />
       {children}

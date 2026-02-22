@@ -45,17 +45,6 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 3 30% 12%;
-    --card: 0 0% 100%;
-    --muted: 0 0% 94%;
-    --muted-foreground: 3 10% 35%;
-    --primary: 4 100% 59%;
-    --primary-foreground: 0 0% 100%;
-    --border: 0 0% 88%;
-  }
-
-  .dark {
     --background: 230 24% 6%;
     --foreground: 0 0% 95%;
     --card: 228 23% 10%;
@@ -66,18 +55,30 @@
     --border: 228 16% 21%;
   }
 
+  .light {
+    --background: 0 0% 98%;
+    --foreground: 3 30% 12%;
+    --card: 0 0% 100%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 3 10% 35%;
+    --primary: 4 100% 59%;
+    --primary-foreground: 0 0% 100%;
+    --border: 0 0% 88%;
+  }
+
   * { @apply border-border; }
   html { @apply scroll-smooth; }
 
   body {
     @apply bg-background text-foreground transition-colors duration-300 antialiased;
     font-family: "Inter", system-ui, sans-serif;
-    line-height: 1.65;
+    line-height: 1.75;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    line-height: 1.15;
+    line-height: 1.1;
+    font-weight: 800;
     letter-spacing: -0.02em;
   }
 }
