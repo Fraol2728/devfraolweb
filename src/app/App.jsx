@@ -55,12 +55,12 @@ function App() {
                 <Route path="/apps/file-converter" element={<AppDetail appId="file-converter" />} />
                 <Route path="/apps/web-recommended" element={<AppDetail appId="web-recommended" />} />
                 <Route path="/code-editor" element={<CodeEditor />} />
-                <Route path="/admin" element={<Admin />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/auth/google" element={<AuthRedirectPlaceholder />} />
                 <Route path="/auth/github" element={<AuthRedirectPlaceholder />} />
               </Route>
+              <Route path="/admin" element={<Admin />} />
               <Route path="/home" element={<Navigate to="/" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
