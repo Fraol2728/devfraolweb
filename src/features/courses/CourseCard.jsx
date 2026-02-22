@@ -1,43 +1,53 @@
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { Clock3, Layers3 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export const CourseCard = ({ title, description, icon: Icon, index = 0, href = "#" }) => {
-  const editorQuery = `/code-editor?course=${encodeURIComponent(title)}`;
+const badgeStyles = {
+  Popular: "border-[#FF3B30]/50 bg-[#FF3B30]/15 text-[#ff8a83]",
+  New: "border-emerald-400/45 bg-emerald-400/10 text-emerald-300",
+  Beginner: "border-sky-400/45 bg-sky-400/10 text-sky-300",
+};
 
+export const CourseCard = ({ course, index = 0, highlightedTitle }) => {
   return (
     <motion.article
-      initial={{ opacity: 0, y: 24, x: -10 }}
-      whileInView={{ opacity: 1, y: 0, x: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.4, delay: index * 0.06 }}
-      whileHover={{ y: -6, scale: 1.02 }}
-      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#1E1E1E] p-5 shadow-[0_10px_32px_rgba(0,0,0,0.24)] backdrop-blur-sm transition-all duration-300 hover:border-[#FF3B30]/70 hover:shadow-[0_0_0_1px_rgba(255,59,48,0.3),0_15px_34px_rgba(255,59,48,0.22)]"
+      layout
+      initial={{ opacity: 0, y: 26 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.35, delay: index * 0.06 }}
+      whileHover={{ scale: 1.01, y: -4 }}
+      className="group rounded-2xl border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.26)] backdrop-blur-sm transition-colors duration-300 hover:border-[#FF3B30]/55"
     >
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#FF3B30]/0 via-[#FF3B30]/0 to-[#FF3B30]/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
-      <div className="relative z-10 flex items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-semibold leading-snug sm:text-xl">{title}</h3>
-          {description ? <p className="mt-2 text-sm text-muted-foreground">{description}</p> : null}
-        </div>
-        {Icon ? <Icon className="h-5 w-5 shrink-0 text-[#FF3B30]" aria-hidden="true" /> : null}
-      </div>
-
-      <div className="relative z-10 mt-5 flex flex-wrap items-center gap-3">
-        <Link
-          to={editorQuery}
-          className="inline-flex rounded-lg bg-[#FF3B30] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#ff5449]"
-        >
-          Try in Editor
-        </Link>
-        {href && href !== "#" ? (
-          <a href={href} className="inline-flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-[#FF3B30]">
-            Open details
-            <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-          </a>
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <span className="rounded-full border border-white/10 bg-black/25 px-3 py-1 text-xs text-slate-200">{course.level}</span>
+        {course.badge ? (
+          <span className={`rounded-full border px-3 py-1 text-xs font-medium ${badgeStyles[course.badge] ?? "border-white/20 text-slate-200"}`}>
+            {course.badge}
+          </span>
         ) : null}
       </div>
+
+      <h3 className="text-xl font-semibold leading-snug text-white">{highlightedTitle ?? course.title}</h3>
+      <p className="mt-3 text-sm leading-relaxed text-slate-300">{course.description}</p>
+
+      <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-slate-300">
+        <span className="inline-flex items-center gap-1.5">
+          <Layers3 className="h-4 w-4 text-[#FF3B30]" />
+          {course.category}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <Clock3 className="h-4 w-4 text-[#FF3B30]" />
+          {course.duration}
+        </span>
+      </div>
+
+      <Link
+        to={`/courses/${course.slug}`}
+        className="mt-6 inline-flex items-center rounded-lg bg-[#FF3B30] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#ff5449] hover:shadow-[0_0_22px_rgba(255,59,48,0.45)]"
+      >
+        View Details
+      </Link>
     </motion.article>
   );
 };
