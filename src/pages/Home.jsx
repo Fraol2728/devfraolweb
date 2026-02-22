@@ -2,6 +2,7 @@ import { Suspense, lazy } from "react";
 import { Hero } from "@/features/home/Hero";
 import { TracksOverview } from "@/features/home/TracksOverview";
 import { FeaturedCourses } from "@/features/home/FeaturedCourses";
+import { FeaturedApps } from "@/features/home/FeaturedApps";
 import { CTA } from "@/features/home/CTA";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 
@@ -23,6 +24,7 @@ export const Home = () => {
       <Hero />
       <TracksOverview />
       <FeaturedCourses />
+      <FeaturedApps />
       <Suspense fallback={<SectionSkeleton />}>
         <BlogPreview />
       </Suspense>

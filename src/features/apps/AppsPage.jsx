@@ -1,16 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
-import {
-  ArrowRight,
-  Code2,
-  FileCog,
-  FileImage,
-  Moon,
-  Sparkles,
-  Sun,
-  Video,
-} from "lucide-react";
+import { ArrowRight, Moon, Sparkles, Sun } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import { appsCatalog } from "@/data/apps";
 import { AppCard } from "@/features/apps/AppCard";
 import { ResourceCard } from "@/features/apps/ResourceCard";
 import { SearchFilter } from "@/features/apps/SearchFilter";
@@ -18,41 +11,6 @@ import { FileConverter } from "@/features/apps/FileConverter";
 import { VideoDownloader } from "@/features/apps/VideoDownloader";
 import { BackgroundRemover } from "@/features/apps/BackgroundRemover";
 import { CodeEditor } from "@/features/apps/CodeEditor";
-
-const apps = [
-  {
-    name: "Video Downloader",
-    description: "Paste a YouTube/TikTok/Instagram URL, fetch details, and download through the backend.",
-    buttonLabel: "Use Tool",
-    category: "Downloaders",
-    icon: Video,
-    tool: "downloader",
-  },
-  {
-    name: "Background Remover",
-    description: "Upload an image, remove its background using the backend API, and download the result.",
-    buttonLabel: "Use Tool",
-    category: "Editors",
-    icon: FileImage,
-    tool: "background-remover",
-  },
-  {
-    name: "Online Code Editor",
-    description: "Run JavaScript in-browser or execute code snippets through the backend runtime endpoint.",
-    buttonLabel: "Use Tool",
-    category: "Editors",
-    icon: Code2,
-    tool: "code-editor",
-  },
-  {
-    name: "File Converter",
-    description: "Drag files in, convert formats through the API, and auto-download the converted output.",
-    buttonLabel: "Use Tool",
-    category: "Converters",
-    icon: FileCog,
-    tool: "converter",
-  },
-];
 
 const categories = ["All", "Converters", "Downloaders", "Editors"];
 
@@ -73,9 +31,11 @@ const toolComponents = {
 
 export const AppsPage = () => {
   const { resolvedTheme, setTheme } = useTheme();
+  const { hash } = useLocation();
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeTool, setActiveTool] = useState("converter");
+  const [highlightedAppId, setHighlightedAppId] = useState("");
   const [resourceQuery, setResourceQuery] = useState("");
   const [resources, setResources] = useState([]);
   const [isResourcesLoading, setIsResourcesLoading] = useState(false);
@@ -109,10 +69,33 @@ export const AppsPage = () => {
     return () => controller.abort();
   }, []);
 
+  useEffect(() => {
+    if (!hash) return;
+
+    const appId = hash.replace("#", "");
+    const selectedApp = appsCatalog.find((app) => app.id === appId);
+
+    if (!selectedApp) return;
+
+    setActiveTool(selectedApp.tool);
+    setHighlightedAppId(appId);
+
+    requestAnimationFrame(() => {
+      const targetSection = document.getElementById(appId);
+      targetSection?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    const timeoutId = window.setTimeout(() => {
+      setHighlightedAppId("");
+    }, 1800);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [hash]);
+
   const filteredApps = useMemo(() => {
     const normalized = query.trim().toLowerCase();
 
-    return apps.filter((app) => {
+    return appsCatalog.filter((app) => {
       const categoryMatch = activeCategory === "All" || app.category === activeCategory;
       const queryMatch = !normalized || `${app.name} ${app.description}`.toLowerCase().includes(normalized);
       return categoryMatch && queryMatch;
@@ -171,7 +154,7 @@ export const AppsPage = () => {
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
             {filteredApps.map((app, index) => (
-              <AppCard key={app.name} app={app} index={index} onSelectTool={setActiveTool} />
+              <AppCard key={app.id} app={app} index={index} onSelectTool={setActiveTool} isHighlighted={highlightedAppId === app.id} />
             ))}
           </div>
         </section>
