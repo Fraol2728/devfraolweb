@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 
 const MONACO_LOADER_ID = "monaco-loader";
 
@@ -32,36 +32,56 @@ const loadMonaco = () =>
     document.body.appendChild(loader);
   });
 
-export const EditorPane = ({ value, language, onChange, isDarkMode }) => {
+export const EditorPane = forwardRef(function EditorPane({ activeFile, onChange, isDarkMode }, ref) {
   const containerRef = useRef(null);
   const editorRef = useRef(null);
+  const monacoRef = useRef(null);
+  const modelsRef = useRef(new Map());
+
+  useImperativeHandle(ref, () => ({
+    undo: () => editorRef.current?.trigger("toolbar", "undo", null),
+    redo: () => editorRef.current?.trigger("toolbar", "redo", null),
+  }));
 
   useEffect(() => {
     let mounted = true;
 
     loadMonaco()
       .then((monaco) => {
-        if (!mounted || !containerRef.current) {
+        if (!mounted || !containerRef.current || !activeFile) {
           return;
         }
 
+        monacoRef.current = monaco;
+        const model = monaco.editor.createModel(activeFile.content, activeFile.monacoLanguage);
+        modelsRef.current.set(activeFile.id, model);
+
         editorRef.current = monaco.editor.create(containerRef.current, {
-          value,
-          language,
+          model,
           automaticLayout: true,
           minimap: { enabled: false },
           smoothScrolling: true,
           fontSize: 14,
           fontFamily: "'Fira Code', 'JetBrains Mono', Consolas, monospace",
-          padding: { top: 14 },
+          padding: { top: 10 },
           theme: isDarkMode ? "vs-dark" : "vs",
           scrollBeyondLastLine: false,
-          lineNumbersMinChars: 3,
-          roundedSelection: true,
-          wordWrap: "on",
+          lineNumbers: "on",
+          suggestOnTriggerCharacters: true,
+          quickSuggestions: true,
+          wordBasedSuggestions: "allDocuments",
+          tabCompletion: "on",
+          autoIndent: "full",
+          bracketPairColorization: { enabled: true },
         });
 
+        editorRef.current.setPosition({ lineNumber: 1, column: 1 });
+
         editorRef.current.onDidChangeModelContent(() => {
+          const currentFile = editorRef.current?.getModel()?.id;
+          if (!currentFile) {
+            return;
+          }
           onChange(editorRef.current.getValue());
         });
       })
@@ -70,31 +90,41 @@ export const EditorPane = ({ value, language, onChange, isDarkMode }) => {
     return () => {
       mounted = false;
       editorRef.current?.dispose();
+      modelsRef.current.forEach((model) => model.dispose());
+      modelsRef.current.clear();
     };
   }, []);
 
   useEffect(() => {
     const editor = editorRef.current;
-    if (!editor) {
+    const monaco = monacoRef.current;
+
+    if (!editor || !monaco || !activeFile) {
       return;
     }
 
-    const model = editor.getModel();
+    let model = modelsRef.current.get(activeFile.id);
+
     if (!model) {
-      return;
+      model = monaco.editor.createModel(activeFile.content, activeFile.monacoLanguage);
+      modelsRef.current.set(activeFile.id, model);
     }
 
-    const currentLanguage = model.getLanguageId();
-    if (currentLanguage !== language && window.monaco?.editor) {
-      window.monaco.editor.setModelLanguage(model, language);
+    if (model.getLanguageId() !== activeFile.monacoLanguage) {
+      monaco.editor.setModelLanguage(model, activeFile.monacoLanguage);
     }
 
-    if (editor.getValue() !== value) {
-      editor.setValue(value);
+    if (model.getValue() !== activeFile.content) {
+      model.setValue(activeFile.content);
     }
 
-    window.monaco?.editor.setTheme(isDarkMode ? "vs-dark" : "vs");
-  }, [value, language, isDarkMode]);
+    if (editor.getModel() !== model) {
+      editor.setModel(model);
+      editor.setPosition({ lineNumber: 1, column: 1 });
+    }
 
-  return <div ref={containerRef} className="h-full min-h-[320px] w-full overflow-hidden rounded-2xl border border-white/10" />;
-};
+    monaco.editor.setTheme(isDarkMode ? "vs-dark" : "vs");
+  }, [activeFile, isDarkMode]);
+
+  return <div ref={containerRef} className="h-full min-h-[360px] w-full overflow-hidden rounded-2xl border border-white/10" />;
+});
