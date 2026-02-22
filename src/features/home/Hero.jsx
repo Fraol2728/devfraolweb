@@ -106,9 +106,15 @@ export const Hero = () => {
           <p className="mt-6 max-w-xl text-lg text-muted-foreground leading-relaxed">
             Learn in a practice-first curriculum with guided modules, mentor-style explanations, and project workflows that mirror creative tech teams.
           </p>
-          <div className="mt-8">
+          <div className="mt-8 flex flex-wrap items-center gap-4">
             <Link to="/courses" className="cosmic-button inline-flex items-center justify-center px-7 py-3 text-base">
               Start Learning
+            </Link>
+            <Link
+              to="/code-editor"
+              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-[#1E1E1E] px-7 py-3 text-base font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-[#FF3B30] hover:bg-[#FF3B30]"
+            >
+              Editor
             </Link>
           </div>
         </motion.div>

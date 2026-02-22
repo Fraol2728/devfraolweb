@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { useSearchParams } from "react-router-dom";
 import { EditorPane } from "@/features/code-editor/EditorPane";
 import { PreviewPane, buildPreviewDocument } from "@/features/code-editor/PreviewPane";
 import { TabBar } from "@/features/code-editor/TabBar";
 import { Toolbar } from "@/features/code-editor/Toolbar";
-import { getLanguageMeta, starterExamples, supportedLanguages } from "@/data/examples";
+import { getLanguageMeta, getStarterProjectIdForCourse, starterExamples, supportedLanguages } from "@/data/examples";
 
 const STORAGE_KEY = "devfraol-editor-state-v2";
 const DEFAULT_SPLIT = 54;
@@ -22,6 +23,7 @@ const downloadFile = (fileName, content) => {
 
 export const CodeEditor = () => {
   const editorActionsRef = useRef(null);
+  const [searchParams] = useSearchParams();
   const [projects, setProjects] = useState(starterExamples);
   const [activeProjectId, setActiveProjectId] = useState(starterExamples[0].id);
   const [activeFileId, setActiveFileId] = useState(starterExamples[0].files[0].id);
@@ -53,6 +55,24 @@ export const CodeEditor = () => {
   }, [projects, activeProjectId, editorTheme]);
 
   const activeProject = useMemo(() => projects.find((project) => project.id === activeProjectId) || projects[0], [projects, activeProjectId]);
+
+
+  useEffect(() => {
+    const courseName = searchParams.get("course") || "";
+    const starterProjectId = getStarterProjectIdForCourse(courseName);
+
+    if (!starterProjectId) {
+      return;
+    }
+
+    const matchedProject = projects.find((project) => project.id === starterProjectId);
+    if (!matchedProject) {
+      return;
+    }
+
+    setActiveProjectId(matchedProject.id);
+    setActiveFileId(matchedProject.files[0]?.id || "");
+  }, [projects, searchParams]);
 
   useEffect(() => {
     if (!activeProject?.files.find((file) => file.id === activeFileId)) {

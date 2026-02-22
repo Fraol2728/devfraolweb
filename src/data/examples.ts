@@ -58,3 +58,22 @@ export const starterExamples = [
 ];
 
 export const getLanguageMeta = (languageId) => supportedLanguages.find((language) => language.id === languageId) || supportedLanguages[0];
+
+
+const courseStarterMap = {
+  "web development": "web-starter",
+  "graphic design": "web-starter",
+  "html & css course": "web-starter",
+  "javascript course": "web-starter",
+  "react js course": "web-starter",
+  "python course": "python-lab",
+};
+
+export const getStarterProjectIdForCourse = (courseName) => {
+  if (!courseName) {
+    return null;
+  }
+
+  const normalizedName = courseName.toLowerCase().trim();
+  return courseStarterMap[normalizedName] || null;
+};

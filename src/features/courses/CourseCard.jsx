@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const CourseCard = ({ title, description, icon: Icon, index = 0, href = "#" }) => {
   return (
-    <motion.a
-      href={href}
+    <motion.article
       initial={{ opacity: 0, y: 24, x: -10 }}
       whileInView={{ opacity: 1, y: 0, x: 0 }}
       viewport={{ once: true, amount: 0.2 }}
@@ -18,14 +18,21 @@ export const CourseCard = ({ title, description, icon: Icon, index = 0, href = "
         <div>
           <h3 className="text-lg font-semibold leading-snug sm:text-xl">{title}</h3>
           {description ? <p className="mt-2 text-sm text-muted-foreground">{description}</p> : null}
+
+          <Link
+            to={`/code-editor?course=${encodeURIComponent(title)}`}
+            className="mt-4 inline-flex rounded-lg border border-[#FF3B30]/65 bg-[#1E1E1E] px-4 py-2 text-sm font-medium text-white shadow-[0_10px_18px_rgba(0,0,0,0.26)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#FF3B30]"
+          >
+            Try in Editor
+          </Link>
         </div>
         {Icon ? <Icon className="h-5 w-5 shrink-0 text-[#FF3B30]" aria-hidden="true" /> : null}
       </div>
 
-      <span className="relative z-10 mt-5 inline-flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-[#FF3B30]">
+      <Link to={href} className="relative z-10 mt-5 inline-flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-[#FF3B30]">
         Open details
         <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-      </span>
-    </motion.a>
+      </Link>
+    </motion.article>
   );
 };
