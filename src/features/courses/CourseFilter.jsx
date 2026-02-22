@@ -13,7 +13,7 @@ export const CourseFilter = ({ activeCategory, onCategoryChange, sortBy, onSortC
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
-      className="mb-6 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between"
+      className="mb-6 flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-colors duration-300 dark:border-gray-700 dark:bg-gray-900/60 dark:shadow-none sm:flex-row sm:items-center sm:justify-between"
     >
       <div className="flex flex-wrap gap-2">
         {categories.map((category) => {
@@ -28,8 +28,8 @@ export const CourseFilter = ({ activeCategory, onCategoryChange, sortBy, onSortC
               onClick={() => onCategoryChange(category)}
               className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300 ${
                 isActive
-                  ? "border-[#FF3B30] bg-[#FF3B30] text-white shadow-[0_0_24px_rgba(255,59,48,0.35)]"
-                  : "border-white/10 bg-[#1E1E1E] text-slate-200 hover:border-[#FF3B30]/60 hover:text-white"
+                  ? "border-red-600 bg-red-600 text-white shadow-[0_0_24px_rgba(255,59,48,0.35)] dark:border-red-500 dark:bg-red-500"
+                  : "border-gray-300 bg-gray-100 text-gray-800 hover:bg-red-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:border-[#FF3B30]/60"
               }`}
             >
               {category}
@@ -39,14 +39,14 @@ export const CourseFilter = ({ activeCategory, onCategoryChange, sortBy, onSortC
       </div>
 
       <div className="flex items-center gap-3 text-sm">
-        <label htmlFor="sort-courses" className="text-slate-400">
+        <label htmlFor="sort-courses" className="text-gray-700 transition-colors duration-300 dark:text-gray-300">
           Sort by
         </label>
         <select
           id="sort-courses"
           value={sortBy}
           onChange={(event) => onSortChange(event.target.value)}
-          className="rounded-full border border-white/15 bg-[#1E1E1E] px-4 py-2 text-slate-100 outline-none transition focus:border-[#FF3B30]"
+          className="rounded-full border border-gray-300 bg-white px-4 py-2 text-gray-900 outline-none transition-colors duration-300 focus:border-red-500 focus:ring-2 focus:ring-red-500/40 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
         >
           {sortOptions.map((option) => (
             <option key={option.value} value={option.value}>

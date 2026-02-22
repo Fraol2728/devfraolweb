@@ -13,9 +13,9 @@ export const CourseDetail = () => {
 
   if (!course) {
     return (
-      <section className="py-20">
-        <p>Course not found.</p>
-        <Link to="/courses" className="text-primary">
+      <section className="py-20 text-center transition-colors duration-300">
+        <p className="text-gray-900 transition-colors duration-300 dark:text-white">Course not found.</p>
+        <Link to="/courses" className="mt-3 inline-flex text-red-700 transition-colors duration-300 hover:text-red-600 dark:text-primary">
           Back to courses
         </Link>
       </section>
@@ -25,7 +25,7 @@ export const CourseDetail = () => {
   const relatedCourses = courses.filter((item) => item.category === course.category && item.slug !== course.slug).slice(0, 4);
 
   return (
-    <section className="px-4 py-16 sm:px-6">
+    <section className="px-4 py-16 sm:px-6 transition-colors duration-300">
       <div className="container mx-auto max-w-5xl space-y-8 text-left">
         <CourseHero course={course} />
         <CourseOverview course={course} />
