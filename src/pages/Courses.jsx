@@ -84,7 +84,7 @@ export const Courses = () => {
 
     return tokens.map((token, index) =>
       token.toLowerCase() === normalizedQuery ? (
-        <mark key={`${token}-${index}`} className="rounded bg-[#FF3B30]/25 px-1 text-white">
+        <mark key={`${token}-${index}`} className="rounded bg-red-100 px-1 text-red-900 transition-colors duration-300 dark:bg-[#FF3B30]/25 dark:text-white">
           {token}
         </mark>
       ) : (
@@ -102,9 +102,9 @@ export const Courses = () => {
           transition={{ duration: 0.45 }}
           className="mb-8"
         >
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#FF3B30]">Dev Fraol Academy</p>
-          <h1 className="mt-3 text-4xl font-extrabold text-white sm:text-5xl">Explore Courses</h1>
-          <p className="mt-4 max-w-3xl text-slate-300">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#FF3B30] transition-colors duration-300">Dev Fraol Academy</p>
+          <h1 className="mt-3 text-4xl font-extrabold text-gray-900 transition-colors duration-300 dark:text-white sm:text-5xl">Explore Courses</h1>
+          <p className="mt-4 max-w-3xl text-gray-700 transition-colors duration-300 dark:text-gray-300">
             A modern, backend-ready courses catalog with instant search, smart filtering, and clean modular components.
           </p>
         </motion.header>
@@ -113,12 +113,12 @@ export const Courses = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="relative mb-6 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md"
+          className="relative mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-colors duration-300 dark:border-gray-700 dark:bg-gray-900/60 dark:shadow-none"
         >
           <label htmlFor="course-search" className="sr-only">
             Search courses
           </label>
-          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#1E1E1E] px-4 py-3">
+          <div className="flex items-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-3 transition-colors duration-300 dark:border-gray-700 dark:bg-gray-900">
             <Search className="h-4 w-4 text-[#FF3B30]" />
             <input
               id="course-search"
@@ -129,7 +129,7 @@ export const Courses = () => {
                 setVisibleCount(6);
               }}
               placeholder="Search by title, level, category, or tag..."
-              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400"
+              className="w-full bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400 transition-colors duration-300 dark:text-white dark:placeholder:text-gray-500"
             />
           </div>
 
@@ -140,7 +140,7 @@ export const Courses = () => {
                   key={suggestion}
                   type="button"
                   onClick={() => setQuery(suggestion)}
-                  className="rounded-full border border-[#FF3B30]/35 bg-[#FF3B30]/10 px-3 py-1.5 text-xs text-[#ffc1bc] transition hover:border-[#FF3B30]/60 hover:text-white"
+                  className="rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs text-red-700 transition-colors duration-300 hover:border-red-300 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-900/20 dark:text-red-300 dark:hover:border-red-700 dark:hover:text-white"
                 >
                   {suggestion}
                 </button>
@@ -167,7 +167,7 @@ export const Courses = () => {
 
         <div className="mt-8 flex flex-col items-center gap-3">
           {coursesToRender.length === 0 ? (
-            <p className="text-sm text-slate-400">No courses match your current search and filters.</p>
+            <p className="text-sm text-gray-600 transition-colors duration-300 dark:text-gray-400">No courses match your current search and filters.</p>
           ) : null}
 
           {visibleCount < visibleCourses.length ? (
@@ -176,12 +176,12 @@ export const Courses = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setVisibleCount((count) => count + 3)}
-              className="rounded-full border border-[#FF3B30]/55 bg-[#FF3B30]/10 px-6 py-2.5 text-sm font-semibold text-[#ffc1bc] transition hover:text-white hover:shadow-[0_0_22px_rgba(255,59,48,0.35)]"
+              className="rounded-full border border-red-300 bg-red-100 px-6 py-2.5 text-sm font-semibold text-red-800 transition-colors duration-300 hover:bg-red-200 dark:border-red-700 dark:bg-red-900/30 dark:text-red-300 dark:hover:text-white dark:hover:shadow-[0_0_22px_rgba(255,59,48,0.35)]"
             >
               Load More
             </motion.button>
           ) : (
-            <p className="text-xs text-slate-500">Infinite scroll placeholder ready for backend pagination integration.</p>
+            <p className="text-xs text-gray-500 transition-colors duration-300 dark:text-gray-500">Infinite scroll placeholder ready for backend pagination integration.</p>
           )}
         </div>
       </div>
