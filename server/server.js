@@ -1,3 +1,4 @@
+/* eslint-env node */
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
@@ -8,6 +9,8 @@ import videoRoutes from "./routes/videoRoutes.js";
 import bgRoutes from "./routes/bgRoutes.js";
 import codeRoutes from "./routes/codeRoutes.js";
 import resourcesRoutes from "./routes/resourcesRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import catalogRoutes from "./routes/catalogRoutes.js";
 import { cleanupOlderThan } from "./utils/fileCleanup.js";
 import { UPLOADS_DIR } from "./utils/constants.js";
 
@@ -23,7 +26,7 @@ app.use(helmet());
 app.use(
   cors({
     origin: FRONTEND_ORIGIN,
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   })
 );
@@ -38,6 +41,8 @@ app.use("/api/video", videoRoutes);
 app.use("/api/bg-remove", bgRoutes);
 app.use("/api/code", codeRoutes);
 app.use("/api/resources", resourcesRoutes);
+app.use("/api/catalog", catalogRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use((err, _req, res, _next) => {
   const message = err?.message || "Unexpected server error.";

@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
-import { courses } from "@/data/courses";
+import { courses as seedCourses } from "@/data/courses";
+import { apiFetch } from "@/lib/api";
 import { CourseCard } from "@/features/courses/CourseCard";
 import { CourseFilter } from "@/features/courses/CourseFilter";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
@@ -21,10 +22,19 @@ export const Courses = () => {
   });
 
   const [activeCategory, setActiveCategory] = useState("All");
+  const [courses, setCourses] = useState(seedCourses);
   const [sortBy, setSortBy] = useState("popularity");
   const [query, setQuery] = useState("");
   const [visibleCount, setVisibleCount] = useState(6);
 
+
+  useEffect(() => {
+    apiFetch("/api/catalog/courses")
+      .then((res) => {
+        if (Array.isArray(res.data) && res.data.length > 0) setCourses(res.data);
+      })
+      .catch(() => undefined);
+  }, []);
   const normalizedQuery = query.trim().toLowerCase();
 
   const suggestions = useMemo(() => {

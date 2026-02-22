@@ -4,6 +4,7 @@ import { useTheme } from "next-themes";
 import { ArrowRight, Moon, Sparkles, Sun } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { appsCatalog } from "@/data/apps";
+import { apiFetch } from "@/lib/api";
 import { AppCard } from "@/features/apps/AppCard";
 import { ResourceCard } from "@/features/apps/ResourceCard";
 import { SearchFilter } from "@/features/apps/SearchFilter";
@@ -33,6 +34,7 @@ export const AppsPage = () => {
   const { resolvedTheme, setTheme } = useTheme();
   const { hash } = useLocation();
   const [query, setQuery] = useState("");
+  const [apps, setApps] = useState(appsCatalog.map((a) => ({ ...a, title: a.name })));
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeTool, setActiveTool] = useState("converter");
   const [highlightedAppId, setHighlightedAppId] = useState("");
@@ -42,38 +44,39 @@ export const AppsPage = () => {
   const isDark = resolvedTheme !== "light";
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    const loadResources = async () => {
-      setIsResourcesLoading(true);
-      try {
-        const response = await fetch(API_ENDPOINTS.resources, { signal: controller.signal });
-        if (!response.ok) {
-          throw new Error("Unable to fetch resources right now.");
+    setIsResourcesLoading(true);
+    Promise.all([apiFetch("/api/catalog/resources"), apiFetch("/api/catalog/apps")])
+      .then(([resourcesRes, appsRes]) => {
+        setResources(Array.isArray(resourcesRes.data) ? resourcesRes.data : []);
+        if (Array.isArray(appsRes.data) && appsRes.data.length) {
+          const normalizedApps = appsRes.data.map((app) => {
+            const fallback = appsCatalog.find((entry) => entry.id === app.id);
+            return {
+              id: app.id,
+              name: app.title,
+              title: app.title,
+              description: app.description,
+              buttonLabel: "Use Tool",
+              category: app.category,
+              tool: app.tool || "converter",
+              icon: fallback?.icon,
+              featuredLabel: app.featured ? "Featured" : "",
+            };
+          });
+          setApps(normalizedApps);
         }
-
-        const data = await response.json();
-        const normalized = Array.isArray(data) ? data : data.resources;
-        setResources(Array.isArray(normalized) ? normalized : []);
-      } catch (error) {
-        if (error.name !== "AbortError") {
-          setResources([]);
-        }
-      } finally {
-        setIsResourcesLoading(false);
-      }
-    };
-
-    loadResources();
-
-    return () => controller.abort();
+      })
+      .catch(() => {
+        setResources([]);
+      })
+      .finally(() => setIsResourcesLoading(false));
   }, []);
 
   useEffect(() => {
     if (!hash) return;
 
     const appId = hash.replace("#", "");
-    const selectedApp = appsCatalog.find((app) => app.id === appId);
+    const selectedApp = apps.find((app) => app.id === appId);
 
     if (!selectedApp) return;
 
@@ -90,17 +93,17 @@ export const AppsPage = () => {
     }, 1800);
 
     return () => window.clearTimeout(timeoutId);
-  }, [hash]);
+  }, [hash, apps]);
 
   const filteredApps = useMemo(() => {
     const normalized = query.trim().toLowerCase();
 
-    return appsCatalog.filter((app) => {
+    return apps.filter((app) => {
       const categoryMatch = activeCategory === "All" || app.category === activeCategory;
       const queryMatch = !normalized || `${app.name} ${app.description}`.toLowerCase().includes(normalized);
       return categoryMatch && queryMatch;
     });
-  }, [query, activeCategory]);
+  }, [query, activeCategory, apps]);
 
   const ActiveTool = toolComponents[activeTool] ?? VideoDownloader;
 
