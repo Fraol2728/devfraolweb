@@ -40,7 +40,7 @@ export const projects = [
     demoUrl: "https://e-commerce-website-4w6a.vercel.app",
     githubUrl: "https://github.com/Sahilmd01/E-commerce-website",
     featured: true,
-    accentColor: "from-purple-500 to-indigo-600",
+    accentColor: "from-red-500 to-orange-500",
     status: "Live",
     highlights: ["Product catalog", "Shopping cart", "Payment processing"]
   },
@@ -55,7 +55,7 @@ export const projects = [
     demoUrl: "https://converse-pro-frontend.vercel.app",
     githubUrl: "https://github.com/Sahilmd01/converse-pro",
     featured: true,
-    accentColor: "from-blue-500 to-cyan-600",
+    accentColor: "from-red-500 to-rose-500",
     status: "Live",
     highlights: ["Real-time chat", "Media sharing", "User authentication"]
   },
@@ -97,7 +97,7 @@ export const projects = [
     tags: ["React", "Redux", "Mapbox", "Stripe"],
     demoUrl: "https://eattoo-food-delivery-website-frontend.onrender.com/",
     githubUrl: "https://github.com/Sahilmd01/Eattoo-food-delivery-website",
-    accentColor: "from-violet-500 to-purple-600",
+    accentColor: "from-rose-500 to-red-600",
     status: "Live",
     highlights: ["Restaurant listings", "Order system", "Location services"]
   },
@@ -119,10 +119,10 @@ export const projects = [
 
 export const projectCategoryColors = {
   "Healthcare SaaS": "from-emerald-500/20 to-teal-600/20 text-emerald-600 border-emerald-500/30",
-  "E-commerce": "from-purple-500/20 to-indigo-600/20 text-purple-600 border-purple-500/30",
-  "Real-time Communication": "from-blue-500/20 to-cyan-600/20 text-blue-600 border-blue-500/30",
+  "E-commerce": "from-red-500/20 to-orange-500/20 text-red-500 border-red-500/30",
+  "Real-time Communication": "from-red-500/20 to-rose-500/20 text-red-500 border-red-500/30",
   "Artificial Intelligence": "from-amber-500/20 to-orange-600/20 text-amber-600 border-amber-500/30",
   "FinTech": "from-rose-500/20 to-pink-600/20 text-rose-600 border-rose-500/30",
-  "Food Tech": "from-violet-500/20 to-purple-600/20 text-violet-600 border-violet-500/30",
+  "Food Tech": "from-rose-500/20 to-red-600/20 text-rose-500 border-rose-500/30",
   "HR Tech": "from-orange-500/20 to-red-600/20 text-orange-600 border-orange-500/30"
 }

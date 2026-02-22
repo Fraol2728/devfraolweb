@@ -50,10 +50,10 @@ export const HeroSection = () => {
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
             <Terminal className="h-4 w-4" /> Dev Fraol Academy
           </span>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mt-6 leading-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mt-6 leading-tight">
             Learn <span className="text-primary">Web Development</span> and <span className="text-primary">Graphic Design</span> with real projects.
           </h1>
-          <p className="text-muted-foreground text-lg mt-6 max-w-xl">
+          <p className="text-muted-foreground text-lg mt-6 max-w-xl leading-relaxed">
             A modern learning platform built to help creators and developers move from theory to portfolio-ready execution.
           </p>
           <div className="flex flex-wrap gap-4 mt-8">
@@ -77,8 +77,8 @@ export const HeroSection = () => {
             <span className="h-3 w-3 rounded-full bg-yellow-400" />
             <span className="h-3 w-3 rounded-full bg-green-400" />
           </div>
-          <p className="font-mono text-sm text-primary">devfraol@academy:~$</p>
-          <div className="font-mono text-sm sm:text-base mt-4 min-h-44 text-left space-y-2">
+          <p className="text-sm text-primary" style={{ fontFamily: "JetBrains Mono, monospace" }}>devfraol@academy:~$</p>
+          <div className="text-sm sm:text-base mt-4 min-h-44 text-left space-y-2" style={{ fontFamily: "JetBrains Mono, monospace" }}>
             {lines.slice(0, lineIndex).map((line) => (
               <p key={line} className="text-foreground/90">{line}</p>
             ))}
