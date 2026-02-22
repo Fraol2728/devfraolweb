@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { useSearchParams } from "react-router-dom";
 import { EditorPane } from "@/features/code-editor/EditorPane";
 import { PreviewPane, buildPreviewDocument } from "@/features/code-editor/PreviewPane";
 import { TabBar } from "@/features/code-editor/TabBar";
 import { Toolbar } from "@/features/code-editor/Toolbar";
-import { getLanguageMeta, starterExamples, supportedLanguages } from "@/data/examples";
+import { createProjectFromCourse, getLanguageMeta, starterExamples, supportedLanguages } from "@/data/examples";
 
 const STORAGE_KEY = "devfraol-editor-state-v2";
 const DEFAULT_SPLIT = 54;
@@ -22,6 +23,7 @@ const downloadFile = (fileName, content) => {
 
 export const CodeEditor = () => {
   const editorActionsRef = useRef(null);
+  const [searchParams] = useSearchParams();
   const [projects, setProjects] = useState(starterExamples);
   const [activeProjectId, setActiveProjectId] = useState(starterExamples[0].id);
   const [activeFileId, setActiveFileId] = useState(starterExamples[0].files[0].id);
@@ -51,6 +53,32 @@ export const CodeEditor = () => {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ projects, activeProjectId, editorTheme }));
   }, [projects, activeProjectId, editorTheme]);
+
+  useEffect(() => {
+    const course = searchParams.get("course");
+    if (!course) {
+      return;
+    }
+
+    const courseProject = createProjectFromCourse(course);
+    if (!courseProject) {
+      return;
+    }
+
+    setProjects((prev) => {
+      const existing = prev.find((project) => project.name.toLowerCase() === course.toLowerCase());
+      if (existing) {
+        setActiveProjectId(existing.id);
+        setActiveFileId(existing.files[0]?.id || "");
+        return prev;
+      }
+
+      return [courseProject, ...prev];
+    });
+
+    setActiveProjectId(courseProject.id);
+    setActiveFileId(courseProject.files[0]?.id || "");
+  }, [searchParams]);
 
   const activeProject = useMemo(() => projects.find((project) => project.id === activeProjectId) || projects[0], [projects, activeProjectId]);
 

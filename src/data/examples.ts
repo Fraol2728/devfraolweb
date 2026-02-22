@@ -57,4 +57,80 @@ export const starterExamples = [
   },
 ];
 
+const buildCourseSnippet = (courseName) => {
+  if (!courseName) {
+    return null;
+  }
+
+  const lowerName = courseName.toLowerCase();
+
+  if (lowerName.includes("python")) {
+    return {
+      files: [
+        {
+          name: "app.py",
+          language: "python",
+          content: `course = \"${courseName}\"\nprint(f\"Starting {course} practice lab\")\nfor step in range(1, 4):\n    print(f\"Step {step}: keep coding\")`,
+        },
+        {
+          name: "notes.md",
+          language: "markdown",
+          content: `# ${courseName}\n\n- Warm up with syntax drills\n- Build one mini challenge\n- Share what you learned`,
+        },
+      ],
+    };
+  }
+
+  if (lowerName.includes("mysql")) {
+    return {
+      files: [
+        {
+          name: "schema.sql",
+          language: "mysql",
+          content:
+            "CREATE TABLE students (\n  id INT PRIMARY KEY AUTO_INCREMENT,\n  name VARCHAR(80),\n  track VARCHAR(80),\n  joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\nINSERT INTO students (name, track) VALUES\n  ('Alex', 'Web Development'),\n  ('Sara', 'Graphic Design');",
+        },
+      ],
+    };
+  }
+
+  return {
+    files: [
+      {
+        name: "index.html",
+        language: "html",
+        content: `<main class=\"card\">\n  <h1>${courseName}</h1>\n  <p>Test concepts from this course directly in the editor.</p>\n  <button id=\"cta\">Practice Now</button>\n</main>`,
+      },
+      {
+        name: "styles.css",
+        language: "css",
+        content:
+          "body {\n  margin: 0;\n  min-height: 100vh;\n  display: grid;\n  place-items: center;\n  background: #111;\n  color: #fff;\n  font-family: Inter, system-ui, sans-serif;\n}\n\n.card {\n  width: min(90vw, 540px);\n  border: 1px solid rgba(255, 59, 48, 0.45);\n  border-radius: 16px;\n  background: #1e1e1e;\n  padding: 2rem;\n}\n\nbutton {\n  margin-top: 1rem;\n  border: 0;\n  border-radius: 12px;\n  background: #ff3b30;\n  color: #fff;\n  padding: 0.7rem 1rem;\n}",
+      },
+      {
+        name: "main.js",
+        language: "javascript",
+        content: "const button = document.getElementById('cta');\nbutton?.addEventListener('click', () => {\n  button.textContent = 'Great start!';\n});",
+      },
+    ],
+  };
+};
+
+export const createProjectFromCourse = (courseName) => {
+  const snippet = buildCourseSnippet(courseName);
+  if (!snippet) {
+    return null;
+  }
+
+  const stamp = Date.now();
+  return {
+    id: `course-${stamp}`,
+    name: courseName,
+    files: snippet.files.map((file, index) => ({
+      id: `course-file-${stamp}-${index}`,
+      ...file,
+    })),
+  };
+};
+
 export const getLanguageMeta = (languageId) => supportedLanguages.find((language) => language.id === languageId) || supportedLanguages[0];
