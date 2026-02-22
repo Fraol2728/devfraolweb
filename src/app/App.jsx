@@ -22,6 +22,7 @@ import { Admin } from "@/pages/Admin";
 import { AppDetail } from "@/pages/AppDetail";
 import { Login } from "@/pages/Login";
 import { Signup } from "@/pages/Signup";
+import { CourseLearning } from "@/pages/CourseLearning";
 import AuthRedirectPlaceholder from "@/pages/AuthRedirectPlaceholder";
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/courses/:slug" element={<CourseDetail />} />
+                <Route path="/learn/:courseId" element={<CourseLearning />} />
                 <Route path="/instructor" element={<Instructor />} />
                 <Route path="/testimonials" element={<Testimonials />} />
                 <Route path="/contact" element={<Contact />} />
