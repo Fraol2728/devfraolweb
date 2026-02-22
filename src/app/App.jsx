@@ -27,6 +27,7 @@ import AuthRedirectPlaceholder from "@/pages/AuthRedirectPlaceholder";
 import { UserProvider } from "@/context/UserContext";
 import { SimplePlaceholderPage } from "@/pages/SimplePlaceholderPage";
 import { FixedAuthActions } from "@/features/auth/FixedAuthActions";
+import { CodeFlowBackground } from "@/components/common/CodeFlowBackground";
 
 function App() {
   const [welcomeComplete, setWelcomeComplete] = useState(false);
@@ -34,6 +35,7 @@ function App() {
   return (
     <AppProviders>
       <UserProvider>
+      <CodeFlowBackground />
       {!welcomeComplete ? (
         <WelcomePage onWelcomeComplete={() => setWelcomeComplete(true)} />
       ) : (
