@@ -26,6 +26,7 @@ import { CourseLearning } from "@/pages/CourseLearning";
 import AuthRedirectPlaceholder from "@/pages/AuthRedirectPlaceholder";
 import { UserProvider } from "@/context/UserContext";
 import { SimplePlaceholderPage } from "@/pages/SimplePlaceholderPage";
+import { FixedAuthActions } from "@/features/auth/FixedAuthActions";
 
 function App() {
   const [welcomeComplete, setWelcomeComplete] = useState(false);
@@ -39,6 +40,7 @@ function App() {
         <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, ease: "easeOut" }}>
           <BrowserRouter>
             <ScrollToTop />
+            <FixedAuthActions />
             <Routes>
               <Route element={<MainLayout />}>
                 <Route path="/" element={<Home />} />
