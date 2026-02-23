@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Instagram, Link as LinkIcon, Loader2, Youtube } from "lucide-react";
 import { toast } from "@/hooks/useToastStore";
+import { mockVideoPreviewByProvider } from "@/data/mockAppResponses";
 
 const providers = [
   { id: "youtube", label: "YouTube", icon: Youtube },
@@ -9,7 +10,7 @@ const providers = [
   { id: "instagram", label: "Instagram", icon: Instagram },
 ];
 
-export const VideoDownloader = ({ endpoints }) => {
+export const VideoDownloader = () => {
   const [url, setUrl] = useState("");
   const [activeProvider, setActiveProvider] = useState("instagram");
   const [isLoading, setIsLoading] = useState(false);
@@ -45,26 +46,17 @@ export const VideoDownloader = ({ endpoints }) => {
     }, 200);
 
     try {
-      const response = await fetch(endpoints.videoDownload, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url: url.trim(), platform: activeProvider }),
-      });
+      await new Promise((resolve) => setTimeout(resolve, 700));
+      const mockPreview = mockVideoPreviewByProvider[activeProvider] ?? mockVideoPreviewByProvider.instagram;
+      const blob = new Blob([`Mock media payload for ${activeProvider}: ${url.trim()}`], { type: "text/plain" });
+      const nextDownloadUrl = URL.createObjectURL(blob);
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch video data. Please verify the URL.");
-      }
-
-      const data = await response.json();
-      const nextDownloadUrl = data.downloadUrl || data.fileUrl || data.url || "";
-      setPreview({ ...data, thumbnail: data.thumbnail || data.thumbnailUrl || "https://placehold.co/960x540/111827/ffffff?text=Video+Preview" });
+      setPreview({ ...mockPreview, sourceUrl: url.trim() });
       setDownloadUrl(nextDownloadUrl);
       setProgress(100);
       toast({
         title: "Preview ready",
-        description: "Media fetched successfully. Download is enabled.",
+        description: "Loaded mock media data locally. Download is enabled.",
         variant: "success",
       });
     } catch (error) {
@@ -101,7 +93,7 @@ export const VideoDownloader = ({ endpoints }) => {
   return (
     <article className="rounded-2xl border border-border/70 bg-card/45 p-5 backdrop-blur-xl">
       <h3 className="text-xl font-bold text-foreground">Video Downloader</h3>
-      <p className="mt-2 text-sm text-foreground/70">Input URL → preview → download via backend API.</p>
+      <p className="mt-2 text-sm text-foreground/70">Input URL → preview → download using local mock data.</p>
 
       <form onSubmit={handlePreview} className="mt-4 space-y-3" aria-label="Video downloader form">
         <div className="flex flex-wrap gap-2">
