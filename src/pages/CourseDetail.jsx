@@ -10,7 +10,7 @@ import { useSeoMeta } from "@/hooks/useSeoMeta";
 
 export const CourseDetail = () => {
   const { id } = useParams();
-  const { courses } = useMockApi();
+  const { courses = [], loading } = useMockApi();
   const course = courses.find((item) => item.slug === id || item.id === id);
 
   useSeoMeta(
@@ -25,6 +25,10 @@ export const CourseDetail = () => {
           description: "This course is currently unavailable. Explore our full course catalog for updated learning paths.",
         },
   );
+
+  if (loading.list) {
+    return <section className="py-20 text-center text-gray-400">Loading course details...</section>;
+  }
 
   if (!course) {
     return (
@@ -44,7 +48,7 @@ export const CourseDetail = () => {
       <div className="container mx-auto max-w-5xl space-y-8 text-left">
         <CourseHero course={course} />
         <CourseOverview course={course} />
-        <CourseCurriculum curriculum={course.curriculum} />
+        <CourseCurriculum curriculum={course.curriculum ?? []} />
         <CourseInstructor instructor={course.instructor} />
         <CTAButtons course={course} />
         <RelatedCourses courses={relatedCourses} />

@@ -1,11 +1,16 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useMockApi } from "@/context/MockApiContext";
 
 export const CTAButtons = ({ course }) => {
   const showEditor = course.category === "Web Development";
   const navigate = useNavigate();
+  const { enrollCourse, actionLoading } = useMockApi();
+  const actionKey = `enroll-course:${course.id}`;
 
-  const handleEnroll = () => {
-    navigate(`/courses/${course.slug}/enroll`);
+  const handleEnroll = async () => {
+    const selectedCourse = await enrollCourse(course.id);
+    if (!selectedCourse) return;
+    navigate(`/courses/${selectedCourse.slug}/enroll`);
   };
 
   return (
@@ -25,7 +30,7 @@ export const CTAButtons = ({ course }) => {
           onClick={handleEnroll}
           className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-400"
         >
-          Enroll Now
+          {actionLoading[actionKey] ? "Enrolling..." : "Enroll Now"}
         </button>
       </div>
     </section>
