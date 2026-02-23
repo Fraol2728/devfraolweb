@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { motion } from "framer-motion";
 import { WelcomePage } from "@/pages/WelcomePage";
@@ -23,6 +23,7 @@ import { AppDetail } from "@/pages/AppDetail";
 import { Login } from "@/pages/Login";
 import { Signup } from "@/pages/Signup";
 import { CourseLearning } from "@/pages/CourseLearning";
+import { InstructorDetail } from "@/pages/InstructorDetail";
 import AuthRedirectPlaceholder from "@/pages/AuthRedirectPlaceholder";
 import { UserProvider } from "@/context/UserContext";
 import { SimplePlaceholderPage } from "@/pages/SimplePlaceholderPage";
@@ -32,6 +33,13 @@ import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
 function App() {
   const [welcomeComplete, setWelcomeComplete] = useState(false);
+
+  useEffect(() => {
+    if (welcomeComplete) return undefined;
+
+    const fallbackTimer = window.setTimeout(() => setWelcomeComplete(true), 9000);
+    return () => window.clearTimeout(fallbackTimer);
+  }, [welcomeComplete]);
 
   return (
     <AppProviders>
@@ -49,7 +57,7 @@ function App() {
                 <Route path="/courses/:id/enroll" element={<CourseLearning />} />
                 <Route path="/learn/:courseId" element={<CourseLearning />} />
                 <Route path="/instructors" element={<Instructor />} />
-                <Route path="/instructors/:id" element={<Instructor />} />
+                <Route path="/instructors/:id" element={<InstructorDetail />} />
                 <Route path="/instructor" element={<Navigate to="/instructors" replace />} />
                 <Route path="/instructor/:id" element={<Instructor />} />
                 <Route path="/testimonials" element={<Testimonials />} />

@@ -21,6 +21,7 @@ export const FAQSection = () => {
         <p className="text-muted-foreground mt-3">Quick answers for learners joining Dev Fraol Academy.</p>
 
         <div className="mt-8 space-y-3">
+          {faqItems.length === 0 ? <p className="text-sm text-muted-foreground">No FAQ entries available yet.</p> : null}
           {faqItems.map((item, index) => {
             const isOpen = active === item.id;
             return (

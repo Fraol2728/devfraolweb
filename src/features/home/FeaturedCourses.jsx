@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { courses } from "@/data/courses";
+import { useMockApi } from "@/context/MockApiContext";
 import { cardReveal, staggerContainer } from "@/lib/animations";
 
 export const FeaturedCourses = () => {
+  const { courses = [] } = useMockApi();
   const featuredCourses = courses.slice(0, 4);
 
   return (
@@ -11,6 +12,7 @@ export const FeaturedCourses = () => {
       <div className="container max-w-6xl mx-auto text-left">
         <h2 className="text-3xl sm:text-4xl">Featured Courses</h2>
         <p className="mt-3 text-muted-foreground">Start with our most popular programs and grow into advanced modules.</p>
+        {featuredCourses.length === 0 ? <p className="mt-8 text-muted-foreground">Courses will appear here as soon as they are available.</p> : null}
         <motion.div
           variants={staggerContainer}
           initial="hidden"

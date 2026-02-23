@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
-import { faqItems } from "@/data/faq";
+import { useMockApi } from "@/context/MockApiContext";
 
 export const FAQPreview = () => {
-  const [openId, setOpenId] = useState(faqItems[0].id);
+  const { faqs: faqItems = [] } = useMockApi();
+  const [openId, setOpenId] = useState(null);
+
+  useEffect(() => {
+    setOpenId(faqItems[0]?.id ?? null);
+  }, [faqItems]);
 
   return (
     <section id="faq-preview" className="px-4 sm:px-6 py-16">
@@ -16,21 +21,13 @@ export const FAQPreview = () => {
             const isOpen = openId === faq.id;
             return (
               <div key={faq.id} className="rounded-xl border border-border bg-card/70 px-5 py-4">
-                <button
-                  onClick={() => setOpenId(isOpen ? "" : faq.id)}
-                  className="flex w-full items-center justify-between gap-3 text-left"
-                >
+                <button onClick={() => setOpenId(isOpen ? null : faq.id)} className="flex w-full items-center justify-between gap-3 text-left">
                   <span className="font-semibold">{faq.question}</span>
                   <ChevronDown className={`h-4 w-4 text-primary transition-transform ${isOpen ? "rotate-180" : ""}`} />
                 </button>
                 <AnimatePresence initial={false}>
                   {isOpen && (
-                    <motion.p
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="overflow-hidden pt-3 text-muted-foreground"
-                    >
+                    <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden pt-3 text-muted-foreground">
                       {faq.answer}
                     </motion.p>
                   )}
@@ -39,6 +36,7 @@ export const FAQPreview = () => {
             );
           })}
         </div>
+        {faqItems.length === 0 ? <p className="mt-6 text-sm text-muted-foreground">No FAQs published yet.</p> : null}
         <Link to="/faq" className="mt-6 inline-block text-primary font-semibold hover:underline">
           Read full FAQ
         </Link>

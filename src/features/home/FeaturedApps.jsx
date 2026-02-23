@@ -1,12 +1,13 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { appsCatalog } from "@/data/apps";
+import { useMockApi } from "@/context/MockApiContext";
 import { cardReveal, staggerContainer } from "@/lib/animations";
 import { NavButton } from "@/components/common/NavButton";
 
 export const FeaturedApps = () => {
-  const featuredApps = appsCatalog.slice(0, 4);
+  const { apps = [] } = useMockApi();
+  const featuredApps = apps.slice(0, 4);
 
   return (
     <section id="featured-apps" className="px-4 py-16 sm:px-6">
@@ -26,6 +27,7 @@ export const FeaturedApps = () => {
           </NavButton>
         </div>
 
+        {featuredApps.length === 0 ? <p className="mt-8 text-muted-foreground">Apps will be listed here soon.</p> : null}
         <motion.div
           variants={staggerContainer}
           initial="hidden"
