@@ -1,6 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AppDetail as AppDetailFeature } from "@/features/apps/AppDetail";
-import { useMockApi } from "@/context/MockApiContext";
+import { useApps } from "@/features/apps/hooks/useApps";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { VideoDownloader } from "@/features/apps/VideoDownloader";
 import { CodeEditor } from "@/features/apps/CodeEditor";
@@ -19,7 +19,7 @@ const appComponentMap = {
 export const AppDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { appDetails = [], webRecommendations = [], loading } = useMockApi();
+  const { appDetails = [], webRecommendations = [], loading } = useApps();
   const app = appDetails.find((item) => item.id === id);
   const AppToolComponent = appComponentMap[id];
 

@@ -1,11 +1,11 @@
 import { useParams } from "react-router-dom";
 import { BlogDetailContent } from "@/features/blog/BlogDetail";
-import { useMockApi } from "@/context/MockApiContext";
+import { useBlogs } from "@/features/blog/hooks/useBlogs";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 
 export const BlogDetail = () => {
   const { slug } = useParams();
-  const { blogs = [] } = useMockApi();
+  const { blogs = [] } = useBlogs();
   const post = blogs.find((item) => item.slug === slug);
 
   useSeoMeta(

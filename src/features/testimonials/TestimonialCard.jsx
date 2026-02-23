@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 
-export const TestimonialCard = ({ testimonial, priority = false }) => {
+const TestimonialCardComponent = ({ testimonial, priority = false }) => {
   return (
     <motion.article
       initial={{ opacity: 0, y: 24 }}
@@ -27,3 +28,5 @@ export const TestimonialCard = ({ testimonial, priority = false }) => {
     </motion.article>
   );
 };
+
+export const TestimonialCard = memo(TestimonialCardComponent);
