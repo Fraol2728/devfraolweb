@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { faqItems } from "@/data/faq";
+import { useMockApi } from "@/context/MockApiContext";
 
 export const FAQSection = () => {
+  const { faqs: faqItems = [] } = useMockApi();
   const [active, setActive] = useState(faqItems[0]?.id ?? null);
 
   return (

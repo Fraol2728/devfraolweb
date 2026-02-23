@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ModuleItem } from "@/features/courses/ModuleItem";
+import { useMockApi } from "@/context/MockApiContext";
 
 const normalizeLesson = (lesson, index) => {
   if (typeof lesson === "string") {
@@ -21,22 +22,25 @@ const normalizeModule = (module, index) => ({
   lessons: (module.lessons ?? []).map(normalizeLesson),
 });
 
-export const CurriculumAccordion = ({ data = [] }) => {
+export const CurriculumAccordion = ({ data = [], courseId = "default-course" }) => {
   const modules = useMemo(() => data.map(normalizeModule), [data]);
-  const [openModules, setOpenModules] = useState([]);
+  const { expandedCourseModules, toggleCourseModule, toggleAllCourseModules } = useMockApi();
+  const [openModules, setOpenModules] = useState(expandedCourseModules[courseId] ?? []);
 
   const totalLessons = useMemo(() => modules.reduce((sum, module) => sum + module.lessons.length, 0), [modules]);
 
+  useEffect(() => {
+    setOpenModules(expandedCourseModules[courseId] ?? []);
+  }, [expandedCourseModules, courseId]);
+
   const toggleModule = (id) => {
-    setOpenModules((current) =>
-      current.includes(id) ? current.filter((moduleId) => moduleId !== id) : [...current, id],
-    );
+    toggleCourseModule(courseId, id);
   };
 
   const allExpanded = modules.length > 0 && openModules.length === modules.length;
 
   const handleExpandToggle = () => {
-    setOpenModules(allExpanded ? [] : modules.map((module) => module.id));
+    toggleAllCourseModules(courseId, modules.map((module) => module.id));
   };
 
   return (

@@ -23,8 +23,8 @@ const fallbackCurriculum = [
   },
 ];
 
-export const CourseCurriculum = ({ curriculum = [] }) => {
+export const CourseCurriculum = ({ curriculum = [], courseId }) => {
   const curriculumData = curriculum.length ? curriculum : fallbackCurriculum;
 
-  return <CurriculumAccordion data={curriculumData} />;
+  return <CurriculumAccordion data={curriculumData} courseId={courseId} />;
 };

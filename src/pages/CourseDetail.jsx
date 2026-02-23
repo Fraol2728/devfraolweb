@@ -48,7 +48,7 @@ export const CourseDetail = () => {
       <div className="container mx-auto max-w-5xl space-y-8 text-left">
         <CourseHero course={course} />
         <CourseOverview course={course} />
-        <CourseCurriculum curriculum={course.curriculum ?? []} />
+        <CourseCurriculum curriculum={course.curriculum ?? []} courseId={course.id || course.slug} />
         <CourseInstructor instructor={course.instructor} />
         <CTAButtons course={course} />
         <RelatedCourses courses={relatedCourses} />

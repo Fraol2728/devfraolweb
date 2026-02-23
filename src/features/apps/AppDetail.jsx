@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { toast } from "@/hooks/useToastStore";
 import { ResourceCategory } from "./ResourceCategory";
 
-export const AppDetail = ({ title, description, icon: Icon, features = [], demoUrl, categoryData = null, resources = [], appId }) => {
+export const AppDetail = ({ title, description, icon: Icon, features = [], demoUrl, categoryData = null, resources = [], appId, onOpenApp, ToolComponent = null }) => {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const { openApp, actionLoading } = useMockApi();
@@ -29,6 +29,7 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
 
   const handleOpenApp = async () => {
     await openApp(appId);
+    onOpenApp?.();
     toast({
       title: "App launched",
       description: `Opened ${title}`,
@@ -68,6 +69,18 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
             </button>
           </div>
         </motion.section>
+
+
+
+        {ToolComponent ? (
+          <section className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-9">
+            <h2 className="text-2xl font-bold sm:text-3xl">Try the app</h2>
+            <p className="mt-2 text-sm text-foreground/70">Interactive mock module powered by local context and frontend state.</p>
+            <div className="mt-5">
+              <ToolComponent />
+            </div>
+          </section>
+        ) : null}
 
         <section id="details" className="scroll-mt-24">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-9">

@@ -15,7 +15,7 @@ const particles = Array.from({ length: 18 }, (_, index) => ({
 }));
 
 const typeSpeedMs = 46;
-const holdBeforeExitMs = 1200;
+const holdBeforeExitMs = 450;
 const exitDurationMs = 700;
 
 export const WelcomePage = ({ onWelcomeComplete }) => {
@@ -54,11 +54,12 @@ export const WelcomePage = ({ onWelcomeComplete }) => {
     <AnimatePresence>
       {!isExiting && (
         <motion.section
-          className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-black px-4"
+          className="fixed inset-0 z-30 flex items-center justify-center overflow-hidden bg-black/95 px-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, y: -24 }}
-          transition={{ duration: 0.65, ease: "easeOut" }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          onClick={() => setIsExiting(true)}
         >
           <motion.div
             className="absolute inset-0"
