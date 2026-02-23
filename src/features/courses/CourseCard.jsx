@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Clock3, Layers3 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useMockApi } from "@/context/MockApiContext";
 
 const badgeStyles = {
   Popular: "border-red-200 bg-red-100 text-red-800 dark:border-red-900/70 dark:bg-red-900/35 dark:text-red-300",
@@ -9,6 +10,9 @@ const badgeStyles = {
 };
 
 export const CourseCard = ({ course, index = 0, highlightedTitle }) => {
+  const { openCourse, actionLoading } = useMockApi();
+  const viewActionKey = `open-course:${course.id}`;
+
   return (
     <motion.article
       layout
@@ -21,11 +25,7 @@ export const CourseCard = ({ course, index = 0, highlightedTitle }) => {
     >
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <span className="rounded-full border border-gray-200 bg-gray-100 px-3 py-1 text-xs text-gray-700 transition-colors duration-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">{course.level}</span>
-        {course.badge ? (
-          <span className={`rounded-full border px-3 py-1 text-xs font-medium ${badgeStyles[course.badge] ?? "border-gray-200 bg-gray-100 text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"}`}>
-            {course.badge}
-          </span>
-        ) : null}
+        {course.badge ? <span className={`rounded-full border px-3 py-1 text-xs font-medium ${badgeStyles[course.badge] ?? "border-gray-200 bg-gray-100 text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"}`}>{course.badge}</span> : null}
       </div>
 
       <h3 className="text-xl font-semibold leading-snug text-gray-900 transition-colors duration-300 dark:text-white">{highlightedTitle ?? course.title}</h3>
@@ -44,9 +44,10 @@ export const CourseCard = ({ course, index = 0, highlightedTitle }) => {
 
       <Link
         to={`/courses/${course.slug}`}
+        onClick={() => openCourse(course.id)}
         className="mt-6 inline-flex items-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-400 dark:hover:shadow-[0_0_22px_rgba(255,59,48,0.45)]"
       >
-        View Details
+        {actionLoading[viewActionKey] ? "Loading..." : "View Details"}
       </Link>
     </motion.article>
   );

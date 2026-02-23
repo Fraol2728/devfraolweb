@@ -1,31 +1,7 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useParams } from "react-router-dom";
-
-const courseCatalog = {
-  "react-mastery": {
-    id: "react-mastery",
-    title: "React Mastery",
-    modules: [
-      {
-        id: 1,
-        title: "Introduction",
-        lessons: [
-          { id: 1, title: "Welcome", duration: "5 min", description: "Get a quick overview of your journey and what you will build throughout this course." },
-          { id: 2, title: "Setup", duration: "15 min", description: "Prepare your environment with the recommended tooling and workflow for modern React." },
-        ],
-      },
-      {
-        id: 2,
-        title: "Core Concepts",
-        lessons: [
-          { id: 3, title: "State & Props", duration: "20 min", description: "Understand one-way data flow and compose reusable UI with stateful and stateless patterns." },
-          { id: 4, title: "Hooks Deep Dive", duration: "30 min", description: "Use core hooks effectively, avoid pitfalls, and organize logic with confidence." },
-        ],
-      },
-    ],
-  },
-};
+import { useMockApi } from "@/context/MockApiContext";
 
 const getFallbackCourse = (courseId) => ({
   id: courseId,
@@ -42,7 +18,25 @@ const getFallbackCourse = (courseId) => ({
 export const CourseLearning = () => {
   const { courseId, id } = useParams();
   const resolvedId = courseId || id;
-  const course = courseCatalog[resolvedId] ?? getFallbackCourse(resolvedId);
+  const { courses = [], loading } = useMockApi();
+
+  const selectedCourse = courses.find((course) => course.id === resolvedId || course.slug === resolvedId);
+  const course = selectedCourse
+    ? {
+        id: selectedCourse.id,
+        title: selectedCourse.title,
+        modules: (selectedCourse.curriculum ?? []).map((module, moduleIndex) => ({
+          id: moduleIndex + 1,
+          title: module.module,
+          lessons: (module.lessons ?? []).map((lesson, lessonIndex) => ({
+            id: Number(`${moduleIndex + 1}${lessonIndex + 1}`),
+            title: lesson,
+            duration: "10 min",
+            description: `Practical lesson from ${module.module}.`,
+          })),
+        })),
+      }
+    : getFallbackCourse(resolvedId);
 
   const allLessons = useMemo(
     () =>
@@ -67,7 +61,7 @@ export const CourseLearning = () => {
   const progress = totalLessons ? Math.round((completedLessons.length / totalLessons) * 100) : 0;
 
   const toggleModule = (moduleId) => {
-    setExpandedModules((prev) => (prev.includes(moduleId) ? prev.filter((id) => id !== moduleId) : [...prev, moduleId]));
+    setExpandedModules((prev) => (prev.includes(moduleId) ? prev.filter((entryId) => entryId !== moduleId) : [...prev, moduleId]));
   };
 
   const setActiveLesson = (lessonId) => {
@@ -76,21 +70,21 @@ export const CourseLearning = () => {
   };
 
   const goToNextLesson = () => {
-    if (activeLessonIndex < totalLessons - 1) {
-      setActiveLesson(allLessons[activeLessonIndex + 1].id);
-    }
+    if (activeLessonIndex < totalLessons - 1) setActiveLesson(allLessons[activeLessonIndex + 1].id);
   };
 
   const goToPreviousLesson = () => {
-    if (activeLessonIndex > 0) {
-      setActiveLesson(allLessons[activeLessonIndex - 1].id);
-    }
+    if (activeLessonIndex > 0) setActiveLesson(allLessons[activeLessonIndex - 1].id);
   };
 
   const markComplete = () => {
     if (!activeLesson || completedLessons.includes(activeLesson.id)) return;
     setCompletedLessons((prev) => [...prev, activeLesson.id]);
   };
+
+  if (loading.list) {
+    return <section className="min-h-screen grid place-items-center text-gray-300">Loading learning workspace...</section>;
+  }
 
   return (
     <section className="min-h-screen bg-[#0b0b10] px-4 py-8 text-white sm:px-6 lg:px-8">
@@ -105,19 +99,12 @@ export const CourseLearning = () => {
           </div>
         </div>
 
-        <button
-          onClick={() => setIsSidebarOpen((prev) => !prev)}
-          className="mb-4 inline-flex rounded-lg border border-[#FF3B30]/60 bg-[#1a1a23] px-4 py-2 text-sm font-semibold text-[#ff9c95] lg:hidden"
-        >
+        <button onClick={() => setIsSidebarOpen((prev) => !prev)} className="mb-4 inline-flex rounded-lg border border-[#FF3B30]/60 bg-[#1a1a23] px-4 py-2 text-sm font-semibold text-[#ff9c95] lg:hidden">
           {isSidebarOpen ? "Hide lessons" : "Show lessons"}
         </button>
 
         <div className="grid gap-4 lg:grid-cols-[30%_70%]">
-          <motion.aside
-            initial={false}
-            animate={{ x: isSidebarOpen ? 0 : -16, opacity: 1 }}
-            className={`max-h-[75vh] overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl ${isSidebarOpen ? "block" : "hidden lg:block"}`}
-          >
+          <motion.aside initial={false} animate={{ x: isSidebarOpen ? 0 : -16, opacity: 1 }} className={`max-h-[75vh] overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl ${isSidebarOpen ? "block" : "hidden lg:block"}`}>
             <div className="border-b border-white/10 px-4 py-3">
               <h2 className="text-lg font-semibold">{course.title}</h2>
               <p className="text-xs text-gray-400">{totalLessons} lessons</p>
@@ -127,10 +114,7 @@ export const CourseLearning = () => {
                 const isOpen = expandedModules.includes(module.id);
                 return (
                   <div key={module.id} className="mb-2 rounded-xl border border-white/10 bg-black/20">
-                    <button
-                      onClick={() => toggleModule(module.id)}
-                      className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-semibold text-gray-200 transition hover:bg-white/5"
-                    >
+                    <button onClick={() => toggleModule(module.id)} className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-semibold text-gray-200 transition hover:bg-white/5">
                       <span>{module.title}</span>
                       <span className="text-[#FF3B30]">{isOpen ? "−" : "+"}</span>
                     </button>
@@ -143,14 +127,7 @@ export const CourseLearning = () => {
                               const isComplete = completedLessons.includes(lesson.id);
                               return (
                                 <li key={lesson.id}>
-                                  <button
-                                    onClick={() => setActiveLesson(lesson.id)}
-                                    className={`group w-full rounded-lg border px-3 py-2 text-left transition ${
-                                      isActive
-                                        ? "border-[#FF3B30]/70 bg-[#FF3B30]/15 shadow-[0_0_15px_rgba(255,59,48,0.35)]"
-                                        : "border-transparent bg-white/[0.03] hover:border-white/10 hover:bg-white/[0.07]"
-                                    }`}
-                                  >
+                                  <button onClick={() => setActiveLesson(lesson.id)} className={`group w-full rounded-lg border px-3 py-2 text-left transition ${isActive ? "border-[#FF3B30]/70 bg-[#FF3B30]/15 shadow-[0_0_15px_rgba(255,59,48,0.35)]" : "border-transparent bg-white/[0.03] hover:border-white/10 hover:bg-white/[0.07]"}`}>
                                     <div className="flex items-center justify-between gap-2">
                                       <span className="text-sm text-gray-100">{lesson.title}</span>
                                       <span className={`text-xs ${isComplete ? "text-emerald-300" : "text-gray-500"}`}>{isComplete ? "✓" : "○"}</span>
@@ -187,26 +164,9 @@ export const CourseLearning = () => {
             </AnimatePresence>
 
             <div className="mt-5 flex flex-wrap items-center gap-3">
-              <button
-                onClick={goToPreviousLesson}
-                disabled={activeLessonIndex <= 0}
-                className="rounded-lg border border-white/15 bg-[#16161e] px-4 py-2 text-sm font-semibold text-white transition hover:scale-[1.02] hover:border-[#FF3B30]/60 hover:text-[#ffb8b3] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Previous Lesson
-              </button>
-              <button
-                onClick={goToNextLesson}
-                disabled={activeLessonIndex >= totalLessons - 1}
-                className="rounded-lg border border-[#FF3B30]/50 bg-[#FF3B30]/15 px-4 py-2 text-sm font-semibold text-[#ffd3cf] transition hover:scale-[1.02] hover:bg-[#FF3B30]/25 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Next Lesson
-              </button>
-              <button
-                onClick={markComplete}
-                className="rounded-lg border border-[#FF3B30]/60 bg-[#0f0f15] px-4 py-2 text-sm font-semibold text-[#ff938b] transition hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(255,59,48,0.35)]"
-              >
-                Mark as Complete
-              </button>
+              <button onClick={goToPreviousLesson} disabled={activeLessonIndex <= 0} className="rounded-lg border border-white/15 bg-[#16161e] px-4 py-2 text-sm font-semibold text-white transition hover:scale-[1.02] hover:border-[#FF3B30]/60 hover:text-[#ffb8b3] disabled:cursor-not-allowed disabled:opacity-40">Previous Lesson</button>
+              <button onClick={goToNextLesson} disabled={activeLessonIndex >= totalLessons - 1} className="rounded-lg border border-[#FF3B30]/50 bg-[#FF3B30]/15 px-4 py-2 text-sm font-semibold text-[#ffd3cf] transition hover:scale-[1.02] hover:bg-[#FF3B30]/25 disabled:cursor-not-allowed disabled:opacity-40">Next Lesson</button>
+              <button onClick={markComplete} className="rounded-lg border border-[#FF3B30]/60 bg-[#0f0f15] px-4 py-2 text-sm font-semibold text-[#ff938b] transition hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(255,59,48,0.35)]">Mark as Complete</button>
             </div>
           </main>
         </div>

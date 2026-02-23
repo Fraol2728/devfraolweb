@@ -26,7 +26,18 @@ export const MockApiProvider = ({ children }) => {
   const [testimonials, setTestimonials] = useState(testimonialsSeed);
   const [webRecommendations, setWebRecommendations] = useState(webRecommendationsSeed);
   const [loading, setLoading] = useState({ list: false, submit: false });
+  const [actionLoading, setActionLoading] = useState({});
   const [error, setError] = useState(null);
+
+  const runAction = async (actionKey, callback) => {
+    setActionLoading((prev) => ({ ...prev, [actionKey]: true }));
+    try {
+      await withDelay(null, 220);
+      return callback();
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [actionKey]: false }));
+    }
+  };
 
   const createCourse = async (payload) => {
     setLoading((prev) => ({ ...prev, submit: true }));
@@ -83,6 +94,17 @@ export const MockApiProvider = ({ children }) => {
     }
   };
 
+  const openApp = (appId) =>
+    runAction(`open-app:${appId}`, () => apps.find((app) => app.id === appId) ?? null);
+
+  const openCourse = (courseId) =>
+    runAction(`open-course:${courseId}`, () => courses.find((course) => course.id === courseId || course.slug === courseId) ?? null);
+
+  const enrollCourse = (courseId) =>
+    runAction(`enroll-course:${courseId}`, () => courses.find((course) => course.id === courseId || course.slug === courseId) ?? null);
+
+  const openBlog = (slug) => runAction(`open-blog:${slug}`, () => blogs.find((blog) => blog.slug === slug) ?? null);
+
   const value = useMemo(
     () => ({
       courses,
@@ -103,8 +125,13 @@ export const MockApiProvider = ({ children }) => {
       createApp,
       createBlog,
       submitContact,
+      openApp,
+      openCourse,
+      enrollCourse,
+      openBlog,
+      actionLoading,
     }),
-    [courses, apps, appDetails, blogs, users, testimonials, webRecommendations, loading, error],
+    [courses, apps, appDetails, blogs, users, testimonials, webRecommendations, loading, error, actionLoading],
   );
 
   return <MockApiContext.Provider value={value}>{children}</MockApiContext.Provider>;

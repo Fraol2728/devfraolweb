@@ -1,13 +1,15 @@
 import { useMemo, useState } from "react";
+import { useMockApi } from "@/context/MockApiContext";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/useToastStore";
 import { ResourceCategory } from "./ResourceCategory";
 
-export const AppDetail = ({ title, description, icon: Icon, features = [], demoUrl, categoryData = null, resources = [] }) => {
+export const AppDetail = ({ title, description, icon: Icon, features = [], demoUrl, categoryData = null, resources = [], appId }) => {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
+  const { openApp, actionLoading } = useMockApi();
 
   const categories = useMemo(() => {
     if (!categoryData?.length) return ["All"];
@@ -25,7 +27,8 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
     });
   }, [categoryData, category, query]);
 
-  const handleOpenApp = () => {
+  const handleOpenApp = async () => {
+    await openApp(appId);
     toast({
       title: "App launched",
       description: `Opened ${title}`,
@@ -49,7 +52,7 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
 
           <div className="mt-8 flex flex-wrap gap-3">
             <button onClick={handleOpenApp} type="button" className="inline-flex items-center gap-2 rounded-xl border border-[#FF3B30]/70 bg-[#FF3B30]/85 px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(255,59,48,0.35)] backdrop-blur-xl transition hover:scale-[1.03] hover:shadow-[0_16px_35px_rgba(255,59,48,0.45)]">
-              Open App
+              {actionLoading[`open-app:${appId}`] ? "Opening..." : "Open App"}
               <ArrowUpRight className="h-4 w-4" />
             </button>
             <Link to="/apps" className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-foreground backdrop-blur-xl transition hover:scale-[1.02] hover:border-[#FF3B30]/60 hover:text-[#FF3B30]">
@@ -70,6 +73,7 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-9">
             <h2 className="text-2xl font-bold sm:text-3xl">Features & Instructions</h2>
             <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {features.length === 0 ? <p className="text-sm text-foreground/70">No feature list available for this app yet.</p> : null}
               {features.map((feature, index) => (
                 <motion.article key={feature} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.06 }} className="rounded-2xl border border-white/10 bg-black/30 p-5">
                   <p className="text-sm leading-relaxed text-foreground/80">{feature}</p>
@@ -115,6 +119,7 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
         <section className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-9">
           <h2 className="text-2xl font-bold">Additional Resources</h2>
           <div className="mt-4 flex flex-wrap gap-3">
+            {resources.length === 0 ? <p className="text-sm text-foreground/70">No additional resources available yet.</p> : null}
             {resources.map((resource) => {
               const isExternal = resource.link?.startsWith("http");
 

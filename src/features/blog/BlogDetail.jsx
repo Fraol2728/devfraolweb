@@ -5,8 +5,12 @@ import { BlogCard } from "@/features/blog/BlogCard";
 
 export const BlogDetailContent = () => {
   const { slug } = useParams();
-  const { blogs: blogPosts } = useMockApi();
+  const { blogs: blogPosts = [], loading } = useMockApi();
   const post = blogPosts.find((item) => item.slug === slug);
+
+  if (loading.list) {
+    return <section className="py-20 text-center text-muted-foreground">Loading article...</section>;
+  }
 
   if (!post) {
     return (
@@ -18,40 +22,26 @@ export const BlogDetailContent = () => {
     );
   }
 
-  const relatedPosts = blogPosts
-    .filter((item) => item.slug !== post.slug && item.category === post.category)
-    .slice(0, 3);
+  const relatedPosts = blogPosts.filter((item) => item.slug !== post.slug && item.category === post.category).slice(0, 3);
 
   return (
     <main className="px-4 py-16 sm:px-6">
       <div className="container mx-auto max-w-5xl text-left">
-        <motion.header
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-3xl border border-border"
-        >
+        <motion.header initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden rounded-3xl border border-border">
           <img src={post.image} alt={post.imageAlt} loading="eager" decoding="async" className="h-72 w-full object-cover md:h-96" />
           <div className="absolute inset-0 bg-linear-to-t from-background via-background/60 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-6 md:p-10">
-            <p className="text-xs uppercase tracking-[0.24em] text-primary">
-              {post.category} • {post.date}
-            </p>
+            <p className="text-xs uppercase tracking-[0.24em] text-primary">{post.category} • {post.date}</p>
             <h1 className="mt-3 text-3xl md:text-5xl">{post.title}</h1>
           </div>
         </motion.header>
 
         <article className="mt-10 space-y-8 rounded-2xl border border-border bg-card/60 p-6 leading-8 md:p-10">
-          {post.content.map((block, index) => (
-            <motion.section
-              key={block.heading}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.25 }}
-              transition={{ delay: index * 0.08 }}
-            >
+          {(post.content ?? []).map((block, index) => (
+            <motion.section key={block.heading} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ delay: index * 0.08 }}>
               <h2 className="text-2xl">{block.heading}</h2>
               <div className="mt-3 space-y-4 text-muted-foreground">
-                {block.paragraphs.map((paragraph) => (
+                {(block.paragraphs ?? []).map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>
                 ))}
               </div>
@@ -71,10 +61,7 @@ export const BlogDetailContent = () => {
         )}
 
         <div className="mt-10 flex flex-wrap gap-4">
-          <Link
-            to="/blogs"
-            className="rounded-full border border-border px-5 py-2 font-medium hover:border-[#FF3B30] hover:text-[#FF3B30]"
-          >
+          <Link to="/blogs" className="rounded-full border border-border px-5 py-2 font-medium hover:border-[#FF3B30] hover:text-[#FF3B30]">
             Back to Blog
           </Link>
           <Link to="/courses" className="cosmic-button">

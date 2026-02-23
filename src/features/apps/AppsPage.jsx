@@ -7,7 +7,7 @@ import { ResourceCategory } from "./ResourceCategory";
 
 const appCategories = ["All", "Downloaders", "Editors", "Converters", "Resources"];
 export const AppsPage = () => {
-  const { apps: appsCatalog, webRecommendations } = useMockApi();
+  const { apps: appsCatalog = [], webRecommendations = [], loading, openApp, actionLoading } = useMockApi();
   const [appQuery, setAppQuery] = useState("");
   const [appCategory, setAppCategory] = useState("All");
   const [webQuery, setWebQuery] = useState("");
@@ -20,7 +20,7 @@ export const AppsPage = () => {
       const queryMatch = !q || `${app.name} ${app.description}`.toLowerCase().includes(q);
       return categoryMatch && queryMatch;
     });
-  }, [appQuery, appCategory]);
+  }, [appsCatalog, appQuery, appCategory]);
 
   const filteredWebsites = useMemo(() => {
     const q = webQuery.trim().toLowerCase();
@@ -29,11 +29,9 @@ export const AppsPage = () => {
       const queryMatch = !q || `${item.name} ${item.description} ${item.link}`.toLowerCase().includes(q);
       return categoryMatch && queryMatch;
     });
-  }, [webQuery, webCategory]);
+  }, [webRecommendations, webQuery, webCategory]);
 
-  const dynamicWebCategories = useMemo(() => {
-    return ["All", ...new Set(webRecommendations.map((item) => item.category))];
-  }, []);
+  const dynamicWebCategories = useMemo(() => ["All", ...new Set(webRecommendations.map((item) => item.category))], [webRecommendations]);
 
   return (
     <main className="px-4 py-14 sm:px-6 lg:px-8">
@@ -60,8 +58,11 @@ export const AppsPage = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {filteredApps.map((app, index) => {
+            {loading.list ? <p className="text-sm text-foreground/70">Loading apps...</p> : null}
+            {!loading.list && filteredApps.length === 0 ? <p className="text-sm text-foreground/70">No apps matched your search.</p> : null}
+            {!loading.list && filteredApps.map((app, index) => {
               const Icon = app.icon;
+              const actionKey = `open-app:${app.id}`;
               return (
                 <motion.article key={app.id} initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.06 }} whileHover={{ scale: 1.03, y: -5 }} className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-2xl hover:shadow-[0_14px_30px_rgba(255,59,48,0.2)]">
                   <div className="inline-flex rounded-xl bg-[#FF3B30]/15 p-3 text-[#FF3B30]">
@@ -69,8 +70,8 @@ export const AppsPage = () => {
                   </div>
                   <h3 className="mt-4 text-xl font-bold">{app.name}</h3>
                   <p className="mt-2 text-sm text-foreground/75">{app.description}</p>
-                  <Link to={app.route || `/apps/${app.id}`} className="mt-5 inline-flex items-center rounded-lg bg-[#FF3B30] px-4 py-2 text-sm font-semibold text-white transition hover:shadow-[0_8px_22px_rgba(255,59,48,0.35)]">
-                    Open App
+                  <Link to={app.route || `/apps/${app.id}`} onClick={() => openApp(app.id)} className="mt-5 inline-flex items-center rounded-lg bg-[#FF3B30] px-4 py-2 text-sm font-semibold text-white transition hover:shadow-[0_8px_22px_rgba(255,59,48,0.35)]">
+                    {actionLoading[actionKey] ? "Opening..." : "Open App"}
                   </Link>
                 </motion.article>
               );
@@ -96,6 +97,7 @@ export const AppsPage = () => {
             </div>
           </div>
 
+          {filteredWebsites.length === 0 ? <p className="mb-5 text-sm text-foreground/70">No websites found for the current filters.</p> : null}
           <ResourceCategory websites={filteredWebsites} />
         </section>
       </div>
