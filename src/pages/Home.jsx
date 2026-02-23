@@ -1,46 +1,40 @@
-import { useEffect, useState } from "react";
-import { HeroSection } from "@/components/home/HeroSection";
-import { FeaturedCourses } from "@/components/home/FeaturedCourses";
-import { FeaturedApps } from "@/components/home/FeaturedApps";
-import { BlogPreview } from "@/components/home/BlogPreview";
-import { FAQSection } from "@/components/home/FAQSection";
-import { NewsletterSignup } from "@/components/home/NewsletterSignup";
+import { Suspense, lazy } from "react";
+import { Hero } from "@/features/home/Hero";
+import { TracksOverview } from "@/features/home/TracksOverview";
+import { FeaturedCourses } from "@/features/home/FeaturedCourses";
+import { FeaturedApps } from "@/features/home/FeaturedApps";
+import { CTA } from "@/features/home/CTA";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
-import { HERO_IMAGE, faqItems, mockApps, mockBlogs, mockCourses } from "@/data/homeData";
+
+const FAQPreview = lazy(() => import("@/features/home/FAQPreview").then((m) => ({ default: m.FAQPreview })));
+const BlogPreview = lazy(() => import("@/features/home/BlogPreview").then((m) => ({ default: m.BlogPreview })));
+const Newsletter = lazy(() => import("@/features/home/Newsletter").then((m) => ({ default: m.Newsletter })));
+
+const SectionSkeleton = () => <div className="mx-auto h-40 w-full max-w-6xl animate-pulse rounded-2xl border border-border/60 bg-card/40" />;
 
 export const Home = () => {
-  const [courses, setCourses] = useState([]);
-  const [apps, setApps] = useState([]);
-  const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useSeoMeta(
-    "Dev Fraol Academy – Learn, Code, Create",
-    "Join Dev Fraol Academy to explore coding courses, apps, and blogs. Improve your skills, learn new technologies, and create projects.",
-    {
-      ogImage: HERO_IMAGE,
-    }
-  );
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setCourses(mockCourses);
-      setApps(mockApps);
-      setBlogs(mockBlogs);
-      setLoading(false);
-    }, 850);
-
-    return () => clearTimeout(timer);
-  }, []);
+  useSeoMeta({
+    title: "Dev Fraol Academy | Web Development & Design Courses",
+    description:
+      "Master web development and graphic design with project-first courses, mentor support, and portfolio-ready outcomes at Dev Fraol Academy.",
+  });
 
   return (
-    <div className="bg-slate-950">
-      <HeroSection backgroundImage={HERO_IMAGE} />
-      <FeaturedCourses courses={courses} loading={loading} />
-      <FeaturedApps apps={apps} loading={loading} />
-      <BlogPreview posts={blogs} loading={loading} />
-      <FAQSection faqs={faqItems} />
-      <NewsletterSignup />
-    </div>
+    <>
+      <Hero />
+      <TracksOverview />
+      <FeaturedCourses />
+      <FeaturedApps />
+      <Suspense fallback={<SectionSkeleton />}>
+        <BlogPreview />
+      </Suspense>
+      <Suspense fallback={<SectionSkeleton />}>
+        <FAQPreview />
+      </Suspense>
+      <CTA />
+      <Suspense fallback={<SectionSkeleton />}>
+        <Newsletter />
+      </Suspense>
+    </>
   );
 };
