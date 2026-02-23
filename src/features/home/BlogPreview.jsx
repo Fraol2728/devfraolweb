@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { blogPosts } from "@/data/blog";
+import { useMockApi } from "@/context/MockApiContext";
 
 export const BlogPreview = () => {
-  const latestPosts = blogPosts.slice(0, 3);
+  const { blogs = [] } = useMockApi();
+  const latestPosts = blogs.slice(0, 3);
 
   return (
     <section id="blog-preview" className="px-4 sm:px-6 py-16">
@@ -23,12 +24,13 @@ export const BlogPreview = () => {
               <h3 className="mt-2 text-xl">{post.title}</h3>
               <p className="mt-3 text-muted-foreground text-sm leading-relaxed">{post.excerpt}</p>
               <p className="mt-4 text-xs text-muted-foreground">{post.date}</p>
-              <Link to={`/blog/${post.slug}`} className="mt-4 inline-block font-semibold text-primary hover:underline">
+              <Link to={`/blogs/${post.slug}`} className="mt-4 inline-block font-semibold text-primary hover:underline">
                 Read More
               </Link>
             </motion.article>
           ))}
         </div>
+        {latestPosts.length === 0 ? <p className="mt-6 text-sm text-muted-foreground">Blog highlights are being prepared.</p> : null}
         <Link to="/blogs" className="mt-6 inline-flex cosmic-button">
           See More
         </Link>

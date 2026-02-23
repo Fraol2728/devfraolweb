@@ -3,7 +3,6 @@ import { useMockApi } from "@/context/MockApiContext";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Search } from "lucide-react";
 import { Link } from "react-router-dom";
-import { toast } from "@/hooks/useToastStore";
 import { ResourceCategory } from "./ResourceCategory";
 
 export const AppDetail = ({ title, description, icon: Icon, features = [], demoUrl, categoryData = null, resources = [], appId, onOpenApp, ToolComponent = null }) => {
@@ -28,12 +27,16 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
   }, [categoryData, category, query]);
 
   const handleOpenApp = async () => {
-    await openApp(appId);
+    const app = await openApp(appId);
+    if (!app) return;
+
+    if (ToolComponent) {
+      const toolSection = document.getElementById("tool-section");
+      toolSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
     onOpenApp?.();
-    toast({
-      title: "App launched",
-      description: `Opened ${title}`,
-    });
   };
 
   const handleExploreDetails = () => {
@@ -73,7 +76,7 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
 
 
         {ToolComponent ? (
-          <section className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-9">
+          <section id="tool-section" className="scroll-mt-24 rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-9">
             <h2 className="text-2xl font-bold sm:text-3xl">Try the app</h2>
             <p className="mt-2 text-sm text-foreground/70">Interactive mock module powered by local context and frontend state.</p>
             <div className="mt-5">

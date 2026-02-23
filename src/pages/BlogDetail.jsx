@@ -5,7 +5,7 @@ import { useSeoMeta } from "@/hooks/useSeoMeta";
 
 export const BlogDetail = () => {
   const { slug } = useParams();
-  const { blogs } = useMockApi();
+  const { blogs = [] } = useMockApi();
   const post = blogs.find((item) => item.slug === slug);
 
   useSeoMeta(
