@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import profileImage from "@/assets/profile.png";
+import profileImage from "@/assets/devfraol.jpg";
 import { SocialLinks } from "@/features/instructor/SocialLinks";
 
 const bioPoints = [
