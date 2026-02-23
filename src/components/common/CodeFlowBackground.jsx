@@ -40,7 +40,7 @@ export const CodeFlowBackground = () => {
   const streams = useMemo(() => Array.from({ length: STREAM_COUNT }, (_, id) => createStream(id)), []);
 
   return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden bg-[#0A0A0A]" style={{ zIndex: -1 }}>
+    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#0A0A0A]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(255,59,48,0.18),transparent_42%),radial-gradient(circle_at_82%_12%,rgba(59,130,246,0.2),transparent_38%),radial-gradient(circle_at_50%_85%,rgba(59,130,246,0.08),transparent_50%)]" />
 
       {streams.map((stream) => (

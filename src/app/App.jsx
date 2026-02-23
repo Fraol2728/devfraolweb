@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import { motion } from "framer-motion";
 import { WelcomePage } from "@/pages/WelcomePage";
 import { Analytics } from "@vercel/analytics/react";
@@ -38,45 +38,49 @@ function App() {
       <UserProvider>
         <ErrorBoundary>
           <CodeFlowBackground />
-          <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, ease: "easeOut" }}>
-            <ScrollToTop />
-            <FixedAuthActions />
-            <Routes>
-              <Route element={<MainLayout />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/courses" element={<Courses />} />
-                <Route path="/courses/:id" element={<CourseDetail />} />
-                <Route path="/courses/:id/enroll" element={<CourseLearning />} />
-                <Route path="/learn/:courseId" element={<CourseLearning />} />
-                <Route path="/instructors" element={<Instructor />} />
-                <Route path="/instructors/:id" element={<Instructor />} />
-                <Route path="/instructor" element={<Navigate to="/instructors" replace />} />
-                <Route path="/instructor/:id" element={<Instructor />} />
-                <Route path="/testimonials" element={<Testimonials />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/blogs" element={<Blog />} />
-                <Route path="/blogs/:slug" element={<BlogDetail />} />
-                <Route path="/blog" element={<Navigate to="/blogs" replace />} />
-                <Route path="/blog/:slug" element={<BlogDetail />} />
-                <Route path="/apps" element={<Apps />} />
-                <Route path="/apps/:id" element={<AppDetail />} />
-                <Route path="/code-editor" element={<CodeEditor />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/auth/google" element={<AuthRedirectPlaceholder />} />
-                <Route path="/auth/github" element={<AuthRedirectPlaceholder />} />
-                <Route path="/my-courses" element={<SimplePlaceholderPage title="My Courses" />} />
-                <Route path="/settings" element={<SimplePlaceholderPage title="Settings" />} />
-              </Route>
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/home" element={<Navigate to="/" replace />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Analytics />
-          </motion.div>
-
-          {!welcomeComplete ? <WelcomePage onWelcomeComplete={() => setWelcomeComplete(true)} /> : null}
+          {!welcomeComplete ? (
+            <WelcomePage onWelcomeComplete={() => setWelcomeComplete(true)} />
+          ) : (
+            <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, ease: "easeOut" }}>
+              <HashRouter>
+                <ScrollToTop />
+                <FixedAuthActions />
+                <Routes>
+                  <Route element={<MainLayout />}>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/courses" element={<Courses />} />
+                    <Route path="/courses/:id" element={<CourseDetail />} />
+                    <Route path="/courses/:id/enroll" element={<CourseLearning />} />
+                    <Route path="/learn/:courseId" element={<CourseLearning />} />
+                    <Route path="/instructors" element={<Instructor />} />
+                    <Route path="/instructors/:id" element={<Instructor />} />
+                    <Route path="/instructor" element={<Navigate to="/instructors" replace />} />
+                    <Route path="/instructor/:id" element={<Instructor />} />
+                    <Route path="/testimonials" element={<Testimonials />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/blogs" element={<Blog />} />
+                    <Route path="/blogs/:slug" element={<BlogDetail />} />
+                    <Route path="/blog" element={<Navigate to="/blogs" replace />} />
+                    <Route path="/blog/:slug" element={<BlogDetail />} />
+                    <Route path="/apps" element={<Apps />} />
+                    <Route path="/apps/:id" element={<AppDetail />} />
+                    <Route path="/code-editor" element={<CodeEditor />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/auth/google" element={<AuthRedirectPlaceholder />} />
+                    <Route path="/auth/github" element={<AuthRedirectPlaceholder />} />
+                    <Route path="/my-courses" element={<SimplePlaceholderPage title="My Courses" />} />
+                    <Route path="/settings" element={<SimplePlaceholderPage title="Settings" />} />
+                  </Route>
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/home" element={<Navigate to="/" replace />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Analytics />
+              </HashRouter>
+            </motion.div>
+          )}
         </ErrorBoundary>
       </UserProvider>
     </AppProviders>
