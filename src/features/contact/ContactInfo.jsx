@@ -1,14 +1,18 @@
 import { motion } from "framer-motion";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { SocialLinks } from "@/features/instructor/SocialLinks";
+import { useMockApi } from "@/context/MockApiContext";
 
-const contactDetails = [
-  { icon: Mail, label: "Email", value: "hello@devfraol.academy", href: "mailto:hello@devfraol.academy" },
-  { icon: Phone, label: "Phone", value: "+1 (555) 867-5309", href: "tel:+15558675309" },
-  { icon: MapPin, label: "Location", value: "Remote-first · Serving globally", href: null },
-];
+const iconMap = {
+  Email: Mail,
+  Phone: Phone,
+  Location: MapPin,
+};
 
 export const ContactInfo = () => {
+  const { contact } = useMockApi();
+  const contactDetails = contact?.details ?? [];
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 24 }}
@@ -19,7 +23,9 @@ export const ContactInfo = () => {
     >
       <h2 className="text-2xl font-semibold text-white">Quick contact info</h2>
       <ul className="mt-5 space-y-4">
-        {contactDetails.map(({ icon: Icon, label, value, href }) => (
+        {contactDetails.map(({ label, value, href }) => {
+          const Icon = iconMap[label] ?? Mail;
+          return (
           <li key={label} className="flex items-start gap-3">
             <span className="mt-0.5 rounded-lg border border-white/10 bg-black/30 p-2 text-[#FF3B30]">
               <Icon className="h-4 w-4" aria-hidden="true" />
@@ -35,7 +41,8 @@ export const ContactInfo = () => {
               )}
             </div>
           </li>
-        ))}
+          );
+        })}
       </ul>
 
       <div className="mt-6 border-t border-white/10 pt-5">

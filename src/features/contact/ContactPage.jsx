@@ -3,8 +3,11 @@ import { ContactForm } from "@/features/contact/ContactForm";
 import { ContactInfo } from "@/features/contact/ContactInfo";
 import { Map } from "@/features/contact/Map";
 import { CTASection } from "@/features/contact/CTASection";
+import { useMockApi } from "@/context/MockApiContext";
 
 export const ContactPage = () => {
+  const { contact } = useMockApi();
+
   return (
     <main className="px-4 py-16 sm:px-6">
       <section className="mx-auto max-w-6xl">
@@ -14,9 +17,9 @@ export const ContactPage = () => {
           transition={{ duration: 0.45, ease: "easeOut" }}
           className="mb-10 text-center"
         >
-          <h1 className="text-4xl font-bold text-white sm:text-5xl">Get in Touch</h1>
+          <h1 className="text-4xl font-bold text-white sm:text-5xl">{contact?.title || "Get in Touch"}</h1>
           <p className="mx-auto mt-3 max-w-2xl text-zinc-300">
-            Have questions? Reach out and we’ll get back to you!
+            {contact?.subtitle || "Have questions? Reach out and we’ll get back to you!"}
           </p>
         </motion.div>
 

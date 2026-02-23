@@ -1,14 +1,15 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { testimonials } from "@/data/testimonials";
+import { useMockApi } from "@/context/MockApiContext";
 import { TestimonialCard } from "@/features/testimonials/TestimonialCard";
 
 export const TestimonialsCarousel = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const { testimonials = [] } = useMockApi();
 
-  const totalSlides = testimonials.length;
-  const currentItem = testimonials[activeIndex];
+  const totalSlides = testimonials.length || 1;
+  const currentItem = testimonials[activeIndex] ?? testimonials[0];
 
   const goToNext = () => {
     setActiveIndex((index) => (index + 1) % totalSlides);
@@ -28,7 +29,7 @@ export const TestimonialsCarousel = () => {
     }
   };
 
-  const desktopCards = useMemo(() => testimonials, []);
+  const desktopCards = useMemo(() => testimonials, [testimonials]);
 
   return (
     <section className="mt-12" aria-label="Student testimonials carousel and grid">
@@ -40,7 +41,7 @@ export const TestimonialsCarousel = () => {
         tabIndex={0}
         onKeyDown={onKeyDown}
       >
-        <AnimatePresence mode="wait">
+        {currentItem ? <AnimatePresence mode="wait">
           <motion.div
             key={currentItem.id}
             initial={{ opacity: 0, x: 30 }}
@@ -50,7 +51,7 @@ export const TestimonialsCarousel = () => {
           >
             <TestimonialCard testimonial={currentItem} priority />
           </motion.div>
-        </AnimatePresence>
+        </AnimatePresence> : <p className="text-sm text-muted-foreground">No testimonials yet.</p>}
 
         <div className="mt-5 flex items-center justify-between gap-4">
           <button
