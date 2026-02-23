@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Moon, Play, Save, Sun } from "lucide-react";
 import { toast } from "@/hooks/useToastStore";
+import { mockCodeRunOutputByLanguage } from "@/data/mockAppResponses";
 
 const snippets = {
   JavaScript: "console.log('Hello from JavaScript');",
@@ -18,7 +19,7 @@ const backendLanguageMap = {
   Java: "java",
 };
 
-export const CodeEditor = ({ endpoints }) => {
+export const CodeEditor = () => {
   const [language, setLanguage] = useState("JavaScript");
   const [code, setCode] = useState(snippets.JavaScript);
   const [output, setOutput] = useState("");
@@ -48,21 +49,12 @@ export const CodeEditor = ({ endpoints }) => {
         return;
       }
 
-      const response = await fetch(endpoints.codeRun, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ language: backendLanguageMap[language], code }),
-      });
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const languageKey = backendLanguageMap[language];
+      const mockOutput = mockCodeRunOutputByLanguage[languageKey] || "Execution completed with local mock runtime.";
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Execution failed.");
-      }
-
-      setOutput(data.output || data.result || "Execution completed.");
-      toast({ title: "Execution complete", description: `${language} snippet finished running.`, variant: "success" });
+      setOutput(mockOutput);
+      toast({ title: "Execution complete", description: `${language} snippet finished running with mock runtime.`, variant: "success" });
     } catch (error) {
       setOutput(error.message);
       toast({ title: "Execution failed", description: error.message, variant: "destructive" });

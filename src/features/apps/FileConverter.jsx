@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeftRight, Loader2, UploadCloud } from "lucide-react";
 import { toast } from "@/hooks/useToastStore";
+import { mockConverterMessage } from "@/data/mockAppResponses";
 
 const formats = ["PDF", "DOCX", "XLSX", "PNG", "JPG"];
 
-export const FileConverter = ({ endpoints }) => {
+export const FileConverter = () => {
   const [from, setFrom] = useState(formats[0]);
   const [to, setTo] = useState(formats[1]);
   const [file, setFile] = useState(null);
@@ -34,20 +35,8 @@ export const FileConverter = ({ endpoints }) => {
     return `${baseName}.${extension}`;
   }, [file, to]);
 
-  const triggerDownload = async (response, fallbackName) => {
-    const contentType = response.headers.get("content-type") ?? "";
-    if (contentType.includes("application/json")) {
-      const data = await response.json();
-      const downloadUrl = data.downloadUrl || data.fileUrl || data.url;
-      if (!downloadUrl) throw new Error("No download URL received from API.");
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = data.fileName || fallbackName;
-      link.click();
-      return;
-    }
-
-    const blob = await response.blob();
+  const triggerDownload = (sourceFile, fallbackName) => {
+    const blob = sourceFile.slice(0, sourceFile.size, sourceFile.type || "application/octet-stream");
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = blobUrl;
@@ -71,25 +60,12 @@ export const FileConverter = ({ endpoints }) => {
     setProgress(8);
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("from", from.toLowerCase());
-      formData.append("to", to.toLowerCase());
-
-      const response = await fetch(endpoints.convert, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("File conversion failed. Please try another file.");
-      }
-
-      await triggerDownload(response, fileName || `converted.${to.toLowerCase()}`);
+      await new Promise((resolve) => setTimeout(resolve, 650));
+      triggerDownload(file, fileName || `converted.${to.toLowerCase()}`);
       setProgress(100);
       toast({
         title: "Conversion complete",
-        description: `${from} converted to ${to} successfully.`,
+        description: mockConverterMessage,
         variant: "success",
       });
     } catch (error) {
@@ -103,7 +79,7 @@ export const FileConverter = ({ endpoints }) => {
   return (
     <article className="rounded-2xl border border-border/70 bg-card/45 p-5 backdrop-blur-xl">
       <h3 className="text-xl font-bold text-foreground">File Converter</h3>
-      <p className="mt-2 text-sm text-foreground/70">Future backend-ready converter module for docs and image assets.</p>
+      <p className="mt-2 text-sm text-foreground/70">Local mock converter module for docs and image assets.</p>
       <label
         htmlFor="convert-upload"
         onDragOver={(event) => event.preventDefault()}

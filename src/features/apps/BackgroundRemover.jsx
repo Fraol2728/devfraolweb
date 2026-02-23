@@ -2,8 +2,9 @@ import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Loader2, Upload } from "lucide-react";
 import { toast } from "@/hooks/useToastStore";
+import { mockBackgroundMessage } from "@/data/mockAppResponses";
 
-export const BackgroundRemover = ({ endpoints }) => {
+export const BackgroundRemover = () => {
   const [sourceImage, setSourceImage] = useState("");
   const [sourceFile, setSourceFile] = useState(null);
   const [resultImage, setResultImage] = useState("");
@@ -28,37 +29,11 @@ export const BackgroundRemover = ({ endpoints }) => {
 
     setIsLoading(true);
     try {
-      const formData = new FormData();
-      formData.append("image", sourceFile);
-
-      const response = await fetch(endpoints.backgroundRemove, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Background removal failed. Please try another image.");
-      }
-
-      const contentType = response.headers.get("content-type") ?? "";
-      let processedImage = "";
-
-      if (contentType.includes("application/json")) {
-        const data = await response.json();
-        processedImage = data.imageUrl || data.url || data.resultUrl || "";
-      } else {
-        const blob = await response.blob();
-        processedImage = URL.createObjectURL(blob);
-      }
-
-      if (!processedImage) {
-        throw new Error("No output image was returned by the API.");
-      }
-
-      setResultImage(processedImage);
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      setResultImage(sourceImage);
       toast({
         title: "Background removed",
-        description: "Your processed image is ready for download.",
+        description: mockBackgroundMessage,
         variant: "success",
       });
     } catch (error) {
@@ -76,7 +51,7 @@ export const BackgroundRemover = ({ endpoints }) => {
   return (
     <article className="rounded-2xl border border-border/70 bg-card/45 p-5 backdrop-blur-xl">
       <h3 className="text-xl font-bold text-foreground">Background Remover</h3>
-      <p className="mt-2 text-sm text-foreground/70">Upload image → remove background via API → preview → download.</p>
+      <p className="mt-2 text-sm text-foreground/70">Upload image → mock process locally → preview → download.</p>
 
       <label
         htmlFor="bg-upload"
