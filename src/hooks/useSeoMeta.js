@@ -12,18 +12,7 @@ const ensureMetaTag = (selector, attributeName, key, content) => {
   tag.setAttribute("content", content);
 };
 
-export const useSeoMeta = (titleOrOptions, description, extra = {}) => {
-  const config =
-    typeof titleOrOptions === "object"
-      ? titleOrOptions
-      : {
-          title: titleOrOptions,
-          description,
-          ...extra,
-        };
-
-  const { title, ogTitle, ogDescription, ogImage } = config;
-
+export const useSeoMeta = ({ title, description, ogTitle, ogDescription, ogImage }) => {
   useEffect(() => {
     if (title) {
       document.title = title;
