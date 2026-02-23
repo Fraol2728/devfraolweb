@@ -1,9 +1,11 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useMockApi } from "@/context/MockApiContext";
+import { useBlogs } from "@/features/blog/hooks/useBlogs";
+import { Button } from "@/shared/ui/Button";
 
-export const BlogCard = ({ post, index = 0, compact = false }) => {
-  const { openBlog, actionLoading } = useMockApi();
+const BlogCardComponent = ({ post, index = 0, compact = false }) => {
+  const { openBlog, actionLoading } = useBlogs();
   const actionKey = `open-blog:${post.slug}`;
 
   return (
@@ -28,14 +30,10 @@ export const BlogCard = ({ post, index = 0, compact = false }) => {
         </p>
         <h2 className={`mt-3 ${compact ? "text-xl" : "text-2xl"}`}>{post.title}</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{post.excerpt}</p>
-        <Link
-          to={`/blogs/${post.slug}`}
-          onClick={() => openBlog(post.slug)}
-          className="mt-5 inline-flex rounded-full border border-primary/50 px-4 py-2 text-sm font-semibold text-primary transition-all duration-300 hover:border-[#FF3B30] hover:bg-[#FF3B30] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF3B30] focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        >
-          {actionLoading[actionKey] ? "Opening..." : "Read More"}
-        </Link>
+        <Link to={`/blogs/${post.slug}`} onClick={() => openBlog(post.slug)} className="mt-5 inline-flex" aria-label={`Read blog ${post.title}`}><Button variant="outline" className="rounded-full">{actionLoading[actionKey] ? "Opening..." : "Read More"}</Button></Link>
       </div>
     </motion.article>
   );
 };
+
+export const BlogCard = memo(BlogCardComponent);

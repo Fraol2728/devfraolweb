@@ -1,7 +1,8 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { AppWindow, ArrowUpRight } from "lucide-react";
 
-export const AppCard = ({ app, index, onSelectTool, isHighlighted = false }) => {
+const AppCardComponent = ({ app, index, onSelectTool, isHighlighted = false }) => {
   const Icon = app.icon || AppWindow;
 
   return (
@@ -20,7 +21,7 @@ export const AppCard = ({ app, index, onSelectTool, isHighlighted = false }) => 
       </div>
       <h3 className="text-xl font-bold text-foreground">{app.name}</h3>
       <p className="mt-2 min-h-14 text-sm text-foreground/75">{app.description}</p>
-      <button
+      <button aria-label={`Open ${app.name}`}
         type="button"
         onClick={() => onSelectTool?.(app.tool)}
         className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#FF3B30] px-4 py-2 text-sm font-semibold text-white transition-all duration-300 hover:translate-y-[-1px] hover:shadow-[0_10px_24px_rgba(255,59,48,0.35)]"
@@ -31,3 +32,5 @@ export const AppCard = ({ app, index, onSelectTool, isHighlighted = false }) => 
     </motion.article>
   );
 };
+
+export const AppCard = memo(AppCardComponent);

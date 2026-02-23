@@ -136,3 +136,9 @@
 
 #root { max-width: 100%; margin: 0 auto; padding: 0; text-align: center; }
 ::-webkit-scrollbar { display: none; }
+
+
+:focus-visible {
+  outline: 2px solid #FF3B30;
+  outline-offset: 2px;
+}
