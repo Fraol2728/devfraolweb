@@ -8,6 +8,7 @@ import {
   Layers3,
   Music2,
   Sparkles,
+  QrCode,
   Youtube,
 } from "lucide-react";
 
@@ -103,6 +104,25 @@ export const appDetailPages = [
       { name: "File Converter", link: "/apps/file-converter" },
     ],
   },
+  {
+    id: "qr-generator",
+    route: "/apps/qr-generator",
+    name: "QR Code Generator",
+    description: "Build custom QR codes for text, links, contact actions, and Wi-Fi credentials with rich style controls.",
+    category: "Editors",
+    icon: QrCode,
+    features: [
+      "Generate QR codes from text, URLs, email, phone, and Wi-Fi details.",
+      "Customize sizing, colors, gradients, logos, and corner style.",
+      "Live preview with one-click PNG and SVG downloads.",
+      "Keyboard-friendly and responsive for desktop and mobile use.",
+    ],
+    resources: [
+      { name: "File Converter", link: "/apps/file-converter" },
+      { name: "Web Recommended", link: "/apps/web-recommended" },
+    ],
+  },
+
   {
     id: "file-converter",
     route: "/apps/file-converter",
