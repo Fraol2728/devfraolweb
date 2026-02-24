@@ -10,14 +10,12 @@ const MENU_MAP = {
   Edit: [
     { id: "edit-undo", label: "Undo" },
     { id: "edit-redo", label: "Redo" },
-    { id: "edit-copy", label: "Copy" },
-    { id: "edit-paste", label: "Paste" },
   ],
   View: [{ id: "view-toggle-terminal", label: "Toggle Terminal" }],
   Run: [{ id: "run-python", label: "Run Python Code" }],
 };
 
-export const MenuBar = ({ onAction }) => {
+export const MenuBar = ({ onAction, disabledActions = [], runLabel = "Run Python Code" }) => {
   const [openMenu, setOpenMenu] = useState(null);
 
   return (
@@ -29,18 +27,23 @@ export const MenuBar = ({ onAction }) => {
           </button>
           {openMenu === menuName && (
             <div className="py-menu-dropdown">
-              {MENU_MAP[menuName].map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => {
-                    onAction(item.id);
-                    setOpenMenu(null);
-                  }}
-                >
-                  {item.label}
-                </button>
-              ))}
+              {MENU_MAP[menuName].map((item) => {
+                const disabled = disabledActions.includes(item.id);
+                const label = item.id === "run-python" ? runLabel : item.label;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => {
+                      onAction(item.id);
+                      setOpenMenu(null);
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
