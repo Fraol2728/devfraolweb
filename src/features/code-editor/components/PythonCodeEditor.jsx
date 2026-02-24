@@ -43,6 +43,7 @@ export const PythonCodeEditor = () => {
   const [runtimeLoading, setRuntimeLoading] = useState(false);
   const editorRef = useRef(null);
   const saveDebounceRef = useRef();
+  const pyodideInitPromiseRef = useRef(null);
 
   const files = useMemo(() => selectFiles(tree), [tree]);
   const activeFile = files.find((item) => item.id === activeFileId) ?? null;
@@ -53,6 +54,11 @@ export const PythonCodeEditor = () => {
       setIsPyodideReady(true);
       return window.__pyodide;
     }
+    if (pyodideInitPromiseRef.current) {
+      return pyodideInitPromiseRef.current;
+    }
+
+    const initPromise = (async () => {
     setRuntimeLoading(true);
     try {
       if (!window.loadPyodide) {
@@ -79,14 +85,19 @@ export const PythonCodeEditor = () => {
       appendOutput("Failed to load Pyodide runtime.", "error");
       return null;
     } finally {
+      pyodideInitPromiseRef.current = null;
       setRuntimeLoading(false);
     }
+    })();
+
+    pyodideInitPromiseRef.current = initPromise;
+    return initPromise;
   };
 
   const runPythonCode = async () => {
     if (!activeFile) return;
     addCommandHistory(activeFile.name);
-    const pyodide = await initializePyodide();
+    const pyodide = isPyodideReady ? window.__pyodide : await initializePyodide();
     if (!pyodide) return;
     setRuntimeLoading(true);
     appendOutput(`Running ${activeFile.name} ...`);
@@ -181,16 +192,13 @@ export const PythonCodeEditor = () => {
 
   return (
     <section className="py-root">
-      <MenuBar onAction={handleMenuAction} />
-      <div className="py-status-bar">
-        <label>
-          Project:
-          <select value={currentProjectId} onChange={(event) => setCurrentProject(event.target.value)}>
-            {Object.values(projects).map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
-          </select>
-        </label>
-        <span>{runtimeLoading ? "Runtime busy..." : isPyodideReady ? "Pyodide ready" : "Pyodide not loaded"}</span>
-      </div>
+      <MenuBar
+        onAction={handleMenuAction}
+        projects={projects}
+        currentProjectId={currentProjectId}
+        onProjectChange={setCurrentProject}
+        runtimeLabel={runtimeLoading ? "Runtime busy..." : isPyodideReady ? "Pyodide ready" : "Pyodide not loaded"}
+      />
       <ResizablePanels
         explorer={<FileExplorer />}
         editor={<EditorPane activeFile={activeFile} tabs={tabs} onTabSwitch={setActiveFile} onTabClose={closeTab} onTabReorder={reorderTabs} onChange={handleEditorChange} onEditorReady={(editor) => { editorRef.current = editor; }} />}

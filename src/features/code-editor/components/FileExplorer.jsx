@@ -23,8 +23,8 @@ const Node = ({ node, depth }) => {
         <div className="py-tree-actions">
           {isFolder ? (
             <>
-              <button type="button" onClick={() => { const next = window.prompt("New file name", "new_file.py"); if (next) createFile(node.id, next); }}>+F</button>
-              <button type="button" onClick={() => { const next = window.prompt("New folder name", "new_folder"); if (next) createFolder(node.id, next); }}>+D</button>
+              <button type="button" onClick={() => { const next = window.prompt("New file name", "new_file.py"); if (next) createFile(node.id, next); }}>+File</button>
+              <button type="button" onClick={() => { const next = window.prompt("New folder name", "new_folder"); if (next) createFolder(node.id, next); }}>+Folder</button>
             </>
           ) : null}
           <button type="button" onClick={() => { const next = window.prompt("Rename", node.name); if (next) renameNode(node.id, next); }}>Ren</button>

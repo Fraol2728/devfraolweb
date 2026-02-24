@@ -29,7 +29,7 @@ export const ResizablePanels = ({ explorer, editor, terminal, terminalVisible, e
     const startH = terminalHeight;
 
     const onMove = (moveEvent) => {
-      const next = Math.max(120, Math.min(360, startH - (moveEvent.clientY - startY)));
+      const next = Math.max(120, Math.min(420, startH - (moveEvent.clientY - startY)));
       setTerminalHeight(next);
     };
 
@@ -43,18 +43,18 @@ export const ResizablePanels = ({ explorer, editor, terminal, terminalVisible, e
   };
 
   return (
-    <div className="py-panel-shell">
-      <div className="py-main-layout" style={{ gridTemplateColumns: explorerVisible ? `${leftWidth}px 6px minmax(0, 1fr)` : "minmax(0,1fr)" }}>
-        {explorerVisible ? explorer : null}
-        {explorerVisible ? <div className="py-resizer-x" onPointerDown={resizeExplorer} /> : null}
-        {editor}
+    <div className="py-panel-shell" style={{ gridTemplateColumns: explorerVisible ? `${leftWidth}px 6px minmax(0, 1fr)` : "minmax(0,1fr)" }}>
+      {explorerVisible ? explorer : null}
+      {explorerVisible ? <div className="py-resizer-x" onPointerDown={resizeExplorer} /> : null}
+      <div className="py-main-stack">
+        <div className="py-editor-slot">{editor}</div>
+        {terminalVisible ? (
+          <div className="py-terminal-wrap" style={{ height: `${terminalHeight}px` }}>
+            <div className="py-resizer-y" onPointerDown={resizeTerminal} />
+            {terminal}
+          </div>
+        ) : null}
       </div>
-      {terminalVisible ? (
-        <div className="py-terminal-wrap" style={{ height: `${terminalHeight}px` }}>
-          <div className="py-resizer-y" onPointerDown={resizeTerminal} />
-          {terminal}
-        </div>
-      ) : null}
     </div>
   );
 };

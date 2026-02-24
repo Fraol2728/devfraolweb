@@ -1,20 +1,53 @@
 .py-root {
   height: 100vh;
   width: 100%;
-  display: grid;
-  grid-template-rows: 40px 34px minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   background: #111317;
   color: #d4d4d4;
   font-family: Inter, system-ui, sans-serif;
 }
 
 .py-menu-bar {
+  height: 44px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 12px;
+  background: #1a1d23;
+  border-bottom: 1px solid #30343d;
+}
+
+.py-menu-left,
+.py-menu-right {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 10px;
-  background: #1a1d23;
-  border-bottom: 1px solid #30343d;
+}
+
+.py-menu-right {
+  margin-left: auto;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.py-menu-right label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.py-menu-right select {
+  height: 28px;
+  background: #11151c;
+  color: #d4d4d4;
+  border: 1px solid #394152;
+  border-radius: 6px;
+  padding: 0 8px;
 }
 
 .py-menu-item { position: relative; }
@@ -25,7 +58,8 @@
   padding: 6px 10px;
   border-radius: 6px;
 }
-.py-menu-item > button:hover { background: #2c313a; }
+.py-menu-item > button:hover,
+.py-menu-item > button.is-active { background: #2c313a; }
 
 .py-menu-dropdown {
   position: absolute;
@@ -54,20 +88,36 @@
 .py-menu-dropdown small { color: #9ca7bd; }
 .py-menu-dropdown button:hover { background: #343b47; }
 
-.py-status-bar {
-  border-bottom: 1px solid #30343d;
-  padding: 6px 10px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.py-panel-shell {
+  flex: 1;
+  min-height: 0;
+  display: grid;
 }
-.py-status-bar select { margin-left: 6px; }
 
-.py-panel-shell { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
-.py-main-layout { min-height: 0; display: grid; }
-.py-resizer-x { cursor: col-resize; background: #2a2e36; }
-.py-resizer-y { height: 6px; cursor: row-resize; background: #2a2e36; }
+.py-main-stack {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 8px 8px 0;
+  gap: 8px;
+}
+
+.py-editor-slot {
+  min-height: 0;
+  flex: 1;
+}
+
+.py-resizer-x {
+  cursor: col-resize;
+  background: #2a2e36;
+}
+
+.py-resizer-y {
+  height: 6px;
+  cursor: row-resize;
+  background: #2a2e36;
+}
 
 .py-explorer {
   min-width: 0;
@@ -83,44 +133,76 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   padding: 8px;
   border-bottom: 1px solid #2e3440;
   font-size: 12px;
   text-transform: uppercase;
 }
+
+.py-explorer-header > div {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .py-explorer-header button {
   border: 1px solid #3f4655;
   background: #222834;
   color: #d4d4d4;
   border-radius: 6px;
-  margin-left: 4px;
+  height: 24px;
+  padding: 0 6px;
 }
-.py-tree-scroll { overflow: auto; height: calc(100% - 40px); padding: 8px 4px; }
+
+.py-tree-scroll { overflow: auto; height: calc(100% - 40px); padding: 8px 6px; }
 .py-tree-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 6px;
   border-radius: 8px;
-  height: 30px;
+  min-height: 30px;
+  padding-right: 4px;
 }
 .py-tree-row:hover { background: #242b36; }
 .py-tree-row.active { background: #2d3e57; }
 .py-tree-node {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   border: 0;
   background: transparent;
   color: inherit;
+  min-width: 0;
+  font-size: 13px;
 }
-.py-tree-actions button { border: 0; background: transparent; color: #aeb6c4; font-size: 11px; }
+
+.py-tree-node span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.py-tree-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.py-tree-actions button {
+  border: 0;
+  background: transparent;
+  color: #aeb6c4;
+  font-size: 11px;
+  line-height: 1;
+  padding: 2px 4px;
+}
 .py-tree-actions button:hover { color: #ffffff; }
 
 .py-editor-pane {
   min-width: 0;
   min-height: 0;
-  margin: 8px 8px 8px 0;
   border: 1px solid #2e3440;
   border-radius: 12px;
   overflow: hidden;
@@ -141,7 +223,12 @@
 .py-empty-state { height: 100%; display: grid; place-items: center; color: #95a0b2; }
 .ce-editor { height: 100%; }
 
-.py-terminal-wrap { margin: 0 8px 8px; border-radius: 12px; overflow: hidden; border: 1px solid #2e3440; background: #101318; }
+.py-terminal-wrap {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #2e3440;
+  background: #101318;
+}
 .py-terminal { height: calc(100% - 6px); display: grid; grid-template-rows: 36px minmax(0, 1fr); }
 .py-terminal-header {
   display: flex;
@@ -153,11 +240,41 @@
 }
 .py-terminal-header div { display: flex; gap: 6px; }
 .py-terminal-header button { border: 1px solid #3f4655; background: #222834; color: #d4d4d4; border-radius: 6px; }
-.py-terminal-logs { overflow: auto; padding: 8px 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+.py-terminal-logs {
+  overflow: auto;
+  padding: 8px 10px;
+  text-align: left;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+}
 .py-terminal-logs p { margin: 0 0 4px; }
 .py-log-stdout { color: #cdd7ea; }
 .py-log-error { color: #ff8f8f; }
 
 @media (max-width: 980px) {
-  .py-root { grid-template-rows: 40px 34px minmax(0, 1fr); }
+  .py-menu-bar {
+    height: auto;
+    min-height: 44px;
+    flex-wrap: wrap;
+    padding: 6px 10px;
+  }
+
+  .py-menu-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .py-panel-shell {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .py-resizer-x,
+  .py-explorer {
+    display: none;
+  }
+
+  .py-main-stack {
+    padding: 8px;
+  }
 }
