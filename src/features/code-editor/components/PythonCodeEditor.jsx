@@ -284,7 +284,7 @@ finally:
   };
 
   return (
-    <section className="py-root">
+    <section className="py-root" aria-label="Python code editor workspace">
       <MenuBar onAction={handleMenuAction} />
       <div className="py-status-bar">
         <label>

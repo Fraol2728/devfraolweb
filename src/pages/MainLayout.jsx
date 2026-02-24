@@ -1,7 +1,8 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { NavbarDock } from "@/features/home/NavbarDock";
+import { Navbar } from "@/features/navbar/Navbar";
 import { Footer } from "@/features/footer/Footer";
 
 const routeOrder = ["/", "/courses", "/blogs", "/apps", "/apps/python-code-editor", "/instructors", "/testimonials", "/contact", "/faq", "/login", "/signup"];
@@ -15,6 +16,8 @@ export const MainLayout = () => {
   const location = useLocation();
   const previousIndex = useRef(routeIndex(location.pathname));
   const shouldAnimate = useMemo(() => !location.pathname.startsWith("/auth/"), [location.pathname]);
+  const immersiveMode = location.pathname.includes("/python-code-editor");
+  const [showFloatingNavbar, setShowFloatingNavbar] = useState(false);
 
   const currentIndex = routeIndex(location.pathname);
   const direction = currentIndex >= previousIndex.current ? 1 : -1;
@@ -22,7 +25,22 @@ export const MainLayout = () => {
 
   return (
     <div className="relative z-0 min-h-screen overflow-x-hidden text-foreground">
-      <main className="relative z-0 pb-28 pt-4 md:pt-6">
+      {immersiveMode ? (
+        <>
+          <div className="fixed inset-x-0 top-0 z-[90] h-5" onMouseEnter={() => setShowFloatingNavbar(true)} />
+          <motion.div
+            initial={false}
+            animate={{ y: showFloatingNavbar ? 0 : -120, opacity: showFloatingNavbar ? 1 : 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="pointer-events-none fixed inset-x-0 top-0 z-[95] pt-2"
+          >
+            <div className="pointer-events-auto" onMouseEnter={() => setShowFloatingNavbar(true)} onMouseLeave={() => setShowFloatingNavbar(false)}>
+              <Navbar />
+            </div>
+          </motion.div>
+        </>
+      ) : null}
+      <main className={`relative z-0 ${immersiveMode ? "h-screen overflow-hidden p-0" : "pb-28 pt-4 md:pt-6"}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -35,8 +53,8 @@ export const MainLayout = () => {
           </motion.div>
         </AnimatePresence>
       </main>
-      <NavbarDock />
-      <Footer />
+      {!immersiveMode ? <NavbarDock /> : null}
+      {!immersiveMode ? <Footer /> : null}
     </div>
   );
 };
