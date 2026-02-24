@@ -3,66 +3,44 @@ import { motion } from "framer-motion";
 import { Eraser, LoaderCircle, Play } from "lucide-react";
 import { toast } from "@/hooks/useToastStore";
 import { EditorPane } from "@/features/code-editor/EditorPane";
+import { initializeJavaScriptRuntime, runJavaScript } from "@/features/apps/runtimes/javascriptRunner";
+import { initializePythonRuntime, runPython } from "@/features/apps/runtimes/pythonRunner";
+import { initializeCppRuntime, runCpp } from "@/features/apps/runtimes/cppRunner";
+import { initializeRustRuntime, runRust } from "@/features/apps/runtimes/rustRunner";
+import { initializeGoRuntime, runGo } from "@/features/apps/runtimes/goRunner";
 
 const snippets = {
-  javascript: "console.log('Hello from JavaScript');\n2 + 2;",
+  javascript: "console.log('Hello from JavaScript');\nreturn 2 + 2;",
   python: "print('Hello from Python')\n2 + 2",
-};
-
-const PYODIDE_SCRIPT_ID = "pyodide-runtime-loader";
-
-const loadPyodideRuntime = async () => {
-  if (window.pyodide) return window.pyodide;
-
-  if (!window.__pyodideLoaderPromise) {
-    window.__pyodideLoaderPromise = new Promise((resolve, reject) => {
-      const existingScript = document.getElementById(PYODIDE_SCRIPT_ID);
-
-      const handleLoad = async () => {
-        try {
-          const pyodideInstance = await window.loadPyodide();
-          window.pyodide = pyodideInstance;
-          resolve(pyodideInstance);
-        } catch (error) {
-          reject(error);
-        }
-      };
-
-      if (existingScript) {
-        if (window.loadPyodide) {
-          handleLoad();
-          return;
-        }
-        existingScript.addEventListener("load", handleLoad, { once: true });
-        existingScript.addEventListener("error", reject, { once: true });
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.id = PYODIDE_SCRIPT_ID;
-      script.src = "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js";
-      script.async = true;
-      script.onload = handleLoad;
-      script.onerror = reject;
-      document.body.appendChild(script);
-    });
-  }
-
-  return window.__pyodideLoaderPromise;
+  cpp: "#include <iostream>\nint main(){\n  std::cout << \"Hello from C++\" << std::endl;\n  return 0;\n}",
+  rust: "fn main() {\n  println!(\"Hello from Rust\");\n}",
+  go: "package main\nimport \"fmt\"\nfunc main(){\n  fmt.Println(\"Hello from Go\")\n}",
 };
 
 const languageOptions = [
   { value: "javascript", label: "JavaScript" },
-  { value: "python", label: "Python" },
+  { value: "python", label: "Python (Pyodide)" },
+  { value: "cpp", label: "C++ (Emscripten WASM)" },
+  { value: "rust", label: "Rust (WASM)" },
+  { value: "go", label: "Go (WASM + WASI)" },
 ];
+
+const defaultRuntimeReady = {
+  javascript: false,
+  python: false,
+  cpp: false,
+  rust: false,
+  go: false,
+};
 
 export const CodeEditor = () => {
   const [language, setLanguage] = useState("javascript");
   const [code, setCode] = useState(snippets.javascript);
-  const [output, setOutput] = useState([]);
+  const [outputLogs, setOutputLogs] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [runtimeReady, setRuntimeReady] = useState(defaultRuntimeReady);
+
   const terminalRef = useRef(null);
-  const iframeRef = useRef(null);
   const runIdRef = useRef(0);
 
   const activeFile = useMemo(
@@ -75,144 +53,113 @@ export const CodeEditor = () => {
   );
 
   const appendOutput = useCallback((message, type = "stdout") => {
-    setOutput((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, message, type }]);
+    setOutputLogs((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, message: String(message), type }]);
   }, []);
 
-  const clearOutput = useCallback(() => {
-    setOutput([]);
+  const clearConsole = useCallback(() => {
+    setOutputLogs([]);
   }, []);
+
+  const initializeRuntimes = useCallback(
+    async (targetLanguage) => {
+      const initMap = {
+        javascript: initializeJavaScriptRuntime,
+        python: initializePythonRuntime,
+        cpp: initializeCppRuntime,
+        rust: initializeRustRuntime,
+        go: initializeGoRuntime,
+      };
+
+      const initializer = initMap[targetLanguage];
+      if (!initializer) return false;
+      if (runtimeReady[targetLanguage]) return true;
+
+      appendOutput(`Loading ${targetLanguage} runtime...`, "status");
+
+      const runtimeResult = await initializer();
+      if (!runtimeResult.success) {
+        appendOutput(runtimeResult.error || "Runtime failed to initialize.", "stderr");
+        return false;
+      }
+
+      setRuntimeReady((prev) => ({ ...prev, [targetLanguage]: true }));
+      appendOutput(`${targetLanguage} runtime ready.`, "status");
+      return true;
+    },
+    [appendOutput, runtimeReady],
+  );
 
   useEffect(() => {
-    if (language !== "python") return;
-
-    loadPyodideRuntime().catch(() => {
-      toast({
-        title: "Pyodide failed to load",
-        description: "Python runtime could not be initialized. Please try again.",
-        variant: "destructive",
-      });
-    });
-  }, [language]);
+    initializeRuntimes(language);
+  }, [initializeRuntimes, language]);
 
   useEffect(() => {
     if (!terminalRef.current) return;
     terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
-  }, [output]);
+  }, [outputLogs]);
 
-  useEffect(() => {
-    const handleKeydown = (event) => {
-      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
-        event.preventDefault();
-        document.getElementById("run-code-btn")?.click();
-      }
-
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "l") {
-        event.preventDefault();
-        clearOutput();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeydown);
-    return () => window.removeEventListener("keydown", handleKeydown);
-  }, [clearOutput]);
-
-  useEffect(() => {
-    const handleMessage = (event) => {
-      if (event.data?.source !== "code-editor-sandbox" || event.data?.runId !== runIdRef.current) return;
-
-      if (event.data.type === "log") appendOutput(event.data.payload, "stdout");
-      if (event.data.type === "error") appendOutput(event.data.payload, "stderr");
-      if (event.data.type === "done") {
-        appendOutput("Execution finished.", "status");
-        setIsRunning(false);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [appendOutput]);
-
-  const runJavaScript = useCallback(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-
-    runIdRef.current += 1;
-    const runId = runIdRef.current;
-
-    const escapedCode = JSON.stringify(code);
-
-    const doc = iframe.contentDocument;
-    doc.open();
-    doc.write(`
-      <!doctype html>
-      <html>
-        <body>
-          <script>
-            const runId = ${runId};
-            const send = (type, payload) => parent.postMessage({ source: 'code-editor-sandbox', runId, type, payload }, '*');
-            const originalLog = console.log;
-            console.log = (...args) => {
-              send('log', args.map((arg) => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' '));
-              originalLog(...args);
-            };
-            (async () => {
-              try {
-                const result = eval(${escapedCode});
-                const awaited = result instanceof Promise ? await result : result;
-                if (awaited !== undefined) send('log', String(awaited));
-              } catch (error) {
-                send('error', error?.stack || error?.message || String(error));
-              } finally {
-                send('done', 'done');
-              }
-            })();
-          </script>
-        </body>
-      </html>
-    `);
-    doc.close();
-  }, [code]);
-
-  const runPython = useCallback(async () => {
-    const pyodide = await loadPyodideRuntime();
-
-    try {
-      pyodide.setStdout({
-        batched: (message) => appendOutput(message, "stdout"),
-      });
-
-      pyodide.setStderr({
-        batched: (message) => appendOutput(message, "stderr"),
-      });
-
-      const result = await pyodide.runPythonAsync(code);
-      if (result !== undefined && result !== null && String(result).trim()) {
-        appendOutput(String(result), "stdout");
-      }
-      appendOutput("Execution finished.", "status");
-    } catch (error) {
-      appendOutput(error?.message || String(error), "stderr");
-    } finally {
-      setIsRunning(false);
-    }
-  }, [appendOutput, code]);
-
-  const handleRun = async () => {
+  const runCode = useCallback(async () => {
     if (!code.trim()) {
       toast({ title: "Code is empty", description: "Please enter some code first.", variant: "destructive" });
       return;
     }
 
-    appendOutput(`Running ${language === "python" ? "Python" : "JavaScript"}...`, "status");
-    setIsRunning(true);
+    if (isRunning) return;
 
-    if (language === "python") {
-      await runPython();
+    const isReady = await initializeRuntimes(language);
+    if (!isReady) {
+      appendOutput(`Runtime for ${language} is not ready.`, "stderr");
       return;
     }
 
-    runJavaScript();
-  };
+    setIsRunning(true);
+    runIdRef.current += 1;
+
+    const startedAt = performance.now();
+    appendOutput(`Running ${language}...`, "status");
+
+    try {
+      const runners = {
+        javascript: () => runJavaScript({ code, runId: runIdRef.current }),
+        python: () => runPython({ code, appendOutput }),
+        cpp: () => runCpp({ code, appendOutput }),
+        rust: () => runRust({ code, appendOutput }),
+        go: () => runGo({ code, appendOutput }),
+      };
+
+      const runner = runners[language];
+      if (!runner) {
+        appendOutput(`Unsupported language: ${language}`, "stderr");
+        return;
+      }
+
+      const result = await runner();
+      if (result.output) appendOutput(result.output, "stdout");
+      if (result.error) appendOutput(result.error, "stderr");
+      if (result.success) appendOutput("Execution finished.", "status");
+    } catch (error) {
+      appendOutput(error?.message || String(error), "stderr");
+    } finally {
+      appendOutput(`Execution time: ${Math.round(performance.now() - startedAt)}ms`, "status");
+      setIsRunning(false);
+    }
+  }, [appendOutput, code, initializeRuntimes, isRunning, language, runtimeReady]);
+
+  useEffect(() => {
+    const handleKeydown = (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        event.preventDefault();
+        runCode();
+      }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "l") {
+        event.preventDefault();
+        clearConsole();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeydown);
+    return () => window.removeEventListener("keydown", handleKeydown);
+  }, [clearConsole, runCode]);
 
   const handleLanguageChange = (nextLanguage) => {
     setLanguage(nextLanguage);
@@ -252,8 +199,8 @@ export const CodeEditor = () => {
           id="run-code-btn"
           whileHover={{ y: -1 }}
           type="button"
-          disabled={isRunning}
-          onClick={handleRun}
+          disabled={isRunning || !runtimeReady[language]}
+          onClick={runCode}
           aria-label="Run code"
           className="inline-flex items-center gap-2 rounded-xl bg-[#FF3B30] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#ff5248] disabled:cursor-not-allowed disabled:opacity-70"
         >
@@ -261,30 +208,28 @@ export const CodeEditor = () => {
         </motion.button>
         <button
           type="button"
-          onClick={clearOutput}
+          onClick={clearConsole}
           aria-label="Clear terminal output"
           className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-foreground/85 transition-all hover:border-[#FF3B30]/70 hover:text-foreground"
         >
           <Eraser className="h-4 w-4" /> Clear
         </button>
         <span className="text-xs text-foreground/70" role="status" aria-live="polite">
-          Status: {isRunning ? "Running…" : "Done"}
+          Runtime: {runtimeReady[language] ? "Ready" : "Loading..."} · Status: {isRunning ? "Running…" : "Idle"}
         </span>
       </div>
 
       <section className="mt-4 rounded-xl border border-border/70 bg-black/60" aria-label="Terminal output">
         <header className="border-b border-white/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-foreground/70">Terminal Output</header>
         <div ref={terminalRef} className="max-h-56 overflow-y-auto px-3 py-2 font-mono text-xs leading-5">
-          {output.length === 0 ? <p className="text-foreground/40">No output yet. Use Ctrl+Enter to run.</p> : null}
-          {output.map((line) => (
+          {outputLogs.length === 0 ? <p className="text-foreground/40">No output yet. Use Ctrl+Enter to run.</p> : null}
+          {outputLogs.map((line) => (
             <p key={line.id} className={line.type === "stderr" ? "text-red-400" : line.type === "status" ? "text-cyan-300" : "text-emerald-300"}>
               {line.message}
             </p>
           ))}
         </div>
       </section>
-
-      <iframe ref={iframeRef} title="javascript-sandbox" sandbox="allow-scripts" className="hidden" />
     </article>
   );
 };
