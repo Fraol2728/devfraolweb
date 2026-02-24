@@ -1,5 +1,4 @@
 import {
-  Code2,
   Download,
   FileCog,
   FileImage,
@@ -87,17 +86,17 @@ export const appDetailPages = [
     ],
   },
   {
-    id: "code-editor",
-    route: "/apps/code-editor",
-    name: "Online Code Editor",
-    description: "Write, run, and preview code in a focused online environment built for rapid iteration.",
+    id: "python-code-editor",
+    route: "/apps/python-code-editor",
+    name: "Python Code Editor",
+    description: "Write, edit, and run Python code with a VS Code-like interface.",
     category: "Editors",
-    icon: Code2,
+    icon: "/icons/python-editor.svg",
     features: [
-      "Live HTML, CSS, and JavaScript preview.",
-      "Quick file tree + tab management.",
-      "Theme-aware code UI with shortcuts.",
-      "Ready to connect with backend execution APIs.",
+      "VS Code-like layout with menu bar, file tree, editor, and terminal.",
+      "Manage folders/files with create, rename, and delete actions.",
+      "Monaco-powered Python editing with tabs and syntax highlighting.",
+      "Ready for future Python execution integration.",
     ],
     resources: [
       { name: "Web Recommended", link: "/apps/web-recommended" },

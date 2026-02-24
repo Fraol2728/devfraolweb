@@ -3,7 +3,6 @@ import { AppDetail as AppDetailFeature } from "@/features/apps/AppDetail";
 import { useApps } from "@/features/apps/hooks/useApps";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { VideoDownloader } from "@/features/apps/VideoDownloader";
-import { CodeEditor } from "@/features/apps/CodeEditor";
 import { FileConverter } from "@/features/apps/FileConverter";
 import { BackgroundRemover } from "@/features/apps/BackgroundRemover";
 
@@ -11,7 +10,6 @@ const appComponentMap = {
   "youtube-downloader": VideoDownloader,
   "tiktok-downloader": VideoDownloader,
   "instagram-downloader": VideoDownloader,
-  "code-editor": CodeEditor,
   "file-converter": FileConverter,
   "background-remover": BackgroundRemover,
 };

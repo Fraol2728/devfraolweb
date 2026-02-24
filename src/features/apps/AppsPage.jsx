@@ -47,12 +47,14 @@ export const AppsPage = () => {
           {loading.list ? <p className="text-sm text-foreground/70">Loading apps...</p> : null}
           {!loading.list && filteredApps.length === 0 ? <EmptyState text="No apps matched your search." /> : null}
           {!loading.list && filteredApps.map((app, index) => {
-            const Icon = app.icon;
+            const Icon = typeof app.icon === "string" ? null : app.icon;
             const actionKey = `open-app:${app.id}`;
             return (
               <motion.div key={app.id} initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.06 }}>
                 <Card>
-                  <div className="inline-flex rounded-xl bg-[#FF3B30]/15 p-3 text-[#FF3B30]"><Icon className="h-5 w-5" /></div>
+                  <div className="inline-flex rounded-xl bg-[#FF3B30]/15 p-3 text-[#FF3B30]">
+                    {Icon ? <Icon className="h-5 w-5" /> : <img src={app.icon} alt="" className="h-5 w-5" />}
+                  </div>
                   <h3 className="mt-4 text-xl font-bold">{app.name}</h3>
                   <p className="mt-2 text-sm text-foreground/75">{app.description}</p>
                   <Link to={app.route || `/apps/${app.id}`} onClick={() => openApp(app.id)} className="mt-5 inline-flex" aria-label={`Open ${app.name}`}>

@@ -36,7 +36,7 @@ export const FeaturedApps = () => {
           className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4"
         >
           {featuredApps.map((app) => {
-            const Icon = app.icon;
+            const Icon = typeof app.icon === "string" ? null : app.icon;
 
             return (
               <motion.article
@@ -46,7 +46,7 @@ export const FeaturedApps = () => {
                 className="group rounded-2xl border border-white/10 bg-white/5 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur-2xl"
               >
                 <div className="inline-flex rounded-xl bg-[#FF3B30]/15 p-3 text-[#FF3B30] transition-transform duration-300 group-hover:scale-110">
-                  <Icon className="h-5 w-5" />
+                  {Icon ? <Icon className="h-5 w-5" /> : <img src={app.icon} alt="" className="h-5 w-5" />}
                 </div>
                 <h3 className="mt-4 text-xl font-bold">{app.name}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{app.description}</p>

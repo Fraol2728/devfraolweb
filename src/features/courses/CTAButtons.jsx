@@ -20,7 +20,7 @@ export const CTAButtons = ({ course }) => {
       <div className="mt-5 flex flex-wrap gap-3">
         {showEditor ? (
           <Link
-            to="/code-editor"
+            to="/apps/python-code-editor"
             className="inline-flex items-center rounded-lg border border-red-300 bg-red-100 px-4 py-2.5 text-sm font-semibold text-red-800 transition-colors duration-300 hover:bg-red-200 dark:border-[#FF3B30]/70 dark:bg-[#FF3B30]/20 dark:text-[#ffb3ad] dark:hover:bg-[#FF3B30]/30"
           >
             Go to Editor
