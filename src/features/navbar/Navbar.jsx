@@ -54,10 +54,10 @@ export const Navbar = () => {
 
   return (
     <motion.nav
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45 }}
-      className="sticky top-3 z-50 mx-auto w-[min(96%,56rem)]"
+      className="z-50 mx-auto w-[min(96%,56rem)]"
     >
       <div
         className={cn(

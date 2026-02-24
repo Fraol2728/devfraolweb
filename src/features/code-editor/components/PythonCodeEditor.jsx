@@ -8,9 +8,6 @@ import { ResizablePanels } from "@/features/code-editor/components/ResizablePane
 import { useFilesStore, selectFiles } from "@/features/code-editor/stores/useFilesStore";
 import { useLayoutStore } from "@/features/code-editor/stores/useLayoutStore";
 import { useEditorStore } from "@/features/code-editor/stores/useEditorStore";
-import { installPackageForProject } from "@/features/code-editor/PackageManager";
-import { DebuggerPanel } from "@/features/code-editor/components/DebuggerPanel";
-import { SidePanel } from "@/features/code-editor/components/SidePanel";
 import { exportProjectAsJson, exportProjectAsZip, importProjectFromFile } from "@/features/code-editor/ProjectManager";
 import "@/features/code-editor/codeEditor.css";
 
@@ -31,8 +28,6 @@ export const PythonCodeEditor = () => {
   const importProject = useFilesStore((s) => s.importProject);
   const setCurrentProject = useFilesStore((s) => s.setCurrentProject);
   const saveAllFiles = useFilesStore((s) => s.saveAllFiles);
-  const installedPackages = useFilesStore((s) => s.installedPackages);
-  const addInstalledPackage = useFilesStore((s) => s.addInstalledPackage);
 
   const logs = useEditorStore((s) => s.logs);
   const appendOutput = useEditorStore((s) => s.appendOutput);
@@ -49,7 +44,6 @@ export const PythonCodeEditor = () => {
 
   const [isPyodideReady, setIsPyodideReady] = useState(Boolean(window.__pyodide));
   const [runtimeLoading, setRuntimeLoading] = useState(false);
-  const [debuggerState, setDebuggerState] = useState({ currentLine: null, variables: {}, traceback: "" });
   const editorRef = useRef(null);
   const saveDebounceRef = useRef();
 
@@ -114,57 +108,6 @@ export const PythonCodeEditor = () => {
       appendOutput(String(error), "error");
     } finally {
       setRuntimeLoading(false);
-    }
-  };
-
-  const startDebugSession = async () => {
-    if (!activeFile) return;
-    const pyodide = await initializePyodide();
-    if (!pyodide) return;
-    setRuntimeLoading(true);
-    setDebuggerState({ currentLine: null, variables: {}, traceback: "" });
-    window.__debugHooks = {
-      onLine: (line, vars) => setDebuggerState({ currentLine: line, variables: vars, traceback: "" }),
-    };
-    try {
-      pyodide.registerJsModule("debug_hooks", window.__debugHooks);
-      pyodide.globals.set("__debug_code", activeFile.content ?? "");
-      await pyodide.runPythonAsync(`
-import json, sys, debug_hooks
-
-def tracer(frame, event, arg):
-    if event == 'line':
-        tracked = {k: str(v) for k, v in frame.f_locals.items() if not k.startswith('__')}
-        debug_hooks.onLine(frame.f_lineno, tracked)
-    return tracer
-
-sys.settrace(tracer)
-try:
-    exec(__debug_code, {})
-finally:
-    sys.settrace(None)
-`);
-    } catch (error) {
-      setDebuggerState((prev) => ({ ...prev, traceback: String(error) }));
-      appendOutput(String(error), "error");
-    } finally {
-      setRuntimeLoading(false);
-    }
-  };
-
-  const installPackage = async (packageName) => {
-    const pyodide = await initializePyodide();
-    try {
-      const installed = await installPackageForProject({
-        pyodide,
-        projectId: currentProjectId,
-        packageName,
-        installedByProject: installedPackages,
-        onInstalled: (pkg) => addInstalledPackage(currentProjectId, pkg),
-      });
-      appendOutput(installed ? `Installed ${packageName}` : `${packageName} already installed`);
-    } catch (error) {
-      appendOutput(String(error), "error");
     }
   };
 
@@ -234,10 +177,6 @@ finally:
       runPythonCode();
       return;
     }
-    if (action === "run-debug") {
-      startDebugSession();
-      return;
-    }
     if (action === "edit-undo") editorRef.current?.trigger("keyboard", "undo", null);
     if (action === "edit-redo") editorRef.current?.trigger("keyboard", "redo", null);
     if (action === "edit-find") editorRef.current?.getAction("actions.find")?.run();
@@ -297,15 +236,11 @@ finally:
       </div>
       <ResizablePanels
         explorer={<FileExplorer />}
-        editor={<EditorPane activeFile={activeFile} highlightedLine={debuggerState.currentLine} tabs={tabs} onTabSwitch={setActiveFile} onTabClose={closeTab} onTabReorder={reorderTabs} onChange={handleEditorChange} onEditorReady={(editor) => { editorRef.current = editor; }} />}
+        editor={<EditorPane activeFile={activeFile} tabs={tabs} onTabSwitch={setActiveFile} onTabClose={closeTab} onTabReorder={reorderTabs} onChange={handleEditorChange} onEditorReady={(editor) => { editorRef.current = editor; }} />}
         terminal={<Terminal logs={logs} onClear={clearLogs} onCopy={copyOutput} autoScroll={autoScrollTerminal} onToggleAutoScroll={toggleAutoScrollTerminal} onCommand={runSnippet} onHistory={navigateCommandHistory} />}
         terminalVisible={terminalOpen}
         explorerVisible={explorerOpen}
       />
-      <div className="py-lower-panels">
-        <DebuggerPanel debuggerState={debuggerState} />
-        <SidePanel installedPackages={installedPackages[currentProjectId] ?? []} onInstallPackage={installPackage} />
-      </div>
     </section>
   );
 };

@@ -20,7 +20,7 @@ const MENU_MAP = {
     { id: "view-toggle-terminal", label: "Toggle Terminal" },
     { id: "view-toggle-explorer", label: "Toggle Explorer" },
   ],
-  Run: [{ id: "run-python", label: "Run Python Code", shortcut: "Ctrl+Enter" }, { id: "run-debug", label: "Debug Active File" }],
+  Run: [{ id: "run-python", label: "Run Python Code", shortcut: "Ctrl+Enter" }],
 };
 
 export const MenuBar = ({ onAction }) => {

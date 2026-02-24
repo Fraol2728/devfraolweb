@@ -1,8 +1,24 @@
 import { create } from "zustand";
 import type { FileNode } from "@/features/code-editor/types";
-import { hydratePackages, persistPackages } from "@/features/code-editor/PackageManager";
 
 const STORAGE_KEY = "devfraol.editor.projects.v1";
+
+const PACKAGE_STORAGE_KEY = "devfraol.editor.packages.v1";
+
+const hydratePackages = () => {
+  try {
+    const raw = window.localStorage.getItem(PACKAGE_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return typeof parsed === "object" && parsed ? parsed : {};
+  } catch {
+    return {};
+  }
+};
+
+const persistPackages = (packages: Record<string, string[]>) => {
+  window.localStorage.setItem(PACKAGE_STORAGE_KEY, JSON.stringify(packages));
+};
 
 const id = () => Math.random().toString(36).slice(2, 10);
 
