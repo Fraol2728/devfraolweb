@@ -12,21 +12,44 @@
 .vsc-shell {
   height: 100%;
   display: grid;
-  grid-template-columns: 48px 260px minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) 220px 22px;
-  grid-template-areas:
-    "activity sidebar editor"
-    "activity sidebar bottom"
-    "status status status";
+  grid-template-rows: minmax(0, 1fr) 22px;
+}
+
+.vsc-workbench {
+  min-height: 0;
+  display: flex;
+}
+
+.vsc-main-column {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.vsc-main-row {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+}
+
+.vsc-side-panel-wrap {
+  min-width: 0;
+  min-height: 0;
+}
+
+.vsc-bottom-wrap {
+  min-height: 0;
 }
 
 .vsc-activity-bar {
-  grid-area: activity;
   background: #333333;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding-top: 10px;
+  width: 48px;
 }
 
 .vsc-activity-item {
@@ -42,10 +65,10 @@
 .vsc-activity-item.active { border-left-color: #007acc; }
 
 .vsc-side-panel {
-  grid-area: sidebar;
   background: #252526;
   border-right: 1px solid #1b1b1c;
-  min-width: 0;
+  min-width: 100%;
+  height: 100%;
   display: grid;
   grid-template-rows: 34px minmax(0, 1fr) 42px;
 }
@@ -110,7 +133,7 @@
 }
 
 .vsc-editor-section {
-  grid-area: editor;
+  flex: 1;
   background: #1e1e1e;
   min-width: 0;
   min-height: 0;
@@ -168,10 +191,10 @@
 .ce-editor { height: 100%; width: 100%; display: block; }
 
 .vsc-bottom-panel {
-  grid-area: bottom;
   border-top: 1px solid #1b1b1c;
   background: #1e1e1e;
   min-height: 0;
+  height: 100%;
   display: grid;
   grid-template-rows: 34px minmax(0, 1fr);
 }
@@ -194,7 +217,27 @@
   color: #cccccc;
   border-bottom: 1px solid #cccccc;
 }
+.vsc-bottom-tabs .vsc-bottom-toggle {
+  margin-left: auto;
+  color: #cccccc;
+}
 .vsc-bottom-body { min-height: 0; }
+
+.vsc-layout-divider {
+  background: transparent;
+  transition: background 120ms ease;
+}
+.vsc-layout-divider:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.vsc-layout-divider-vertical {
+  width: 4px;
+  cursor: col-resize;
+}
+.vsc-layout-divider-horizontal {
+  height: 4px;
+  cursor: row-resize;
+}
 
 .py-terminal {
   height: 100%;
@@ -233,7 +276,6 @@
 }
 
 .vsc-status-bar {
-  grid-area: status;
   height: 22px;
   background: #007acc;
   color: #fff;
@@ -247,12 +289,8 @@
 .vsc-status-right { display: flex; gap: 12px; }
 
 @media (max-width: 899px) {
-  .vsc-shell {
-    grid-template-columns: 48px minmax(0, 1fr);
-    grid-template-areas:
-      "activity editor"
-      "activity bottom"
-      "status status";
+  .vsc-side-panel-wrap,
+  .vsc-layout-divider-vertical {
+    display: none;
   }
-  .vsc-side-panel { display: none; }
 }

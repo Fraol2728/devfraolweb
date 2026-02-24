@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "@/hooks/useToastStore";
 import { FileExplorer } from "@/features/code-editor/components/FileExplorer";
 import { Terminal } from "@/features/code-editor/components/Terminal";
@@ -8,8 +8,10 @@ import { TabBar } from "@/features/code-editor/components/TabBar";
 import { BreadcrumbBar } from "@/features/code-editor/components/BreadcrumbBar";
 import { BottomPanel } from "@/features/code-editor/components/BottomPanel";
 import { StatusBar } from "@/features/code-editor/components/StatusBar";
+import { LayoutDivider } from "@/features/code-editor/components/LayoutDivider";
 import { useFilesStore, selectFiles } from "@/features/code-editor/stores/useFilesStore";
 import { useEditorStore } from "@/features/code-editor/stores/useEditorStore";
+import { useIDELayoutStore } from "@/features/code-editor/stores/useIDELayoutStore";
 import { exportProjectAsJson, exportProjectAsZip, importProjectFromFile } from "@/features/code-editor/ProjectManager";
 import "@/features/code-editor/codeEditor.css";
 
@@ -40,14 +42,88 @@ export const PythonCodeEditor = () => {
   const autoScrollTerminal = useEditorStore((s) => s.autoScrollTerminal);
   const toggleAutoScrollTerminal = useEditorStore((s) => s.toggleAutoScrollTerminal);
 
+  const isSidePanelOpen = useIDELayoutStore((s) => s.isSidePanelOpen);
+  const isBottomPanelOpen = useIDELayoutStore((s) => s.isBottomPanelOpen);
+  const activeActivityTab = useIDELayoutStore((s) => s.activeActivityTab);
+  const sidePanelWidth = useIDELayoutStore((s) => s.sidePanelWidth);
+  const bottomPanelHeight = useIDELayoutStore((s) => s.bottomPanelHeight);
+  const toggleSidePanel = useIDELayoutStore((s) => s.toggleSidePanel);
+  const toggleBottomPanel = useIDELayoutStore((s) => s.toggleBottomPanel);
+  const setActiveActivityTab = useIDELayoutStore((s) => s.setActiveActivityTab);
+  const setSidePanelWidth = useIDELayoutStore((s) => s.setSidePanelWidth);
+  const setBottomPanelHeight = useIDELayoutStore((s) => s.setBottomPanelHeight);
+
   const [isPyodideReady, setIsPyodideReady] = useState(Boolean(window.__pyodide));
   const [runtimeLoading, setRuntimeLoading] = useState(false);
   const editorRef = useRef(null);
   const saveDebounceRef = useRef();
+  const resizeFrameRef = useRef(0);
+  const resizeStateRef = useRef(null);
 
   const files = useMemo(() => selectFiles(tree), [tree]);
   const activeFile = files.find((item) => item.id === activeFileId) ?? null;
   const tabs = openTabs.map((tabId) => files.find((item) => item.id === tabId)).filter(Boolean);
+
+  const onResizeMove = useCallback((event) => {
+    if (!resizeStateRef.current) return;
+    const state = resizeStateRef.current;
+    state.currentX = event.clientX;
+    state.currentY = event.clientY;
+    if (resizeFrameRef.current) return;
+    resizeFrameRef.current = window.requestAnimationFrame(() => {
+      resizeFrameRef.current = 0;
+      const current = resizeStateRef.current;
+      if (!current) return;
+      if (current.type === "side") {
+        const nextWidth = current.startSize + (current.currentX - current.startX);
+        setSidePanelWidth(nextWidth);
+      } else {
+        const nextHeight = current.startSize + (current.startY - current.currentY);
+        setBottomPanelHeight(nextHeight);
+      }
+    });
+  }, [setBottomPanelHeight, setSidePanelWidth]);
+
+  const stopResize = useCallback(() => {
+    window.removeEventListener("mousemove", onResizeMove);
+    window.removeEventListener("mouseup", stopResize);
+    if (resizeFrameRef.current) {
+      window.cancelAnimationFrame(resizeFrameRef.current);
+      resizeFrameRef.current = 0;
+    }
+    resizeStateRef.current = null;
+    document.body.style.userSelect = "";
+    document.body.style.cursor = "";
+  }, [onResizeMove]);
+
+  const startResize = useCallback((type, event) => {
+    event.preventDefault();
+    resizeStateRef.current = {
+      type,
+      startX: event.clientX,
+      startY: event.clientY,
+      currentX: event.clientX,
+      currentY: event.clientY,
+      startSize: type === "side" ? useIDELayoutStore.getState().sidePanelWidth : useIDELayoutStore.getState().bottomPanelHeight,
+    };
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = type === "side" ? "col-resize" : "row-resize";
+    window.addEventListener("mousemove", onResizeMove);
+    window.addEventListener("mouseup", stopResize);
+  }, [onResizeMove, stopResize]);
+
+  useEffect(() => () => stopResize(), [stopResize]);
+
+  const handleActivityChange = (tab) => {
+    if (tab === activeActivityTab) {
+      toggleSidePanel();
+      return;
+    }
+    setActiveActivityTab(tab);
+    if (!useIDELayoutStore.getState().isSidePanelOpen) {
+      toggleSidePanel();
+    }
+  };
 
   const initializePyodide = async () => {
     if (window.__pyodide) {
@@ -215,35 +291,55 @@ export const PythonCodeEditor = () => {
   return (
     <section className="py-root" aria-label="Python code editor workspace">
       <div className="vsc-shell">
-        <ActivityBar />
-        <SidePanel projectId={currentProjectId} projects={projects} onProjectChange={setCurrentProject}>
-          <FileExplorer />
-        </SidePanel>
-        <main className="vsc-editor-section">
-          <TabBar tabs={tabs} activeFile={activeFile} onTabSwitch={setActiveFile} onTabClose={closeTab} onTabReorder={reorderTabs} />
-          <BreadcrumbBar activeFile={activeFile} />
-          <div className="vsc-editor-body">
-            {activeFile ? (
-              <Suspense fallback={<div className="py-empty-state">Loading Monaco…</div>}>
-                <MonacoEditor file={activeFile} onChange={(value) => handleEditorChange(activeFile.id, value)} onEditorReady={(editor) => { editorRef.current = editor; }} />
-              </Suspense>
-            ) : (
-              <div className="py-empty-state">Open a file from Explorer to start coding.</div>
-            )}
+        <div className="vsc-workbench">
+          <ActivityBar activeItem={activeActivityTab} onChange={handleActivityChange} />
+          <div className="vsc-main-column">
+            <div className="vsc-main-row">
+              {isSidePanelOpen ? (
+                <>
+                  <div className="vsc-side-panel-wrap" style={{ width: `${sidePanelWidth}px` }}>
+                    <SidePanel projectId={currentProjectId} projects={projects} onProjectChange={setCurrentProject}>
+                      <FileExplorer />
+                    </SidePanel>
+                  </div>
+                  <LayoutDivider orientation="vertical" ariaLabel="Resize side panel" onMouseDown={(event) => startResize("side", event)} />
+                </>
+              ) : null}
+              <main className="vsc-editor-section">
+                <TabBar tabs={tabs} activeFile={activeFile} onTabSwitch={setActiveFile} onTabClose={closeTab} onTabReorder={reorderTabs} />
+                <BreadcrumbBar activeFile={activeFile} />
+                <div className="vsc-editor-body">
+                  {activeFile ? (
+                    <Suspense fallback={<div className="py-empty-state">Loading Monaco…</div>}>
+                      <MonacoEditor file={activeFile} onChange={(value) => handleEditorChange(activeFile.id, value)} onEditorReady={(editor) => { editorRef.current = editor; }} />
+                    </Suspense>
+                  ) : (
+                    <div className="py-empty-state">Open a file from Explorer to start coding.</div>
+                  )}
+                </div>
+              </main>
+            </div>
+            {isBottomPanelOpen ? (
+              <>
+                <LayoutDivider orientation="horizontal" ariaLabel="Resize bottom panel" onMouseDown={(event) => startResize("bottom", event)} />
+                <div className="vsc-bottom-wrap" style={{ height: `${bottomPanelHeight}px` }}>
+                  <BottomPanel onToggle={toggleBottomPanel}>
+                    <Terminal
+                      hideHeader
+                      logs={logs}
+                      onClear={clearLogs}
+                      onCopy={copyOutput}
+                      autoScroll={autoScrollTerminal}
+                      onToggleAutoScroll={toggleAutoScrollTerminal}
+                      onCommand={runSnippet}
+                      onHistory={navigateCommandHistory}
+                    />
+                  </BottomPanel>
+                </div>
+              </>
+            ) : null}
           </div>
-        </main>
-        <BottomPanel>
-          <Terminal
-            hideHeader
-            logs={logs}
-            onClear={clearLogs}
-            onCopy={copyOutput}
-            autoScroll={autoScrollTerminal}
-            onToggleAutoScroll={toggleAutoScrollTerminal}
-            onCommand={runSnippet}
-            onHistory={navigateCommandHistory}
-          />
-        </BottomPanel>
+        </div>
         <StatusBar activeFile={activeFile} runtimeLoading={runtimeLoading} isPyodideReady={isPyodideReady} />
       </div>
     </section>

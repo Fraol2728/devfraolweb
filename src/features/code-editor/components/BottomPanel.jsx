@@ -1,9 +1,10 @@
-export const BottomPanel = ({ children }) => (
+export const BottomPanel = ({ children, onToggle }) => (
   <section className="vsc-bottom-panel" aria-label="Bottom terminal panel">
     <div className="vsc-bottom-tabs">
       <button type="button" className="active">TERMINAL</button>
       <button type="button">OUTPUT</button>
       <button type="button">PROBLEMS</button>
+      <button type="button" className="vsc-bottom-toggle" onClick={onToggle} aria-label="Toggle bottom panel">✕</button>
     </div>
     <div className="vsc-bottom-body">{children}</div>
   </section>
