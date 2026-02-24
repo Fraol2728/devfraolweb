@@ -1,16 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "@/hooks/useToastStore";
-import { MenuBar } from "@/features/code-editor/components/MenuBar";
 import { FileExplorer } from "@/features/code-editor/components/FileExplorer";
-import { EditorPane } from "@/features/code-editor/components/EditorPane";
 import { Terminal } from "@/features/code-editor/components/Terminal";
-import { ResizablePanels } from "@/features/code-editor/components/ResizablePanels";
+import { ActivityBar } from "@/features/code-editor/components/ActivityBar";
+import { SidePanel } from "@/features/code-editor/components/SidePanel";
+import { TabBar } from "@/features/code-editor/components/TabBar";
+import { BreadcrumbBar } from "@/features/code-editor/components/BreadcrumbBar";
+import { BottomPanel } from "@/features/code-editor/components/BottomPanel";
+import { StatusBar } from "@/features/code-editor/components/StatusBar";
 import { useFilesStore, selectFiles } from "@/features/code-editor/stores/useFilesStore";
-import { useLayoutStore } from "@/features/code-editor/stores/useLayoutStore";
 import { useEditorStore } from "@/features/code-editor/stores/useEditorStore";
 import { exportProjectAsJson, exportProjectAsZip, importProjectFromFile } from "@/features/code-editor/ProjectManager";
 import "@/features/code-editor/codeEditor.css";
 
+const MonacoEditor = lazy(() => import("@/features/code-editor/components/MonacoFromCDN"));
 const PYODIDE_SCRIPT_ID = "pyodide-cdn-script";
 
 export const PythonCodeEditor = () => {
@@ -36,11 +39,6 @@ export const PythonCodeEditor = () => {
   const navigateCommandHistory = useEditorStore((s) => s.navigateCommandHistory);
   const autoScrollTerminal = useEditorStore((s) => s.autoScrollTerminal);
   const toggleAutoScrollTerminal = useEditorStore((s) => s.toggleAutoScrollTerminal);
-
-  const terminalOpen = useLayoutStore((s) => s.terminalOpen);
-  const explorerOpen = useLayoutStore((s) => s.explorerOpen);
-  const toggleTerminal = useLayoutStore((s) => s.toggleTerminal);
-  const toggleExplorer = useLayoutStore((s) => s.toggleExplorer);
 
   const [isPyodideReady, setIsPyodideReady] = useState(Boolean(window.__pyodide));
   const [runtimeLoading, setRuntimeLoading] = useState(false);
@@ -165,14 +163,6 @@ export const PythonCodeEditor = () => {
       input.click();
       return;
     }
-    if (action === "view-toggle-terminal") {
-      toggleTerminal();
-      return;
-    }
-    if (action === "view-toggle-explorer") {
-      toggleExplorer();
-      return;
-    }
     if (action === "run-python") {
       runPythonCode();
       return;
@@ -224,23 +214,38 @@ export const PythonCodeEditor = () => {
 
   return (
     <section className="py-root" aria-label="Python code editor workspace">
-      <MenuBar onAction={handleMenuAction} />
-      <div className="py-status-bar">
-        <label>
-          Project:
-          <select value={currentProjectId} onChange={(event) => setCurrentProject(event.target.value)}>
-            {Object.values(projects).map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
-          </select>
-        </label>
-        <span>{runtimeLoading ? "Runtime busy..." : isPyodideReady ? "Pyodide ready" : "Pyodide not loaded"}</span>
+      <div className="vsc-shell">
+        <ActivityBar />
+        <SidePanel projectId={currentProjectId} projects={projects} onProjectChange={setCurrentProject}>
+          <FileExplorer />
+        </SidePanel>
+        <main className="vsc-editor-section">
+          <TabBar tabs={tabs} activeFile={activeFile} onTabSwitch={setActiveFile} onTabClose={closeTab} onTabReorder={reorderTabs} />
+          <BreadcrumbBar activeFile={activeFile} />
+          <div className="vsc-editor-body">
+            {activeFile ? (
+              <Suspense fallback={<div className="py-empty-state">Loading Monaco…</div>}>
+                <MonacoEditor file={activeFile} onChange={(value) => handleEditorChange(activeFile.id, value)} onEditorReady={(editor) => { editorRef.current = editor; }} />
+              </Suspense>
+            ) : (
+              <div className="py-empty-state">Open a file from Explorer to start coding.</div>
+            )}
+          </div>
+        </main>
+        <BottomPanel>
+          <Terminal
+            hideHeader
+            logs={logs}
+            onClear={clearLogs}
+            onCopy={copyOutput}
+            autoScroll={autoScrollTerminal}
+            onToggleAutoScroll={toggleAutoScrollTerminal}
+            onCommand={runSnippet}
+            onHistory={navigateCommandHistory}
+          />
+        </BottomPanel>
+        <StatusBar activeFile={activeFile} runtimeLoading={runtimeLoading} isPyodideReady={isPyodideReady} />
       </div>
-      <ResizablePanels
-        explorer={<FileExplorer />}
-        editor={<EditorPane activeFile={activeFile} tabs={tabs} onTabSwitch={setActiveFile} onTabClose={closeTab} onTabReorder={reorderTabs} onChange={handleEditorChange} onEditorReady={(editor) => { editorRef.current = editor; }} />}
-        terminal={<Terminal logs={logs} onClear={clearLogs} onCopy={copyOutput} autoScroll={autoScrollTerminal} onToggleAutoScroll={toggleAutoScrollTerminal} onCommand={runSnippet} onHistory={navigateCommandHistory} />}
-        terminalVisible={terminalOpen}
-        explorerVisible={explorerOpen}
-      />
     </section>
   );
 };
