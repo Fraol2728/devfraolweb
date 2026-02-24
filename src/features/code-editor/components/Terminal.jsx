@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export const Terminal = ({ logs, onClear, onCopy, autoScroll, onToggleAutoScroll, onCommand, onHistory }) => {
+export const Terminal = ({ logs, onClear, onCopy, autoScroll, onToggleAutoScroll, onCommand, onHistory, hideHeader = false }) => {
   const ref = useRef(null);
   const [command, setCommand] = useState("");
 
@@ -11,14 +11,16 @@ export const Terminal = ({ logs, onClear, onCopy, autoScroll, onToggleAutoScroll
 
   return (
     <section className="py-terminal">
-      <div className="py-terminal-header">
-        <span>Terminal / Output</span>
-        <div>
-          <button type="button" onClick={onToggleAutoScroll}>{autoScroll ? "Auto-scroll: On" : "Auto-scroll: Off"}</button>
-          <button type="button" onClick={onCopy}>Copy</button>
-          <button type="button" onClick={onClear}>Clear</button>
+      {!hideHeader ? (
+        <div className="py-terminal-header">
+          <span>Terminal / Output</span>
+          <div>
+            <button type="button" onClick={onToggleAutoScroll}>{autoScroll ? "Auto-scroll: On" : "Auto-scroll: Off"}</button>
+            <button type="button" onClick={onCopy}>Copy</button>
+            <button type="button" onClick={onClear}>Clear</button>
+          </div>
         </div>
-      </div>
+      ) : null}
       <div ref={ref} className="py-terminal-logs">
         {logs.map((log) => <p key={log.id} className={log.type === "error" ? "py-log-error" : "py-log-stdout"}>{log.text}</p>)}
       </div>
@@ -47,6 +49,13 @@ export const Terminal = ({ logs, onClear, onCopy, autoScroll, onToggleAutoScroll
         />
         <button type="submit">Run</button>
       </form>
+      {hideHeader ? (
+        <div className="py-terminal-inline-actions">
+          <button type="button" onClick={onToggleAutoScroll}>{autoScroll ? "Auto-scroll: On" : "Auto-scroll: Off"}</button>
+          <button type="button" onClick={onCopy}>Copy</button>
+          <button type="button" onClick={onClear}>Clear</button>
+        </div>
+      ) : null}
     </section>
   );
 };

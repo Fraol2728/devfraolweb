@@ -43,12 +43,9 @@ export const FileExplorer = () => {
 
   return (
     <aside className="py-explorer">
-      <div className="py-explorer-header">
-        <span>Explorer</span>
-        <div>
-          <button type="button" onClick={() => { const next = window.prompt("New root file", "main.py"); if (next) createFile(null, next); }}>+File</button>
-          <button type="button" onClick={() => { const next = window.prompt("New root folder", "project"); if (next) createFolder(null, next); }}>+Folder</button>
-        </div>
+      <div className="py-explorer-actions">
+        <button type="button" onClick={() => { const next = window.prompt("New root file", "main.py"); if (next) createFile(null, next); }}>+File</button>
+        <button type="button" onClick={() => { const next = window.prompt("New root folder", "project"); if (next) createFolder(null, next); }}>+Folder</button>
       </div>
       <div className="py-tree-scroll">{tree.map((node) => <Node key={node.id} node={node} depth={0} />)}</div>
     </aside>
