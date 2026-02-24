@@ -89,7 +89,7 @@ export const CourseLearning = () => {
   return (
     <section className="min-h-screen bg-[#0b0b10] px-4 py-8 text-white sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
+        <div className="mb-6 glass-panel rounded-2xl p-4">
           <div className="mb-2 flex items-center justify-between text-sm text-gray-300">
             <span>{course.title}</span>
             <span>{progress}% complete</span>
@@ -104,7 +104,7 @@ export const CourseLearning = () => {
         </button>
 
         <div className="grid gap-4 lg:grid-cols-[30%_70%]">
-          <motion.aside initial={false} animate={{ x: isSidebarOpen ? 0 : -16, opacity: 1 }} className={`max-h-[75vh] overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl ${isSidebarOpen ? "block" : "hidden lg:block"}`}>
+          <motion.aside initial={false} animate={{ x: isSidebarOpen ? 0 : -16, opacity: 1 }} className={`max-h-[75vh] overflow-hidden glass-panel rounded-2xl ${isSidebarOpen ? "block" : "hidden lg:block"}`}>
             <div className="border-b border-white/10 px-4 py-3">
               <h2 className="text-lg font-semibold">{course.title}</h2>
               <p className="text-xs text-gray-400">{totalLessons} lessons</p>
@@ -147,7 +147,7 @@ export const CourseLearning = () => {
             </div>
           </motion.aside>
 
-          <main className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:p-6">
+          <main className="glass-panel rounded-2xl p-4 sm:p-6">
             <AnimatePresence mode="wait">
               <motion.div key={activeLesson?.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} transition={{ duration: 0.25 }}>
                 <div className="relative mb-6 aspect-video overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5">

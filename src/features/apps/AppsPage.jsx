@@ -35,7 +35,7 @@ export const AppsPage = () => {
     <Container className="py-14 text-left">
       <PageHeader title="Apps" description="Discover every utility app in one place. Open any card for its dedicated detail page." />
       <Section>
-        <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-6 flex flex-col gap-4 glass-panel rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between">
           <label className="relative w-full sm:max-w-sm" htmlFor="app-search">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/45" />
             <input id="app-search" value={appQuery} onChange={(e) => setAppQuery(e.target.value)} placeholder="Search apps" className="w-full rounded-xl border border-white/10 bg-black/25 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#FF3B30]/65" />
@@ -68,7 +68,7 @@ export const AppsPage = () => {
       <Section className="mt-6">
         <h2 className="text-3xl font-bold">Web Recommended</h2>
         <p className="mt-2 text-foreground/75">Massive collection of useful websites with category filters and search.</p>
-        <div className="mt-6 mb-6 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-6 mb-6 flex flex-col gap-4 glass-panel rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between">
           <label className="relative w-full sm:max-w-sm" htmlFor="website-search">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/45" />
             <input id="website-search" value={webQuery} onChange={(e) => setWebQuery(e.target.value)} placeholder="Search websites" className="w-full rounded-xl border border-white/10 bg-black/25 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#FF3B30]/65" />
