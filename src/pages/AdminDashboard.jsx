@@ -16,7 +16,7 @@ const statCards = [
 
 const activities = [
   "New user registered",
-  "YouTube Downloader updated",
+  "Video Downloaders updated",
   "New website added to Download category",
   "Admin settings modified",
 ];

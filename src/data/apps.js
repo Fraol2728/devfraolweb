@@ -3,68 +3,28 @@ import {
   FileCog,
   FileImage,
   Globe,
-  Instagram,
   Layers3,
-  Music2,
   Sparkles,
   QrCode,
-  Youtube,
 } from "lucide-react";
 
 export const appDetailPages = [
   {
-    id: "youtube-downloader",
-    route: "/apps/youtube-downloader",
-    name: "YouTube Downloader",
-    description: "Download YouTube videos in multiple quality presets with a fast and secure workflow.",
+    id: "video-downloaders",
+    route: "/apps/video-downloaders",
+    name: "Video Downloaders",
+    description: "Access three downloader apps in one place: YouTube, TikTok, and Instagram video downloaders.",
     category: "Downloaders",
-    icon: Youtube,
-    demoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    icon: Download,
     features: [
-      "Paste a YouTube URL and preview metadata before downloading.",
-      "Select MP4 or MP3 output with quality options.",
-      "Queue multiple downloads and track progress.",
-      "Optimized for mobile and desktop browsers.",
+      "Open YouTube video downloader website in one click.",
+      "Open TikTok video downloader website in one click.",
+      "Open Instagram video downloader website in one click.",
+      "Simple launcher page focused only on external video downloader tools.",
     ],
     resources: [
-      { name: "Audio Converter", link: "/apps/file-converter" },
-      { name: "TikTok Downloader", link: "/apps/tiktok-downloader" },
-    ],
-  },
-  {
-    id: "tiktok-downloader",
-    route: "/apps/tiktok-downloader",
-    name: "TikTok Downloader",
-    description: "Save TikTok videos quickly, with options for watermark-free exports and audio extraction.",
-    category: "Downloaders",
-    icon: Music2,
-    features: [
-      "Paste TikTok links and fetch available formats instantly.",
-      "Supports short videos, stories, and public profile clips.",
-      "One-click download history and quick re-download.",
-      "Lightweight processing for smooth in-browser performance.",
-    ],
-    resources: [
-      { name: "Instagram Downloader", link: "/apps/instagram-downloader" },
+      { name: "File Converter", link: "/apps/file-converter" },
       { name: "Web Recommended", link: "/apps/web-recommended" },
-    ],
-  },
-  {
-    id: "instagram-downloader",
-    route: "/apps/instagram-downloader",
-    name: "Instagram Downloader",
-    description: "Download reels, posts, and videos from public Instagram links in seconds.",
-    category: "Downloaders",
-    icon: Instagram,
-    features: [
-      "Supports reels, videos, and carousel media links.",
-      "Preview media before download.",
-      "Batch save multiple URLs at once.",
-      "Simple link validation with guided errors.",
-    ],
-    resources: [
-      { name: "YouTube Downloader", link: "/apps/youtube-downloader" },
-      { name: "Background Remover", link: "/apps/background-remover" },
     ],
   },
   {
@@ -137,7 +97,7 @@ export const appDetailPages = [
     ],
     resources: [
       { name: "Background Remover", link: "/apps/background-remover" },
-      { name: "YouTube Downloader", link: "/apps/youtube-downloader" },
+      { name: "Video Downloaders", link: "/apps/video-downloaders" },
     ],
   },
   {

@@ -7,9 +7,7 @@ import { FileConverter } from "@/features/apps/FileConverter";
 import { BackgroundRemover } from "@/features/apps/BackgroundRemover";
 
 const appComponentMap = {
-  "youtube-downloader": VideoDownloader,
-  "tiktok-downloader": VideoDownloader,
-  "instagram-downloader": VideoDownloader,
+  "video-downloaders": VideoDownloader,
   "file-converter": FileConverter,
   "background-remover": BackgroundRemover,
 };
