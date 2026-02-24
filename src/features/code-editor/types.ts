@@ -10,4 +10,5 @@ export type FileNode = {
 export type TerminalLog = {
   id: string;
   text: string;
+  type?: "log" | "error";
 };
