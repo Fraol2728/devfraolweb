@@ -3,13 +3,11 @@ import { AppDetail as AppDetailFeature } from "@/features/apps/AppDetail";
 import { useApps } from "@/features/apps/hooks/useApps";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { VideoDownloader } from "@/features/apps/VideoDownloader";
-import { FileConverter } from "@/features/apps/FileConverter";
-import { BackgroundRemover } from "@/features/apps/BackgroundRemover";
+import { AdvancedTools } from "@/features/apps/AdvancedTools";
 
 const appComponentMap = {
   "video-downloaders": VideoDownloader,
-  "file-converter": FileConverter,
-  "background-remover": BackgroundRemover,
+  "advanced-tools": AdvancedTools,
 };
 
 export const AppDetail = () => {

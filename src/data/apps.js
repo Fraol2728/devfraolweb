@@ -1,11 +1,9 @@
 import {
   Download,
   FileCog,
-  FileImage,
   Globe,
   Layers3,
   Sparkles,
-  QrCode,
 } from "lucide-react";
 
 export const appDetailPages = [
@@ -28,20 +26,20 @@ export const appDetailPages = [
     ],
   },
   {
-    id: "background-remover",
-    route: "/apps/background-remover",
-    name: "Background Remover",
-    description: "Upload an image and remove the background with high-contrast edge detection.",
-    category: "Editors",
-    icon: FileImage,
+    id: "advanced-tools",
+    route: "/apps/advanced-tools",
+    name: "Advanced Tools",
+    description: "One launcher app for background removal, QR generation, and file conversion using external websites.",
+    category: "Utilities",
+    icon: FileCog,
     features: [
-      "AI-based subject detection for portraits and products.",
-      "Refinement tools for blur, feather, and edge cleanup.",
-      "Download transparent PNG output.",
-      "Before/after comparison slider.",
+      "Open a background remover website in one click.",
+      "Open an online QR code generator website in one click.",
+      "Open an online file converter website in one click.",
+      "Unified launcher to access all three tools from one page.",
     ],
     resources: [
-      { name: "File Converter", link: "/apps/file-converter" },
+      { name: "Video Downloaders", link: "/apps/video-downloaders" },
       { name: "Web Recommended", link: "/apps/web-recommended" },
     ],
   },
@@ -61,43 +59,6 @@ export const appDetailPages = [
     resources: [
       { name: "Web Recommended", link: "/apps/web-recommended" },
       { name: "File Converter", link: "/apps/file-converter" },
-    ],
-  },
-  {
-    id: "qr-generator",
-    route: "/apps/qr-generator",
-    name: "QR Code Generator",
-    description: "Build custom QR codes for text, links, contact actions, and Wi-Fi credentials with rich style controls.",
-    category: "Editors",
-    icon: QrCode,
-    features: [
-      "Generate QR codes from text, URLs, email, phone, and Wi-Fi details.",
-      "Customize sizing, colors, gradients, logos, and corner style.",
-      "Live preview with one-click PNG and SVG downloads.",
-      "Keyboard-friendly and responsive for desktop and mobile use.",
-    ],
-    resources: [
-      { name: "File Converter", link: "/apps/file-converter" },
-      { name: "Web Recommended", link: "/apps/web-recommended" },
-    ],
-  },
-
-  {
-    id: "file-converter",
-    route: "/apps/file-converter",
-    name: "File Converter",
-    description: "Convert documents, media, and assets between popular formats with an intuitive workflow.",
-    category: "Converters",
-    icon: FileCog,
-    features: [
-      "Drag-and-drop conversion queue.",
-      "Format profiles for image, audio, and document files.",
-      "Quality and compression controls.",
-      "Secure temporary storage cleanup after conversion.",
-    ],
-    resources: [
-      { name: "Background Remover", link: "/apps/background-remover" },
-      { name: "Video Downloaders", link: "/apps/video-downloaders" },
     ],
   },
   {
