@@ -42,6 +42,11 @@ const MonacoFromCDN = ({ file, onChange }: { file: FileNode; onChange: (value: s
         theme: "vs-dark",
         minimap: { enabled: false },
         automaticLayout: true,
+        lineNumbers: "on",
+        autoIndent: "full",
+        tabSize: 4,
+        insertSpaces: true,
+        detectIndentation: false,
       });
       editorRef.current.onDidChangeModelContent(() => onChange(editorRef.current.getValue()));
     });

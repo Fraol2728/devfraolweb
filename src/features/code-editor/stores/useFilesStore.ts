@@ -5,20 +5,31 @@ const id = () => Math.random().toString(36).slice(2, 10);
 
 const lang = (name: string) => {
   const ext = name.split(".").pop()?.toLowerCase();
-  if (ext === "ts" || ext === "tsx") return "typescript";
-  if (ext === "js" || ext === "jsx") return "javascript";
-  if (ext === "css") return "css";
-  if (ext === "html") return "html";
+  if (ext === "py") return "python";
+  if (ext === "md") return "markdown";
   if (ext === "json") return "json";
-  return "plaintext";
+  if (ext === "txt") return "plaintext";
+  return "python";
 };
 
 const seed: FileNode[] = [
-  { id: id(), type: "folder", name: "src", children: [
-    { id: id(), type: "file", name: "index.html", language: "html", content: "<h1>Hello IDE</h1>" },
-    { id: id(), type: "file", name: "styles.css", language: "css", content: "body { background: #111; color: #eee; }" },
-    { id: id(), type: "file", name: "main.ts", language: "typescript", content: "console.log('Ready');" },
-  ] },
+  {
+    id: id(),
+    type: "folder",
+    name: "project",
+    children: [
+      {
+        id: id(),
+        type: "folder",
+        name: "src",
+        children: [
+          { id: id(), type: "file", name: "main.py", language: "python", content: "def greet(name):\n    return f'Hello, {name}'\n\nprint(greet('Dev Fraol'))\n" },
+          { id: id(), type: "file", name: "utils.py", language: "python", content: "def add(a, b):\n    return a + b\n" },
+        ],
+      },
+      { id: id(), type: "file", name: "README.md", language: "markdown", content: "# Python editor\n\nUse the explorer to manage files." },
+    ],
+  },
 ];
 
 const walkFiles = (nodes: FileNode[], out: FileNode[] = []) => {
