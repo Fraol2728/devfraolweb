@@ -20,7 +20,6 @@
   --animate-fade-in-delay-3: fade-in 0.7s ease-out 0.6s forwards;
   --animate-fade-in-delay-4: fade-in 0.7s ease-out 0.8s forwards;
   --animate-meteor: meteor 5s linear infinite;
-  --animate-code-flow: code-flow 20s linear infinite;
 
   @keyframes float {
     0%,
@@ -41,22 +40,18 @@
     70% { opacity: 1; }
     100% { transform: rotate(215deg) translateX(-500px); opacity: 0; }
   }
-  @keyframes code-flow {
-    0% { transform: translate3d(0, -130vh, 0); }
-    100% { transform: translate3d(0, 130vh, 0); }
-  }
 }
 
 @layer base {
   :root {
-    --background: 230 24% 6%;
-    --foreground: 0 0% 95%;
-    --card: 228 23% 10%;
-    --muted: 229 16% 16%;
-    --muted-foreground: 220 13% 72%;
-    --primary: 4 100% 59%;
+    --background: 228 20% 8%;
+    --foreground: 220 20% 92%;
+    --card: 228 20% 13%;
+    --muted: 228 16% 18%;
+    --muted-foreground: 220 14% 72%;
+    --primary: 3 82% 57%;
     --primary-foreground: 0 0% 100%;
-    --border: 228 16% 21%;
+    --border: 228 18% 24%;
   }
 
   * { @apply border-border; }
@@ -110,28 +105,74 @@
   box-shadow: 0 0 10px 5px rgba(255, 79, 67, 0.25);
 }
 
-.code-stream {
+
+
+.app-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.app-background__base {
   position: absolute;
-  top: 0;
-  white-space: nowrap;
-  user-select: none;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 0.65rem;
-  line-height: 1.55;
-  animation: var(--animate-code-flow);
-  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.28)) drop-shadow(0 0 8px rgba(255, 59, 48, 0.3));
+  inset: 0;
+  background:
+    radial-gradient(1100px circle at 50% 125%, rgba(255, 59, 48, 0.08), transparent 58%),
+    linear-gradient(180deg, #0f121c 0%, #090b13 100%);
 }
 
-.code-stream p {
-  background: linear-gradient(90deg, #ff3b30 0%, #f87269 45%, #3b82f6 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  opacity: 0.85;
+.app-background__glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.45;
 }
 
-@media (width >= 640px) {
-  .code-stream { font-size: 0.74rem; }
+.app-background__glow--top-left {
+  top: -20%;
+  left: -12%;
+  width: min(42rem, 70vw);
+  height: min(34rem, 60vw);
+  background: radial-gradient(circle, rgba(173, 36, 36, 0.55) 0%, rgba(173, 36, 36, 0.18) 34%, transparent 72%);
+}
+
+.app-background__glow--top-right {
+  top: -25%;
+  right: -8%;
+  width: min(38rem, 62vw);
+  height: min(30rem, 55vw);
+  background: radial-gradient(circle, rgba(134, 25, 36, 0.52) 0%, rgba(134, 25, 36, 0.2) 40%, transparent 74%);
+}
+
+.app-background__glow--bottom {
+  bottom: -32%;
+  left: 25%;
+  width: min(44rem, 72vw);
+  height: min(24rem, 48vw);
+  background: radial-gradient(ellipse at center, rgba(165, 41, 41, 0.44) 0%, rgba(165, 41, 41, 0.16) 42%, transparent 76%);
+}
+
+.app-background__noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.45) 1px, transparent 0);
+  background-size: 3px 3px;
+}
+
+.glass-panel {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(255, 59, 48, 0.06) inset;
+}
+
+@supports ((-webkit-backdrop-filter: blur(0)) or (backdrop-filter: blur(0))) {
+  .glass-panel {
+    -webkit-backdrop-filter: blur(20px) saturate(120%);
+    backdrop-filter: blur(20px) saturate(120%);
+  }
 }
 
 #root { max-width: 100%; margin: 0 auto; padding: 0; text-align: center; }

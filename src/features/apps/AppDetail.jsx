@@ -47,7 +47,7 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
   return (
     <main className="px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 text-left">
-        <motion.section initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-10">
+        <motion.section initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="glass-panel rounded-3xl p-7 sm:p-10">
           <div className="inline-flex rounded-2xl bg-[#FF3B30]/15 p-4 text-[#FF3B30]">
             <Icon className="h-8 w-8" />
           </div>
@@ -76,7 +76,7 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
 
 
         {ToolComponent ? (
-          <section id="tool-section" className="scroll-mt-24 rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-9">
+          <section id="tool-section" className="scroll-mt-24 glass-panel rounded-3xl p-7 sm:p-9">
             <h2 className="text-2xl font-bold sm:text-3xl">Try the app</h2>
             <p className="mt-2 text-sm text-foreground/70">Interactive mock module powered by local context and frontend state.</p>
             <div className="mt-5">
@@ -86,7 +86,7 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
         ) : null}
 
         <section id="details" className="scroll-mt-24">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-9">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} className="glass-panel rounded-3xl p-7 sm:p-9">
             <h2 className="text-2xl font-bold sm:text-3xl">Features & Instructions</h2>
             <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
               {features.length === 0 ? <p className="text-sm text-foreground/70">No feature list available for this app yet.</p> : null}
@@ -110,7 +110,7 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
         </section>
 
         {categoryData?.length > 0 && (
-          <section className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-9">
+          <section className="glass-panel rounded-3xl p-7 sm:p-9">
             <h2 className="text-2xl font-bold sm:text-3xl">Website Categories</h2>
             <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-white/10 bg-black/30 p-4 sm:flex-row sm:items-center sm:justify-between">
               <label className="relative w-full sm:max-w-sm">
@@ -132,7 +132,7 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
           </section>
         )}
 
-        <section className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-2xl sm:p-9">
+        <section className="glass-panel rounded-3xl p-7 sm:p-9">
           <h2 className="text-2xl font-bold">Additional Resources</h2>
           <div className="mt-4 flex flex-wrap gap-3">
             {resources.length === 0 ? <p className="text-sm text-foreground/70">No additional resources available yet.</p> : null}
