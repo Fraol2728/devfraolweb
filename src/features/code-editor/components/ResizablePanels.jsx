@@ -1,6 +1,6 @@
 import { useLayoutStore } from "@/features/code-editor/stores/useLayoutStore";
 
-export const ResizablePanels = ({ explorer, editor, terminal, terminalVisible }) => {
+export const ResizablePanels = ({ explorer, editor, terminal, terminalVisible, explorerVisible }) => {
   const leftWidth = useLayoutStore((s) => s.leftWidth);
   const terminalHeight = useLayoutStore((s) => s.terminalHeight);
   const setLeftWidth = useLayoutStore((s) => s.setLeftWidth);
@@ -44,9 +44,9 @@ export const ResizablePanels = ({ explorer, editor, terminal, terminalVisible })
 
   return (
     <div className="py-panel-shell">
-      <div className="py-main-layout" style={{ gridTemplateColumns: `${leftWidth}px 6px minmax(0, 1fr)` }}>
-        {explorer}
-        <div className="py-resizer-x" onPointerDown={resizeExplorer} />
+      <div className="py-main-layout" style={{ gridTemplateColumns: explorerVisible ? `${leftWidth}px 6px minmax(0, 1fr)` : "minmax(0,1fr)" }}>
+        {explorerVisible ? explorer : null}
+        {explorerVisible ? <div className="py-resizer-x" onPointerDown={resizeExplorer} /> : null}
         {editor}
       </div>
       {terminalVisible ? (
