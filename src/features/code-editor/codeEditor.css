@@ -1,31 +1,142 @@
-.ce-root { height: 100vh; width: 100vw; display: grid; grid-template-rows: 36px minmax(0,1fr) auto; background: #1e1e1e; color: #d4d4d4; font-family: Inter, system-ui, sans-serif; }
-.ce-menu { display:flex; align-items:center; gap:4px; padding:0 8px; border-bottom:1px solid #2d2d2d; background:#252526; }
-.ce-menu button { background:transparent; color:#d4d4d4; border:0; padding:4px 8px; cursor:pointer; }
-.ce-main { min-height:0; display:grid; }
-.ce-left,.ce-right,.ce-center { min-width:0; min-height:0; position:relative; }
-.ce-left,.ce-right,.ce-terminal,.ce-tabs,.ce-pane-header { border-color:#2d2d2d; border-style:solid; }
-.ce-left { border-right-width:1px; overflow:hidden; }
-.ce-right { border-left-width:1px; overflow:hidden; }
-.ce-pane-header { border-bottom-width:1px; height:32px; display:flex; align-items:center; justify-content:space-between; padding:0 8px; background:#252526; font-size:12px; }
-.ce-tree { overflow:auto; height:calc(100% - 32px); }
-.ce-tree-row { display:flex; align-items:center; justify-content:space-between; gap:8px; height:28px; }
-.ce-tree-row.active { background:#37373d; }
-.ce-tree-name { background:none; border:0; color:inherit; text-align:left; flex:1; cursor:pointer; white-space:nowrap; overflow:hidden; }
-.ce-tree-actions { display:flex; gap:4px; }
-.ce-tree-actions button,.ce-pane-header button { background:#333; border:1px solid #454545; color:#ddd; font-size:11px; cursor:pointer; }
-.ce-center { display:flex; flex-direction:column; min-height:0; }
-.ce-tabs { display:flex; height:34px; border-bottom-width:1px; background:#252526; overflow:auto; }
-.ce-tab { display:flex; align-items:center; border-right:1px solid #2d2d2d; }
-.ce-tab.active { background:#1e1e1e; }
-.ce-tab button { background:none; border:0; color:#d4d4d4; cursor:pointer; padding:0 8px; height:34px; }
-.ce-editor-wrap { min-height:0; flex:1; }
-.ce-editor { height:100%; width:100%; }
-.ce-preview { width:100%; height:calc(100% - 32px); border:0; background:white; }
-.ce-terminal { border-top:1px solid #2d2d2d; min-height:0; overflow:hidden; position:relative; }
-.ce-logs { font-family: ui-monospace, monospace; font-size:12px; padding:8px; overflow:auto; height:calc(100% - 32px); }
-.ce-resizer-x { position:absolute; right:0; top:0; width:4px; height:100%; cursor:col-resize; background:#2d2d2d; }
-.ce-resizer-x.left { left:0; }
-.ce-resizer-y { position:absolute; top:0; left:0; width:100%; height:4px; cursor:row-resize; background:#2d2d2d; }
-.ce-loading { height:100%; display:flex; align-items:center; justify-content:center; }
-.ce-modal-backdrop { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.45); }
-.ce-modal { background:#252526; border:1px solid #2d2d2d; padding:20px; min-width:320px; }
+.py-root {
+  height: 100vh;
+  width: 100%;
+  display: grid;
+  grid-template-rows: 40px minmax(0, 1fr);
+  background: #111317;
+  color: #d4d4d4;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.py-menu-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  background: #1a1d23;
+  border-bottom: 1px solid #30343d;
+}
+
+.py-menu-item { position: relative; }
+.py-menu-item > button {
+  border: 0;
+  background: transparent;
+  color: #d4d4d4;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.py-menu-item > button:hover { background: #2c313a; }
+
+.py-menu-dropdown {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  min-width: 160px;
+  background: #252a33;
+  border: 1px solid #3a414d;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  padding: 6px;
+  z-index: 20;
+}
+.py-menu-dropdown button {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: #d9d9d9;
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+.py-menu-dropdown button:hover { background: #343b47; }
+
+.py-panel-shell { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+.py-main-layout { min-height: 0; display: grid; }
+.py-resizer-x { cursor: col-resize; background: #2a2e36; }
+.py-resizer-y { height: 6px; cursor: row-resize; background: #2a2e36; }
+
+.py-explorer {
+  min-width: 0;
+  min-height: 0;
+  margin: 8px 0 8px 8px;
+  border: 1px solid #2e3440;
+  border-radius: 12px;
+  background: #171b21;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+.py-explorer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  border-bottom: 1px solid #2e3440;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.py-explorer-header button {
+  border: 1px solid #3f4655;
+  background: #222834;
+  color: #d4d4d4;
+  border-radius: 6px;
+  margin-left: 4px;
+}
+.py-tree-scroll { overflow: auto; height: calc(100% - 40px); padding: 8px 4px; }
+.py-tree-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  border-radius: 8px;
+  height: 30px;
+}
+.py-tree-row:hover { background: #242b36; }
+.py-tree-row.active { background: #2d3e57; }
+.py-tree-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+.py-tree-actions button { border: 0; background: transparent; color: #aeb6c4; font-size: 11px; }
+.py-tree-actions button:hover { color: #ffffff; }
+
+.py-editor-pane {
+  min-width: 0;
+  min-height: 0;
+  margin: 8px 8px 8px 0;
+  border: 1px solid #2e3440;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: grid;
+  grid-template-rows: 38px minmax(0, 1fr);
+}
+.py-tabs {
+  display: flex;
+  overflow: auto;
+  background: #191f28;
+  border-bottom: 1px solid #2e3440;
+}
+.py-tab { display: flex; align-items: center; border-right: 1px solid #2e3440; }
+.py-tab button { border: 0; background: transparent; color: #d4d4d4; padding: 0 10px; height: 37px; }
+.py-tab.active { background: #263245; }
+.py-editor-body { min-height: 0; }
+.py-empty-state { height: 100%; display: grid; place-items: center; color: #95a0b2; }
+.ce-editor { height: 100%; }
+
+.py-terminal-wrap { margin: 0 8px 8px; border-radius: 12px; overflow: hidden; border: 1px solid #2e3440; background: #101318; }
+.py-terminal { height: calc(100% - 6px); display: grid; grid-template-rows: 36px minmax(0, 1fr); }
+.py-terminal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  border-bottom: 1px solid #2e3440;
+  font-size: 12px;
+}
+.py-terminal-header button { border: 1px solid #3f4655; background: #222834; color: #d4d4d4; border-radius: 6px; }
+.py-terminal-logs { overflow: auto; padding: 8px 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+.py-terminal-logs p { margin: 0 0 4px; }
