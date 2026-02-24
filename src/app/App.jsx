@@ -72,6 +72,9 @@ function App() {
                   <Route path="/blog/:slug" element={<BlogDetail />} />
                   <Route path="/apps" element={<Apps />} />
                   <Route path="/apps/qr-generator" element={<QRGenerator />} />
+                  <Route path="/apps/youtube-downloader" element={<Navigate to="/apps/video-downloaders" replace />} />
+                  <Route path="/apps/tiktok-downloader" element={<Navigate to="/apps/video-downloaders" replace />} />
+                  <Route path="/apps/instagram-downloader" element={<Navigate to="/apps/video-downloaders" replace />} />
                   <Route path="/apps/:id" element={<AppDetail />} />
                   <Route path="/apps/python-code-editor" element={<PythonCodeEditor />} />
                   <Route path="/login" element={<Login />} />

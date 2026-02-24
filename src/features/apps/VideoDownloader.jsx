@@ -1,174 +1,64 @@
-import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Download, Instagram, Link as LinkIcon, Loader2, Youtube } from "lucide-react";
-import { toast } from "@/hooks/useToastStore";
-import { mockVideoPreviewByProvider } from "@/data/mockAppResponses";
+import { ArrowUpRight, Instagram, Music2, Youtube } from "lucide-react";
 
-const providers = [
-  { id: "youtube", label: "YouTube", icon: Youtube },
-  { id: "tiktok", label: "TikTok", icon: LinkIcon },
-  { id: "instagram", label: "Instagram", icon: Instagram },
+const downloaderApps = [
+  {
+    id: "youtube",
+    name: "Youtube video downloader",
+    description: "Open a trusted web tool to download YouTube videos.",
+    icon: Youtube,
+    link: "https://en.y2mate.is/",
+  },
+  {
+    id: "tiktok",
+    name: "Tiktok video downloader",
+    description: "Open a web tool for downloading TikTok videos.",
+    icon: Music2,
+    link: "https://ssstik.io/",
+  },
+  {
+    id: "instagram",
+    name: "Instagram video downloader",
+    description: "Open an external site for downloading Instagram videos.",
+    icon: Instagram,
+    link: "https://snapinsta.app/",
+  },
 ];
 
 export const VideoDownloader = () => {
-  const [url, setUrl] = useState("");
-  const [activeProvider, setActiveProvider] = useState("instagram");
-  const [isLoading, setIsLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [preview, setPreview] = useState(null);
-  const [downloadUrl, setDownloadUrl] = useState("");
-
-  const ProviderIcon = useMemo(() => providers.find((item) => item.id === activeProvider)?.icon ?? Instagram, [activeProvider]);
-
-  const isValidUrl = (candidateUrl) => {
-    try {
-      new URL(candidateUrl);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  const handlePreview = async (event) => {
-    event.preventDefault();
-
-    if (!isValidUrl(url.trim())) {
-      toast({ title: "Invalid URL", description: "Please enter a valid video URL.", variant: "destructive" });
-      return;
-    }
-
-    setIsLoading(true);
-    setProgress(10);
-    setDownloadUrl("");
-
-    const timer = setInterval(() => {
-      setProgress((value) => (value >= 94 ? value : value + 6));
-    }, 200);
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 700));
-      const mockPreview = mockVideoPreviewByProvider[activeProvider] ?? mockVideoPreviewByProvider.instagram;
-      const blob = new Blob([`Mock media payload for ${activeProvider}: ${url.trim()}`], { type: "text/plain" });
-      const nextDownloadUrl = URL.createObjectURL(blob);
-
-      setPreview({ ...mockPreview, sourceUrl: url.trim() });
-      setDownloadUrl(nextDownloadUrl);
-      setProgress(100);
-      toast({
-        title: "Preview ready",
-        description: "Loaded mock media data locally. Download is enabled.",
-        variant: "success",
-      });
-    } catch (error) {
-      toast({
-        title: "Preview failed",
-        description: error.message,
-        variant: "destructive",
-      });
-      setPreview(null);
-      setDownloadUrl("");
-      setProgress(0);
-    } finally {
-      clearInterval(timer);
-      setIsLoading(false);
-      setTimeout(() => setProgress(0), 600);
-    }
-  };
-
-  const handleDownload = () => {
-    if (!downloadUrl) return;
-
-    const anchor = document.createElement("a");
-    anchor.href = downloadUrl;
-    anchor.download = "video";
-    anchor.click();
-
-    toast({
-      title: "Download started",
-      description: "The video download has started.",
-      variant: "success",
-    });
-  };
-
   return (
     <article className="rounded-2xl border border-border/70 bg-card/45 p-5 backdrop-blur-xl">
-      <h3 className="text-xl font-bold text-foreground">Video Downloader</h3>
-      <p className="mt-2 text-sm text-foreground/70">Input URL → preview → download using local mock data.</p>
+      <h3 className="text-xl font-bold text-foreground">Video Downloaders</h3>
+      <p className="mt-2 text-sm text-foreground/70">Choose one app below. Each option opens an external downloader website in a new tab.</p>
 
-      <form onSubmit={handlePreview} className="mt-4 space-y-3" aria-label="Video downloader form">
-        <div className="flex flex-wrap gap-2">
-          {providers.map((provider) => (
-            <button
-              key={provider.id}
-              type="button"
-              onClick={() => setActiveProvider(provider.id)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                activeProvider === provider.id ? "bg-[#FF3B30] text-white" : "border border-border text-foreground/75"
-              }`}
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
+        {downloaderApps.map((app, index) => {
+          const Icon = app.icon;
+
+          return (
+            <motion.a
+              key={app.id}
+              href={app.link}
+              target="_blank"
+              rel="noreferrer"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.06 }}
+              className="group rounded-xl border border-border/70 bg-background/35 p-4 transition hover:border-[#FF3B30]/70"
             >
-              {provider.label}
-            </button>
-          ))}
-        </div>
-
-        <label htmlFor="video-url" className="text-xs font-semibold uppercase tracking-wide text-foreground/65">
-          Post or Reel URL
-        </label>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="relative flex-1">
-            <LinkIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/50" />
-            <input
-              id="video-url"
-              value={url}
-              onChange={(event) => setUrl(event.target.value)}
-              placeholder="https://www.instagram.com/reel/..."
-              className="w-full rounded-xl border border-border/80 bg-background/70 py-2.5 pl-10 pr-3 text-sm text-foreground outline-none focus:border-[#FF3B30]/70"
-              required
-            />
-          </div>
-          <motion.button
-            whileHover={{ y: -1 }}
-            type="submit"
-            disabled={isLoading}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#FF3B30] px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ProviderIcon className="h-4 w-4" />}
-            {isLoading ? "Fetching" : "Preview"}
-          </motion.button>
-        </div>
-      </form>
-
-      {progress > 0 ? (
-        <div className="mt-3 h-2 w-full rounded-full bg-background/70">
-          <div className="h-2 rounded-full bg-[#FF3B30] transition-all" style={{ width: `${progress}%` }} />
-        </div>
-      ) : null}
-
-      {preview ? (
-        <motion.section
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-4 rounded-xl border border-border/65 bg-background/35 p-3"
-          aria-live="polite"
-        >
-          <img src={preview.thumbnail || preview.thumbnailUrl} alt="Video preview thumbnail" className="h-40 w-full rounded-lg object-cover" />
-          <div className="mt-3 flex items-center justify-between gap-2 text-xs text-foreground/70">
-            <p>{preview.title || "Video Preview"}</p>
-            <p>
-              {preview.quality || "Best"} • {preview.size || "Unknown"}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleDownload}
-            disabled={!downloadUrl}
-            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#FF3B30] px-3 py-2 text-xs font-semibold text-white"
-          >
-            <Download className="h-3.5 w-3.5" />
-            Download
-          </button>
-        </motion.section>
-      ) : null}
+              <div className="inline-flex rounded-lg bg-[#FF3B30]/15 p-2 text-[#FF3B30]">
+                <Icon className="h-5 w-5" />
+              </div>
+              <h4 className="mt-3 text-sm font-semibold text-foreground">{app.name}</h4>
+              <p className="mt-1 text-xs text-foreground/70">{app.description}</p>
+              <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[#FF3B30]">
+                Open website
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </span>
+            </motion.a>
+          );
+        })}
+      </div>
     </article>
   );
 };
