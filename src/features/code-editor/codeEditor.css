@@ -140,3 +140,7 @@
 .py-terminal-header button { border: 1px solid #3f4655; background: #222834; color: #d4d4d4; border-radius: 6px; }
 .py-terminal-logs { overflow: auto; padding: 8px 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
 .py-terminal-logs p { margin: 0 0 4px; }
+
+.py-menu-dropdown button:disabled { opacity: 0.45; cursor: not-allowed; }
+.py-log-normal { color: #d4d4d4; }
+.py-log-error { color: #ff7b72; }

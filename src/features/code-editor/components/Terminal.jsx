@@ -15,7 +15,7 @@ export const Terminal = ({ logs, onClear }) => {
         <button type="button" onClick={onClear}>Clear</button>
       </div>
       <div ref={ref} className="py-terminal-logs">
-        {logs.map((log) => <p key={log.id}>{log.text}</p>)}
+        {logs.map((log) => <p key={log.id} className={log.type === "error" ? "py-log-error" : "py-log-normal"}>{log.text}</p>)}
       </div>
     </section>
   );

@@ -76,17 +76,38 @@ const find = (nodes: FileNode[], targetId: string): FileNode | null => {
   return null;
 };
 
+const normalizePath = (path: string) => path.split("/").map((p) => p.trim()).filter(Boolean);
+
+const findByPath = (nodes: FileNode[], rawPath: string): FileNode | null => {
+  const parts = normalizePath(rawPath);
+  if (!parts.length) return null;
+  let currentNodes = nodes;
+  let current: FileNode | null = null;
+
+  for (const part of parts) {
+    current = currentNodes.find((n) => n.name === part) ?? null;
+    if (!current) return null;
+    currentNodes = current.children ?? [];
+  }
+
+  return current;
+};
+
 type FilesState = {
   tree: FileNode[];
   activeFileId: string | null;
   openTabs: string[];
   expanded: string[];
   setActiveFile: (id: string) => void;
+  openFile: (filePath: string) => void;
   toggleFolder: (id: string) => void;
-  createFile: (parentId: string | null, name: string) => void;
+  createFile: (parentId: string | null, name: string, content?: string) => void;
+  createFileByPath: (name: string, folderPath?: string, content?: string) => void;
   createFolder: (parentId: string | null, name: string) => void;
   renameNode: (id: string, name: string) => void;
+  renameFileByPath: (oldPath: string, newName: string) => void;
   deleteNode: (id: string) => void;
+  deleteFileByPath: (filePath: string) => void;
   updateContent: (id: string, content: string) => void;
   closeTab: (id: string) => void;
 };
@@ -99,16 +120,44 @@ export const useFilesStore = create<FilesState>((set, get) => ({
   openTabs: initialFiles[0] ? [initialFiles[0].id] : [],
   expanded: [seed[0].id],
   setActiveFile: (id) => set((s) => ({ activeFileId: id, openTabs: s.openTabs.includes(id) ? s.openTabs : [...s.openTabs, id] })),
+  openFile: (filePath) => {
+    const state = get();
+    const node = findByPath(state.tree, filePath);
+    if (!node || node.type !== "file") return;
+    set((s) => ({
+      activeFileId: node.id,
+      openTabs: s.openTabs.includes(node.id) ? s.openTabs : [...s.openTabs, node.id],
+    }));
+  },
   toggleFolder: (id) => set((s) => ({ expanded: s.expanded.includes(id) ? s.expanded.filter((x) => x !== id) : [...s.expanded, id] })),
-  createFile: (parentId, name) => {
-    const next = { id: id(), type: "file" as const, name, language: lang(name), content: "" };
+  createFile: (parentId, name, content = "") => {
+    const next = { id: id(), type: "file" as const, name, language: lang(name), content };
     set((s) => ({ tree: insert(s.tree, parentId, next), activeFileId: next.id, openTabs: [...s.openTabs, next.id] }));
+  },
+  createFileByPath: (name, folderPath, content = "") => {
+    if (!folderPath) {
+      get().createFile(null, name, content);
+      return;
+    }
+
+    const folder = findByPath(get().tree, folderPath);
+    if (!folder || folder.type !== "folder") {
+      get().createFile(null, name, content);
+      return;
+    }
+
+    get().createFile(folder.id, name, content);
   },
   createFolder: (parentId, name) => {
     const next = { id: id(), type: "folder" as const, name, children: [] };
     set((s) => ({ tree: insert(s.tree, parentId, next), expanded: [...s.expanded, next.id] }));
   },
   renameNode: (nodeId, name) => set((s) => ({ tree: updateTree(s.tree, nodeId, (n) => ({ ...n, name, language: n.type === "file" ? lang(name) : n.language })) })),
+  renameFileByPath: (oldPath, newName) => {
+    const node = findByPath(get().tree, oldPath);
+    if (!node || node.type !== "file") return;
+    get().renameNode(node.id, newName);
+  },
   deleteNode: (nodeId) => {
     const state = get();
     const node = find(state.tree, nodeId);
@@ -118,6 +167,11 @@ export const useFilesStore = create<FilesState>((set, get) => ({
     const files = walkFiles(tree);
     const active = removed.includes(state.activeFileId ?? "") ? files[0]?.id ?? null : state.activeFileId;
     set({ tree, activeFileId: active, openTabs: state.openTabs.filter((t) => !removed.includes(t)) });
+  },
+  deleteFileByPath: (filePath) => {
+    const node = findByPath(get().tree, filePath);
+    if (!node) return;
+    get().deleteNode(node.id);
   },
   updateContent: (nodeId, content) => set((s) => ({ tree: updateTree(s.tree, nodeId, (n) => (n.type === "file" ? { ...n, content } : n)) })),
   closeTab: (tabId) => {

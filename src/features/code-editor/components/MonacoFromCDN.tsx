@@ -26,7 +26,13 @@ const load = () => new Promise<any>((resolve, reject) => {
   document.body.appendChild(script);
 });
 
-const MonacoFromCDN = ({ file, onChange }: { file: FileNode; onChange: (value: string) => void }) => {
+type Props = {
+  file: FileNode;
+  onChange: (value: string) => void;
+  onEditorReady?: (api: { undo: () => void; redo: () => void }) => void;
+};
+
+const MonacoFromCDN = ({ file, onChange, onEditorReady }: Props) => {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const editorRef = useRef<any>(null);
   const monacoRef = useRef<any>(null);
@@ -49,8 +55,15 @@ const MonacoFromCDN = ({ file, onChange }: { file: FileNode; onChange: (value: s
         detectIndentation: false,
       });
       editorRef.current.onDidChangeModelContent(() => onChange(editorRef.current.getValue()));
+      onEditorReady?.({
+        undo: () => editorRef.current?.trigger("keyboard", "undo", null),
+        redo: () => editorRef.current?.trigger("keyboard", "redo", null),
+      });
     });
-    return () => { mounted = false; editorRef.current?.dispose(); };
+    return () => {
+      mounted = false;
+      editorRef.current?.dispose();
+    };
   }, []);
 
   useEffect(() => {

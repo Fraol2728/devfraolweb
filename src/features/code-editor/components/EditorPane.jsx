@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 
 const MonacoEditor = lazy(() => import("@/features/code-editor/components/MonacoFromCDN"));
 
-export const EditorPane = ({ activeFile, tabs, onTabSwitch, onTabClose, onChange }) => (
+export const EditorPane = ({ activeFile, tabs, onTabSwitch, onTabClose, onChange, onEditorReady }) => (
   <main className="py-editor-pane">
     <div className="py-tabs">
       {tabs.map((tab) => (
@@ -15,7 +15,7 @@ export const EditorPane = ({ activeFile, tabs, onTabSwitch, onTabClose, onChange
     <div className="py-editor-body">
       {activeFile ? (
         <Suspense fallback={<div className="py-empty-state">Loading Monaco…</div>}>
-          <MonacoEditor file={activeFile} onChange={(value) => onChange(activeFile.id, value)} />
+          <MonacoEditor file={activeFile} onChange={(value) => onChange(activeFile.id, value)} onEditorReady={onEditorReady} />
         </Suspense>
       ) : (
         <div className="py-empty-state">Open a file from Explorer to start coding.</div>
