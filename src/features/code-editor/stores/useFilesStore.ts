@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { FileNode } from "@/features/code-editor/types";
+import { hydratePackages, persistPackages } from "@/features/code-editor/PackageManager";
 
 const STORAGE_KEY = "devfraol.editor.projects.v1";
 
@@ -99,6 +100,7 @@ type FilesState = {
   activeFileId: string | null;
   openTabs: string[];
   expanded: string[];
+  installedPackages: Record<string, string[]>;
   setActiveFile: (id: string) => void;
   toggleFolder: (id: string) => void;
   createFile: (parentId: string | null, name: string) => void;
@@ -112,6 +114,8 @@ type FilesState = {
   loadProjectFromLocalStorage: () => void;
   createProject: (name: string) => void;
   setCurrentProject: (projectId: string) => void;
+  addInstalledPackage: (projectId: string, packageName: string) => void;
+  importProject: (project: { name: string; tree: FileNode[] }) => void;
 };
 
 const createProjectState = (name: string): ProjectState => {
@@ -153,7 +157,14 @@ const persist = (state: FilesState) => {
 
 export const useFilesStore = create<FilesState>((set, get) => {
   const initial = hydrate();
+  const installedPackages = hydratePackages();
   const current = initial.projects[initial.currentProjectId];
+
+  const cloneWithIds = (nodes: FileNode[]): FileNode[] => nodes.map((node) => ({
+    ...node,
+    id: id(),
+    children: node.children ? cloneWithIds(node.children) : undefined,
+  }));
 
   return {
     projects: initial.projects,
@@ -162,6 +173,7 @@ export const useFilesStore = create<FilesState>((set, get) => {
     activeFileId: current.activeFileId,
     openTabs: current.openTabs,
     expanded: current.expanded,
+    installedPackages,
     setActiveFile: (nodeId) => set((s) => {
       const next = {
         ...s,
@@ -286,6 +298,35 @@ export const useFilesStore = create<FilesState>((set, get) => {
         activeFileId: project.activeFileId,
         openTabs: project.openTabs,
         expanded: project.expanded,
+      };
+      persist(next);
+      return next;
+    }),
+    addInstalledPackage: (projectId, packageName) => set((s) => {
+      const list = s.installedPackages[projectId] ?? [];
+      if (list.includes(packageName)) return s;
+      const next = {
+        ...s,
+        installedPackages: { ...s.installedPackages, [projectId]: [...list, packageName] },
+      };
+      persistPackages(next.installedPackages);
+      return next;
+    }),
+    importProject: (project) => set((s) => {
+      const created = createProjectState(project.name || "imported-project");
+      created.tree = cloneWithIds(project.tree);
+      const files = walkFiles(created.tree);
+      created.activeFileId = files[0]?.id ?? null;
+      created.openTabs = created.activeFileId ? [created.activeFileId] : [];
+      const projects = { ...s.projects, [created.id]: created };
+      const next = {
+        ...s,
+        projects,
+        currentProjectId: created.id,
+        tree: created.tree,
+        activeFileId: created.activeFileId,
+        openTabs: created.openTabs,
+        expanded: created.expanded,
       };
       persist(next);
       return next;

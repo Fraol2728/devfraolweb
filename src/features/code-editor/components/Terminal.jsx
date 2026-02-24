@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export const Terminal = ({ logs, onClear, onCopy, autoScroll, onToggleAutoScroll }) => {
+export const Terminal = ({ logs, onClear, onCopy, autoScroll, onToggleAutoScroll, onCommand, onHistory }) => {
   const ref = useRef(null);
+  const [command, setCommand] = useState("");
 
   useEffect(() => {
     if (!ref.current || !autoScroll) return;
@@ -21,6 +22,31 @@ export const Terminal = ({ logs, onClear, onCopy, autoScroll, onToggleAutoScroll
       <div ref={ref} className="py-terminal-logs">
         {logs.map((log) => <p key={log.id} className={log.type === "error" ? "py-log-error" : "py-log-stdout"}>{log.text}</p>)}
       </div>
+      <form
+        className="py-terminal-input"
+        onSubmit={(event) => {
+          event.preventDefault();
+          onCommand?.(command);
+          setCommand("");
+        }}
+      >
+        <input
+          value={command}
+          onChange={(event) => setCommand(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowUp") {
+              event.preventDefault();
+              setCommand(onHistory?.("up") ?? "");
+            }
+            if (event.key === "ArrowDown") {
+              event.preventDefault();
+              setCommand(onHistory?.("down") ?? "");
+            }
+          }}
+          placeholder=">>> python snippet"
+        />
+        <button type="submit">Run</button>
+      </form>
     </section>
   );
 };

@@ -30,15 +30,18 @@ const MonacoFromCDN = ({
   file,
   onChange,
   onEditorReady,
+  highlightedLine,
 }: {
   file: FileNode;
   onChange: (value: string) => void;
   onEditorReady?: (editor: any) => void;
+  highlightedLine?: number | null;
 }) => {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const editorRef = useRef<any>(null);
   const monacoRef = useRef<any>(null);
   const modelRef = useRef<any>(null);
+  const decorationRef = useRef<string[]>([]);
 
   useEffect(() => {
     let mounted = true;
@@ -54,6 +57,20 @@ const MonacoFromCDN = ({
             { label: "for", kind: monaco.languages.CompletionItemKind.Snippet, insertText: "for ${1:item} in ${2:items}:\n    ${3:pass}", insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet },
           ],
         }),
+      });
+
+      monaco.languages.registerHoverProvider("python", {
+        provideHover: (model: any, position: any) => {
+          const word = model.getWordAtPosition(position)?.word;
+          if (!word) return null;
+          const docs: Record<string, string> = {
+            print: "print(*values): Print values to stdout",
+            len: "len(obj): Return number of items",
+            range: "range(stop) | range(start, stop[, step])",
+          };
+          if (!docs[word]) return null;
+          return { contents: [{ value: `**${word}**\n\n${docs[word]}` }] };
+        },
       });
 
       editorRef.current = monaco.editor.create(mountRef.current, {
@@ -125,6 +142,14 @@ except SyntaxError as exc:
     const timer = window.setTimeout(runLint, 300);
     return () => window.clearTimeout(timer);
   }, [file.content, file.language]);
+
+  useEffect(() => {
+    if (!editorRef.current || !monacoRef.current || !highlightedLine) return;
+    decorationRef.current = editorRef.current.deltaDecorations(decorationRef.current, [{
+      range: new monacoRef.current.Range(highlightedLine, 1, highlightedLine, 1),
+      options: { isWholeLine: true, className: "py-current-line" },
+    }]);
+  }, [highlightedLine]);
 
   return <div className="ce-editor" ref={mountRef} />;
 };

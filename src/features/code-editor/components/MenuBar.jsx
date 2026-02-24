@@ -7,6 +7,9 @@ const MENU_MAP = {
     { id: "file-save-as", label: "Save As", shortcut: "Ctrl+Shift+S" },
     { id: "file-save-all", label: "Save All" },
     { id: "file-new-project", label: "New Project" },
+    { id: "file-import-project", label: "Import Project" },
+    { id: "file-export-json", label: "Export JSON" },
+    { id: "file-export-zip", label: "Export ZIP" },
   ],
   Edit: [
     { id: "edit-undo", label: "Undo", shortcut: "Ctrl+Z" },
@@ -17,7 +20,7 @@ const MENU_MAP = {
     { id: "view-toggle-terminal", label: "Toggle Terminal" },
     { id: "view-toggle-explorer", label: "Toggle Explorer" },
   ],
-  Run: [{ id: "run-python", label: "Run Python Code", shortcut: "Ctrl+Enter" }],
+  Run: [{ id: "run-python", label: "Run Python Code", shortcut: "Ctrl+Enter" }, { id: "run-debug", label: "Debug Active File" }],
 };
 
 export const MenuBar = ({ onAction }) => {
