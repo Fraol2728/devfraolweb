@@ -10,14 +10,14 @@ const MockApiContext = createContext(null);
 const usersSeed = [
   { id: "usr-001", name: "John Doe", email: "john@email.com", role: "Student", status: "Active" },
   { id: "usr-002", name: "Sofia Khan", email: "sofia@email.com", role: "Instructor", status: "Inactive" },
-  { id: "inst-001", name: "Sahil Sharma", email: "sahil@devfraol.academy", role: "Instructor", status: "Active" },
+  { id: "inst-001", name: "Dev Fraol", email: "devfraol@devfraol.academy", role: "Instructor", status: "Active" },
 ];
 
 const instructorsSeed = [
   {
     id: "inst-001",
-    name: "Sahil Sharma",
-    slug: "sahil-sharma",
+    name: "Dev Fraol",
+    slug: "dev-fraol",
     role: "Lead Frontend Instructor",
     quote: "I teach by building with you—turning concepts into portfolio-ready outcomes.",
     bio: "Sahil helps learners bridge the gap between tutorials and production work through practical modules and guided feedback.",
