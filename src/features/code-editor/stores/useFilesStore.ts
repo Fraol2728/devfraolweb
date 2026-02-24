@@ -1,25 +1,6 @@
 import { create } from "zustand";
 import type { FileNode } from "@/features/code-editor/types";
 
-const STORAGE_KEY = "devfraol.editor.projects.v1";
-
-const PACKAGE_STORAGE_KEY = "devfraol.editor.packages.v1";
-
-const hydratePackages = () => {
-  try {
-    const raw = window.localStorage.getItem(PACKAGE_STORAGE_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    return typeof parsed === "object" && parsed ? parsed : {};
-  } catch {
-    return {};
-  }
-};
-
-const persistPackages = (packages: Record<string, string[]>) => {
-  window.localStorage.setItem(PACKAGE_STORAGE_KEY, JSON.stringify(packages));
-};
-
 const id = () => Math.random().toString(36).slice(2, 10);
 
 const lang = (name: string) => {
@@ -104,11 +85,6 @@ type ProjectState = {
   expanded: string[];
 };
 
-type PersistedState = {
-  currentProjectId: string;
-  projects: Record<string, ProjectState>;
-};
-
 type FilesState = {
   projects: Record<string, ProjectState>;
   currentProjectId: string;
@@ -149,32 +125,8 @@ const createProjectState = (name: string): ProjectState => {
 
 const baseProject = createProjectState("project");
 
-const hydrate = (): PersistedState => {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      return { currentProjectId: baseProject.id, projects: { [baseProject.id]: baseProject } };
-    }
-    const parsed = JSON.parse(raw) as PersistedState;
-    if (!parsed.currentProjectId || !parsed.projects?.[parsed.currentProjectId]) throw new Error("invalid");
-    return parsed;
-  } catch {
-    return { currentProjectId: baseProject.id, projects: { [baseProject.id]: baseProject } };
-  }
-};
-
-const persist = (state: FilesState) => {
-  const payload: PersistedState = {
-    currentProjectId: state.currentProjectId,
-    projects: state.projects,
-  };
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-};
-
 export const useFilesStore = create<FilesState>((set, get) => {
-  const initial = hydrate();
-  const installedPackages = hydratePackages();
-  const current = initial.projects[initial.currentProjectId];
+  const initialProjects = { [baseProject.id]: baseProject };
 
   const cloneWithIds = (nodes: FileNode[]): FileNode[] => nodes.map((node) => ({
     ...node,
@@ -183,57 +135,60 @@ export const useFilesStore = create<FilesState>((set, get) => {
   }));
 
   return {
-    projects: initial.projects,
-    currentProjectId: initial.currentProjectId,
-    tree: current.tree,
-    activeFileId: current.activeFileId,
-    openTabs: current.openTabs,
-    expanded: current.expanded,
-    installedPackages,
-    setActiveFile: (nodeId) => set((s) => {
-      const next = {
-        ...s,
-        activeFileId: nodeId,
-        openTabs: s.openTabs.includes(nodeId) ? s.openTabs : [...s.openTabs, nodeId],
-      };
-      next.projects = { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], activeFileId: next.activeFileId, openTabs: next.openTabs } };
-      persist(next);
-      return next;
-    }),
+    projects: initialProjects,
+    currentProjectId: baseProject.id,
+    tree: baseProject.tree,
+    activeFileId: baseProject.activeFileId,
+    openTabs: baseProject.openTabs,
+    expanded: baseProject.expanded,
+    installedPackages: {},
+    setActiveFile: (nodeId) => set((s) => ({
+      ...s,
+      activeFileId: nodeId,
+      openTabs: s.openTabs.includes(nodeId) ? s.openTabs : [...s.openTabs, nodeId],
+      projects: {
+        ...s.projects,
+        [s.currentProjectId]: {
+          ...s.projects[s.currentProjectId],
+          activeFileId: nodeId,
+          openTabs: s.openTabs.includes(nodeId) ? s.openTabs : [...s.openTabs, nodeId],
+        },
+      },
+    })),
     toggleFolder: (folderId) => set((s) => {
       const expanded = s.expanded.includes(folderId) ? s.expanded.filter((x) => x !== folderId) : [...s.expanded, folderId];
-      const next = { ...s, expanded };
-      next.projects = { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], expanded } };
-      persist(next);
-      return next;
+      return {
+        ...s,
+        expanded,
+        projects: { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], expanded } },
+      };
     }),
     createFile: (parentId, name) => set((s) => {
       const nextNode = { id: id(), type: "file" as const, name, language: lang(name), content: "" };
       const tree = insert(s.tree, parentId, nextNode);
       const openTabs = [...s.openTabs, nextNode.id];
-      const next = { ...s, tree, activeFileId: nextNode.id, openTabs };
-      next.projects = {
-        ...s.projects,
-        [s.currentProjectId]: { ...s.projects[s.currentProjectId], tree, activeFileId: nextNode.id, openTabs },
+      return {
+        ...s,
+        tree,
+        activeFileId: nextNode.id,
+        openTabs,
+        projects: { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], tree, activeFileId: nextNode.id, openTabs } },
       };
-      persist(next);
-      return next;
     }),
     createFolder: (parentId, name) => set((s) => {
       const nextNode = { id: id(), type: "folder" as const, name, children: [] };
       const tree = insert(s.tree, parentId, nextNode);
       const expanded = [...s.expanded, nextNode.id];
-      const next = { ...s, tree, expanded };
-      next.projects = { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], tree, expanded } };
-      persist(next);
-      return next;
+      return {
+        ...s,
+        tree,
+        expanded,
+        projects: { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], tree, expanded } },
+      };
     }),
     renameNode: (nodeId, name) => set((s) => {
       const tree = updateTree(s.tree, nodeId, (n) => ({ ...n, name, language: n.type === "file" ? lang(name) : n.language }));
-      const next = { ...s, tree };
-      next.projects = { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], tree } };
-      persist(next);
-      return next;
+      return { ...s, tree, projects: { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], tree } } };
     }),
     deleteNode: (nodeId) => {
       const state = get();
@@ -244,89 +199,46 @@ export const useFilesStore = create<FilesState>((set, get) => {
       const files = walkFiles(tree);
       const activeFileId = removed.includes(state.activeFileId ?? "") ? files[0]?.id ?? null : state.activeFileId;
       const openTabs = state.openTabs.filter((t) => !removed.includes(t));
-      set((s) => {
-        const next = { ...s, tree, activeFileId, openTabs };
-        next.projects = { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], tree, activeFileId, openTabs } };
-        persist(next);
-        return next;
-      });
+      set((s) => ({
+        ...s,
+        tree,
+        activeFileId,
+        openTabs,
+        projects: { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], tree, activeFileId, openTabs } },
+      }));
     },
     updateContent: (nodeId, content) => set((s) => {
       const tree = updateTree(s.tree, nodeId, (n) => (n.type === "file" ? { ...n, content } : n));
-      const next = { ...s, tree };
-      next.projects = { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], tree } };
-      persist(next);
-      return next;
+      return { ...s, tree, projects: { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], tree } } };
     }),
     closeTab: (tabId) => set((s) => {
       const openTabs = s.openTabs.filter((t) => t !== tabId);
       const activeFileId = s.activeFileId === tabId ? openTabs[0] ?? null : s.activeFileId;
-      const next = { ...s, openTabs, activeFileId };
-      next.projects = { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], openTabs, activeFileId } };
-      persist(next);
-      return next;
+      return { ...s, openTabs, activeFileId, projects: { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], openTabs, activeFileId } } };
     }),
     reorderTabs: (from, to) => set((s) => {
       if (from === to || from < 0 || to < 0 || from >= s.openTabs.length || to >= s.openTabs.length) return s;
       const openTabs = [...s.openTabs];
       const [tab] = openTabs.splice(from, 1);
       openTabs.splice(to, 0, tab);
-      const next = { ...s, openTabs };
-      next.projects = { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], openTabs } };
-      persist(next);
-      return next;
+      return { ...s, openTabs, projects: { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], openTabs } } };
     }),
-    saveAllFiles: () => persist(get()),
-    loadProjectFromLocalStorage: () => {
-      const stored = hydrate();
-      const active = stored.projects[stored.currentProjectId];
-      set({
-        projects: stored.projects,
-        currentProjectId: stored.currentProjectId,
-        tree: active.tree,
-        activeFileId: active.activeFileId,
-        openTabs: active.openTabs,
-        expanded: active.expanded,
-      });
-    },
+    saveAllFiles: () => {},
+    loadProjectFromLocalStorage: () => {},
     createProject: (name) => set((s) => {
       const project = createProjectState(name);
       const projects = { ...s.projects, [project.id]: project };
-      const next = {
-        ...s,
-        projects,
-        currentProjectId: project.id,
-        tree: project.tree,
-        activeFileId: project.activeFileId,
-        openTabs: project.openTabs,
-        expanded: project.expanded,
-      };
-      persist(next);
-      return next;
+      return { ...s, projects, currentProjectId: project.id, tree: project.tree, activeFileId: project.activeFileId, openTabs: project.openTabs, expanded: project.expanded };
     }),
     setCurrentProject: (projectId) => set((s) => {
       const project = s.projects[projectId];
       if (!project) return s;
-      const next = {
-        ...s,
-        currentProjectId: projectId,
-        tree: project.tree,
-        activeFileId: project.activeFileId,
-        openTabs: project.openTabs,
-        expanded: project.expanded,
-      };
-      persist(next);
-      return next;
+      return { ...s, currentProjectId: projectId, tree: project.tree, activeFileId: project.activeFileId, openTabs: project.openTabs, expanded: project.expanded };
     }),
     addInstalledPackage: (projectId, packageName) => set((s) => {
       const list = s.installedPackages[projectId] ?? [];
       if (list.includes(packageName)) return s;
-      const next = {
-        ...s,
-        installedPackages: { ...s.installedPackages, [projectId]: [...list, packageName] },
-      };
-      persistPackages(next.installedPackages);
-      return next;
+      return { ...s, installedPackages: { ...s.installedPackages, [projectId]: [...list, packageName] } };
     }),
     importProject: (project) => set((s) => {
       const created = createProjectState(project.name || "imported-project");
@@ -335,17 +247,7 @@ export const useFilesStore = create<FilesState>((set, get) => {
       created.activeFileId = files[0]?.id ?? null;
       created.openTabs = created.activeFileId ? [created.activeFileId] : [];
       const projects = { ...s.projects, [created.id]: created };
-      const next = {
-        ...s,
-        projects,
-        currentProjectId: created.id,
-        tree: created.tree,
-        activeFileId: created.activeFileId,
-        openTabs: created.openTabs,
-        expanded: created.expanded,
-      };
-      persist(next);
-      return next;
+      return { ...s, projects, currentProjectId: created.id, tree: created.tree, activeFileId: created.activeFileId, openTabs: created.openTabs, expanded: created.expanded };
     }),
   };
 });

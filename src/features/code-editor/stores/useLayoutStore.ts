@@ -11,6 +11,13 @@ type LayoutState = {
   setTerminalHeight: (h: number) => void;
 };
 
+const SIDEBAR_MIN = 200;
+const SIDEBAR_MAX = 520;
+const TERMINAL_MIN = 120;
+const TERMINAL_MAX = 420;
+
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+
 export const useLayoutStore = create<LayoutState>((set) => ({
   terminalOpen: true,
   explorerOpen: true,
@@ -18,6 +25,6 @@ export const useLayoutStore = create<LayoutState>((set) => ({
   terminalHeight: 190,
   toggleTerminal: () => set((s) => ({ terminalOpen: !s.terminalOpen })),
   toggleExplorer: () => set((s) => ({ explorerOpen: !s.explorerOpen })),
-  setLeftWidth: (leftWidth) => set({ leftWidth }),
-  setTerminalHeight: (terminalHeight) => set({ terminalHeight }),
+  setLeftWidth: (leftWidth) => set({ leftWidth: clamp(leftWidth, SIDEBAR_MIN, SIDEBAR_MAX) }),
+  setTerminalHeight: (terminalHeight) => set({ terminalHeight: clamp(terminalHeight, TERMINAL_MIN, TERMINAL_MAX) }),
 }));
