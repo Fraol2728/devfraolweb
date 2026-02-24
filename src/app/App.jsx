@@ -32,6 +32,7 @@ const Signup = lazy(() => import("@/pages/Signup").then((m) => ({ default: m.Sig
 const AuthRedirectPlaceholder = lazy(() => import("@/pages/AuthRedirectPlaceholder"));
 const SimplePlaceholderPage = lazy(() => import("@/pages/SimplePlaceholderPage").then((m) => ({ default: m.SimplePlaceholderPage })));
 const NotFound = lazy(() => import("@/pages/NotFound").then((m) => ({ default: m.NotFound })));
+const QRGenerator = lazy(() => import("@/pages/apps/QRGenerator").then((m) => ({ default: m.QRGenerator })));
 
 function App() {
   const [welcomeComplete, setWelcomeComplete] = useState(false);
@@ -70,6 +71,7 @@ function App() {
                   <Route path="/blog" element={<Navigate to="/blogs" replace />} />
                   <Route path="/blog/:slug" element={<BlogDetail />} />
                   <Route path="/apps" element={<Apps />} />
+                  <Route path="/apps/qr-generator" element={<QRGenerator />} />
                   <Route path="/apps/:id" element={<AppDetail />} />
                   <Route path="/code-editor" element={<CodeEditor />} />
                   <Route path="/login" element={<Login />} />
