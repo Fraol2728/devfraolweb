@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Analytics } from "@vercel/analytics/react";
@@ -10,8 +10,8 @@ import { FixedAuthActions } from "@/features/auth/FixedAuthActions";
 import { CodeFlowBackground } from "@/components/common/CodeFlowBackground";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { LoadingSpinner } from "@/shared/ui/LoadingSpinner";
+import logoDark from "@/assets/Logo dark.png";
 
-const WelcomePage = lazy(() => import("@/pages/WelcomePage").then((m) => ({ default: m.WelcomePage })));
 const Home = lazy(() => import("@/pages/Home").then((m) => ({ default: m.Home })));
 const Courses = lazy(() => import("@/pages/Courses").then((m) => ({ default: m.Courses })));
 const CourseDetail = lazy(() => import("@/pages/CourseDetail").then((m) => ({ default: m.CourseDetail })));
@@ -34,14 +34,6 @@ const SimplePlaceholderPage = lazy(() => import("@/pages/SimplePlaceholderPage")
 const NotFound = lazy(() => import("@/pages/NotFound").then((m) => ({ default: m.NotFound })));
 
 function App() {
-  const [welcomeComplete, setWelcomeComplete] = useState(false);
-
-  useEffect(() => {
-    if (welcomeComplete) return undefined;
-    const fallbackTimer = window.setTimeout(() => setWelcomeComplete(true), 9000);
-    return () => window.clearTimeout(fallbackTimer);
-  }, [welcomeComplete]);
-
   return (
     <AppProviders>
       <UserProvider>
@@ -50,6 +42,11 @@ function App() {
           <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, ease: "easeOut" }}>
             <ScrollToTop />
             <FixedAuthActions />
+            <img
+              src={logoDark}
+              alt="Devfraol logo"
+              className="pointer-events-none fixed right-4 top-4 z-50 h-8 w-auto select-none sm:h-10"
+            />
             <Suspense fallback={<div className="flex min-h-[30vh] items-center justify-center"><LoadingSpinner label="Loading page..." /></div>}>
               <Routes>
                 <Route element={<MainLayout />}>
@@ -93,12 +90,6 @@ function App() {
             </Suspense>
             <Analytics />
           </motion.div>
-
-          {!welcomeComplete ? (
-            <Suspense fallback={null}>
-              <WelcomePage onWelcomeComplete={() => setWelcomeComplete(true)} />
-            </Suspense>
-          ) : null}
         </ErrorBoundary>
       </UserProvider>
     </AppProviders>
