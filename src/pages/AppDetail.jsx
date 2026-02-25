@@ -28,8 +28,25 @@ export const AppDetail = () => {
   const AppToolComponent = appComponentMap[id];
 
   useSeoMeta({
-    title: app ? `${app.name} | Dev Fraol Academy` : "App not found | Dev Fraol Academy",
-    description: app?.description || "The requested app does not exist. Browse other Dev Fraol Academy apps.",
+    title: app ? `${app.name} | Devfraol Apps` : "App not found | Devfraol Apps",
+    description: app?.description || "The requested app does not exist. Browse other Devfraol Apps and tools.",
+    keywords: app ? ["Devfraol Apps", app.name, "online tools", "developer resources"] : ["Devfraol Apps"],
+    structuredData: app
+      ? {
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: app.name,
+          applicationCategory: app.category || "DeveloperApplication",
+          operatingSystem: "Web",
+          description: app.description,
+          url: `https://devfraol.com/apps/${app.id}`,
+          publisher: {
+            "@type": "Organization",
+            name: "Dev Fraol Academy",
+            url: "https://devfraol.com",
+          },
+        }
+      : undefined,
   });
 
   if (loading.list) {

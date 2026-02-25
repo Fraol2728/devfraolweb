@@ -14,9 +14,38 @@ const SectionSkeleton = () => <div className="mx-auto h-40 w-full max-w-6xl anim
 
 export const Home = () => {
   useSeoMeta({
-    title: "Dev Fraol Academy | Web Development & Design Courses",
+    title: "Dev Fraol Academy | Web Development, Design Courses & Devfraol Apps",
     description:
-      "Master web development and graphic design with project-first courses, mentor support, and portfolio-ready outcomes at Dev Fraol Academy.",
+      "Dev Fraol Academy helps you master web development, graphic design, and digital skills through project-first courses and Devfraol Apps.",
+    keywords: [
+      "Dev Fraol Academy",
+      "Devfraol Apps",
+      "web development courses",
+      "graphic design courses",
+      "learn coding online",
+      "digital marketing tools",
+    ],
+    structuredData: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          name: "Dev Fraol Academy",
+          url: "https://devfraol.com",
+          logo: "https://devfraol.com/logo.png",
+        },
+        {
+          "@type": "WebSite",
+          name: "Dev Fraol Academy",
+          url: "https://devfraol.com",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: "https://devfraol.com/apps",
+            "query-input": "required name=search_term_string",
+          },
+        },
+      ],
+    },
   });
 
   return (
