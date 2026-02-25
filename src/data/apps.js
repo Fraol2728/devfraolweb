@@ -84,6 +84,24 @@ export const appDetailPages = [
     ],
   },
   {
+    id: "cinematography-tools",
+    route: "/apps/cinematography-tools",
+    name: "Cinematography Tools",
+    description: "Explore curated filmmaking resources for inspiration, writing, storyboarding, and camera craft.",
+    category: "Filmmaking",
+    icon: Clapperboard,
+    features: [
+      "Discover visual references through ShotDeck, Film Grab, and No Film School.",
+      "Access scriptwriting tools like Celtx and WriterDuet for screenplay workflows.",
+      "Use storyboard platforms such as Storyboard That and Boords for pre-visualization.",
+      "Find cinematography guidance with IndieWire Filmmaking and Cinematography.com.",
+    ],
+    resources: [
+      { name: "Video Downloaders", link: "/apps/video-downloaders" },
+      { name: "Web Recommended", link: "/apps/web-recommended" },
+    ],
+  },
+  {
     id: "programing-tools",
     route: "/apps/programing-tools",
     name: "Programing Tools",
