@@ -1,4 +1,5 @@
 import {
+  Clapperboard,
   Palette,
   Download,
   FileCog,
