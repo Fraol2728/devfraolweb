@@ -1,0 +1,147 @@
+import { motion } from "framer-motion";
+import { ArrowUpRight, BookOpen, Braces, FileText, Users } from "lucide-react";
+
+const programmingCategories = [
+  {
+    id: "learning",
+    title: "Learning",
+    icon: BookOpen,
+    apps: [
+      {
+        id: "freecodecamp",
+        name: "FreeCodeCamp",
+        description: "Full curriculum with certifications.",
+        link: "https://www.freecodecamp.org/",
+      },
+      {
+        id: "odin-project",
+        name: "The Odin Project",
+        description: "Free full-stack development path.",
+        link: "https://www.theodinproject.com/",
+      },
+      {
+        id: "cs50",
+        name: "CS50 Harvard",
+        description: "Computer science fundamentals.",
+        link: "https://cs50.harvard.edu/",
+      },
+    ],
+  },
+  {
+    id: "practice",
+    title: "Practice",
+    icon: Braces,
+    apps: [
+      {
+        id: "leetcode",
+        name: "LeetCode",
+        description: "Coding interview prep.",
+        link: "https://leetcode.com/",
+      },
+      {
+        id: "hackerrank",
+        name: "HackerRank",
+        description: "Practice problems and competitions.",
+        link: "https://www.hackerrank.com/",
+      },
+      {
+        id: "codewars",
+        name: "Codewars",
+        description: "Gamified coding challenges.",
+        link: "https://www.codewars.com/",
+      },
+    ],
+  },
+  {
+    id: "documentation",
+    title: "Documentation",
+    icon: FileText,
+    apps: [
+      {
+        id: "mdn",
+        name: "MDN Web Docs",
+        description: "Official web standards documentation.",
+        link: "https://developer.mozilla.org/",
+      },
+      {
+        id: "w3schools",
+        name: "W3Schools",
+        description: "Beginner-friendly tutorials.",
+        link: "https://www.w3schools.com/",
+      },
+    ],
+  },
+  {
+    id: "collaboration-assets",
+    title: "Collaboration & Assets",
+    icon: Users,
+    apps: [
+      {
+        id: "github",
+        name: "GitHub",
+        description: "Free code hosting and version control.",
+        link: "https://github.com/",
+      },
+      {
+        id: "replit",
+        name: "Replit",
+        description: "Browser-based coding environment.",
+        link: "https://replit.com/",
+      },
+      {
+        id: "glitch",
+        name: "Glitch",
+        description: "Collaborative coding and prototyping.",
+        link: "https://glitch.com/",
+      },
+    ],
+  },
+];
+
+export const ProgramingTools = () => {
+  return (
+    <article className="rounded-2xl border border-border/70 bg-card/45 p-5 backdrop-blur-xl">
+      <h3 className="text-xl font-bold text-foreground">Programing Tools</h3>
+      <p className="mt-2 text-sm text-foreground/70">Explore categories below. Each app opens the official website in a new tab.</p>
+
+      <div className="mt-5 space-y-5">
+        {programmingCategories.map((category, categoryIndex) => {
+          const CategoryIcon = category.icon;
+
+          return (
+            <section key={category.id} className="rounded-xl border border-border/70 bg-background/30 p-4">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex rounded-lg bg-[#FF3B30]/15 p-2 text-[#FF3B30]">
+                  <CategoryIcon className="h-4 w-4" />
+                </span>
+                <h4 className="text-sm font-semibold text-foreground">{category.title}</h4>
+              </div>
+
+              <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {category.apps.map((app, appIndex) => (
+                  <motion.a
+                    key={app.id}
+                    href={app.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: categoryIndex * 0.05 + appIndex * 0.04 }}
+                    className="group rounded-xl border border-border/70 bg-background/35 p-4 transition hover:border-[#FF3B30]/70"
+                  >
+                    <h5 className="text-sm font-semibold text-foreground">{app.name}</h5>
+                    <p className="mt-1 text-xs text-foreground/70">{app.description}</p>
+                    <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[#FF3B30]">
+                      Open website
+                      <ArrowUpRight className="h-3.5 w-3.5" />
+                    </span>
+                  </motion.a>
+                ))}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+    </article>
+  );
+};

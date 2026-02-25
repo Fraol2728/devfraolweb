@@ -4,8 +4,10 @@ import {
   Download,
   FileCog,
   Globe,
+  Braces,
   Layers3,
   Megaphone,
+  Clapperboard,
   Sparkles,
 } from "lucide-react";
 
@@ -83,21 +85,7 @@ export const appDetailPages = [
     ],
   },
   {
-    id: "cinematography-tools",
-    route: "/apps/cinematography-tools",
-    name: "Cinematography Tools",
-    description: "Explore curated filmmaking websites for inspiration, screenwriting, storyboarding, and cinematography guidance.",
-    category: "Filmmaking",
-    icon: Clapperboard,
-    features: [
-      "Browse cinematography resources grouped into practical filmmaking categories.",
-      "Open trusted external filmmaking websites in one click.",
-      "Quick access to learning, scriptwriting, storyboarding, and lighting/camera guides.",
-      "Simple launcher layout to speed up pre-production research workflows.",
-    ],
-    resources: [
-      { name: "Digital Marketing Tools", link: "/apps/digital-marketing-tools" },
-      { name: "Graphics Tools", link: "/apps/graphics-tools" },
+
     ],
   },
   {
