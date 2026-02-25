@@ -8,6 +8,7 @@ import { GraphicsTools } from "@/features/apps/GraphicsTools";
 import { DigitalMarketingTools } from "@/features/apps/DigitalMarketingTools";
 import { CinematographyTools } from "@/features/apps/CinematographyTools";
 import { ProgramingTools } from "@/features/apps/ProgramingTools";
+import { AiTools } from "@/features/apps/AiTools";
 
 const appComponentMap = {
   "video-downloaders": VideoDownloader,
@@ -16,6 +17,7 @@ const appComponentMap = {
   "digital-marketing-tools": DigitalMarketingTools,
   "cinematography-tools": CinematographyTools,
   "programing-tools": ProgramingTools,
+  "ai-tools": AiTools,
 };
 
 export const AppDetail = () => {
