@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "@/hooks/useToastStore";
 import { FileExplorer } from "@/features/code-editor/components/FileExplorer";
 import { Terminal } from "@/features/code-editor/components/Terminal";
@@ -12,11 +12,12 @@ import { LayoutDivider } from "@/features/code-editor/components/LayoutDivider";
 import { useFilesStore, selectFiles } from "@/features/code-editor/stores/useFilesStore";
 import { useEditorStore } from "@/features/code-editor/stores/useEditorStore";
 import { useIDELayoutStore } from "@/features/code-editor/stores/useIDELayoutStore";
+import { usePythonRuntimeStore } from "@/features/code-editor/stores/usePythonRuntimeStore";
+import { useTerminalStore } from "@/features/code-editor/stores/useTerminalStore";
 import { exportProjectAsJson, exportProjectAsZip, importProjectFromFile } from "@/features/code-editor/ProjectManager";
 import "@/features/code-editor/codeEditor.css";
 
 const MonacoEditor = lazy(() => import("@/features/code-editor/components/MonacoFromCDN"));
-const PYODIDE_SCRIPT_ID = "pyodide-cdn-script";
 
 export const PythonCodeEditor = () => {
   const tree = useFilesStore((s) => s.tree);
@@ -34,13 +35,21 @@ export const PythonCodeEditor = () => {
   const setCurrentProject = useFilesStore((s) => s.setCurrentProject);
   const saveAllFiles = useFilesStore((s) => s.saveAllFiles);
 
-  const logs = useEditorStore((s) => s.logs);
-  const appendOutput = useEditorStore((s) => s.appendOutput);
-  const clearLogs = useEditorStore((s) => s.clearLogs);
   const addCommandHistory = useEditorStore((s) => s.addCommandHistory);
   const navigateCommandHistory = useEditorStore((s) => s.navigateCommandHistory);
   const autoScrollTerminal = useEditorStore((s) => s.autoScrollTerminal);
   const toggleAutoScrollTerminal = useEditorStore((s) => s.toggleAutoScrollTerminal);
+
+  const logs = useTerminalStore((s) => s.logs);
+  const clearLogs = useTerminalStore((s) => s.clear);
+  const addLog = useTerminalStore((s) => s.addLog);
+
+  const pyodide = usePythonRuntimeStore((s) => s.pyodide);
+  const runtimeLoading = usePythonRuntimeStore((s) => s.loading);
+  const runtimeRunning = usePythonRuntimeStore((s) => s.running);
+  const isPyodideReady = usePythonRuntimeStore((s) => s.initialized);
+  const initRuntime = usePythonRuntimeStore((s) => s.init);
+  const runCode = usePythonRuntimeStore((s) => s.run);
 
   const isSidePanelOpen = useIDELayoutStore((s) => s.isSidePanelOpen);
   const isBottomPanelOpen = useIDELayoutStore((s) => s.isBottomPanelOpen);
@@ -53,8 +62,6 @@ export const PythonCodeEditor = () => {
   const setSidePanelWidth = useIDELayoutStore((s) => s.setSidePanelWidth);
   const setBottomPanelHeight = useIDELayoutStore((s) => s.setBottomPanelHeight);
 
-  const [isPyodideReady, setIsPyodideReady] = useState(Boolean(window.__pyodide));
-  const [runtimeLoading, setRuntimeLoading] = useState(false);
   const editorRef = useRef(null);
   const saveDebounceRef = useRef();
   const resizeFrameRef = useRef(0);
@@ -63,6 +70,12 @@ export const PythonCodeEditor = () => {
   const files = useMemo(() => selectFiles(tree), [tree]);
   const activeFile = files.find((item) => item.id === activeFileId) ?? null;
   const tabs = openTabs.map((tabId) => files.find((item) => item.id === tabId)).filter(Boolean);
+
+  const ensureBottomPanelOpen = useCallback(() => {
+    if (!useIDELayoutStore.getState().isBottomPanelOpen) {
+      toggleBottomPanel();
+    }
+  }, [toggleBottomPanel]);
 
   const onResizeMove = useCallback((event) => {
     if (!resizeStateRef.current) return;
@@ -125,77 +138,19 @@ export const PythonCodeEditor = () => {
     }
   };
 
-  const initializePyodide = async () => {
-    if (window.__pyodide) {
-      setIsPyodideReady(true);
-      return window.__pyodide;
-    }
-    setRuntimeLoading(true);
-    try {
-      if (!window.loadPyodide) {
-        await new Promise((resolve, reject) => {
-          const existing = document.getElementById(PYODIDE_SCRIPT_ID);
-          if (existing) {
-            existing.addEventListener("load", resolve, { once: true });
-            existing.addEventListener("error", reject, { once: true });
-            return;
-          }
-          const script = document.createElement("script");
-          script.id = PYODIDE_SCRIPT_ID;
-          script.src = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js";
-          script.onload = resolve;
-          script.onerror = reject;
-          document.body.appendChild(script);
-        });
-      }
-      window.__pyodide = await window.loadPyodide();
-      setIsPyodideReady(true);
-      appendOutput("Pyodide runtime initialized.");
-      return window.__pyodide;
-    } catch {
-      appendOutput("Failed to load Pyodide runtime.", "error");
-      return null;
-    } finally {
-      setRuntimeLoading(false);
-    }
-  };
-
   const runPythonCode = async () => {
     if (!activeFile) return;
     addCommandHistory(activeFile.name);
-    const pyodide = await initializePyodide();
-    if (!pyodide) return;
-    setRuntimeLoading(true);
-    appendOutput(`Running ${activeFile.name} ...`);
-    try {
-      const pyFiles = files.filter((file) => file.name.endsWith(".py"));
-      pyodide.FS.mkdirTree("/project");
-      for (const file of pyFiles) {
-        pyodide.FS.writeFile(`/project/${file.name}`, file.content ?? "", { encoding: "utf8" });
-      }
-      pyodide.runPython("import sys; sys.path.append('/project')");
-      pyodide.setStdout({ batched: (text) => appendOutput(text, "log") });
-      pyodide.setStderr({ batched: (text) => appendOutput(text, "error") });
-      await pyodide.runPythonAsync(activeFile.content ?? "");
-      appendOutput("Execution completed.");
-    } catch (error) {
-      appendOutput(String(error), "error");
-    } finally {
-      setRuntimeLoading(false);
-    }
+    ensureBottomPanelOpen();
+    addLog("info", `Running ${activeFile.name} ...`);
+    await runCode(activeFile.content ?? "");
   };
 
   const runSnippet = async (command) => {
     if (!command?.trim()) return;
     addCommandHistory(command);
-    const pyodide = await initializePyodide();
-    try {
-      pyodide.setStdout({ batched: (text) => appendOutput(text, "log") });
-      pyodide.setStderr({ batched: (text) => appendOutput(text, "error") });
-      await pyodide.runPythonAsync(command);
-    } catch (error) {
-      appendOutput(String(error), "error");
-    }
+    ensureBottomPanelOpen();
+    await runCode(command);
   };
 
   const saveFile = () => {
@@ -206,7 +161,7 @@ export const PythonCodeEditor = () => {
   const handleMenuAction = (action) => {
     if (action === "file-new") {
       createFile(null, `script-${Date.now()}.py`);
-      appendOutput("Created a new Python file.");
+      addLog("info", "Created a new Python file.");
       return;
     }
     if (action === "file-save" || action === "file-save-as" || action === "file-save-all") {
@@ -223,7 +178,9 @@ export const PythonCodeEditor = () => {
       return;
     }
     if (action === "file-export-zip") {
-      initializePyodide().then((pyodide) => exportProjectAsZip(projects[currentProjectId], pyodide));
+      initRuntime()
+        .then(() => exportProjectAsZip(projects[currentProjectId], usePythonRuntimeStore.getState().pyodide))
+        .catch(() => addLog("error", "Unable to initialize runtime for ZIP export."));
       return;
     }
     if (action === "file-import-project") {
@@ -233,8 +190,15 @@ export const PythonCodeEditor = () => {
       input.onchange = async () => {
         const file = input.files?.[0];
         if (!file) return;
-        const project = await importProjectFromFile(file, window.__pyodide);
-        importProject(project);
+        try {
+          if (file.name.endsWith(".zip")) {
+            await initRuntime();
+          }
+          const project = await importProjectFromFile(file, usePythonRuntimeStore.getState().pyodide);
+          importProject(project);
+        } catch (error) {
+          addLog("error", `Project import failed: ${String(error)}`);
+        }
       };
       input.click();
       return;
@@ -284,7 +248,7 @@ export const PythonCodeEditor = () => {
   }, [activeFile]);
 
   const copyOutput = async () => {
-    await navigator.clipboard.writeText(logs.map((line) => line.text).join("\n"));
+    await navigator.clipboard.writeText(logs.map((line) => line.message).join("\n"));
     toast({ title: "Copied", description: "Terminal output copied." });
   };
 
@@ -340,7 +304,7 @@ export const PythonCodeEditor = () => {
             ) : null}
           </div>
         </div>
-        <StatusBar activeFile={activeFile} runtimeLoading={runtimeLoading} isPyodideReady={isPyodideReady} />
+        <StatusBar activeFile={activeFile} runtimeLoading={runtimeLoading || runtimeRunning} isPyodideReady={isPyodideReady || Boolean(pyodide)} />
       </div>
     </section>
   );
