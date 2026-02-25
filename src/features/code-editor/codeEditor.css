@@ -28,6 +28,60 @@
   flex-direction: column;
 }
 
+
+.py-menu-bar {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  background: #3c3c3c;
+  border-bottom: 1px solid #1b1b1c;
+}
+.py-menu-item { position: relative; }
+.py-menu-item > button {
+  border: 0;
+  background: transparent;
+  color: #ddd;
+  font-size: 12px;
+  padding: 3px 6px;
+}
+.py-menu-dropdown {
+  position: absolute;
+  top: 27px;
+  left: 0;
+  min-width: 160px;
+  background: #252526;
+  border: 1px solid #151515;
+  z-index: 40;
+}
+.py-menu-dropdown button {
+  width: 100%;
+  border: 0;
+  color: #ddd;
+  background: transparent;
+  text-align: left;
+  padding: 8px 10px;
+}
+.py-menu-dropdown button:hover { background: #2f2f2f; }
+
+.vsc-context-menu {
+  position: fixed;
+  z-index: 80;
+  min-width: 150px;
+  background: #252526;
+  border: 1px solid #111;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+}
+.vsc-context-menu-item {
+  width: 100%;
+  border: 0;
+  color: #ddd;
+  background: transparent;
+  text-align: left;
+  padding: 8px 10px;
+}
+.vsc-context-menu-item:hover { background: #37373d; }
 .vsc-main-row {
   min-height: 0;
   flex: 1;
@@ -243,7 +297,7 @@
   height: 100%;
   width: 100%;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto auto;
+  grid-template-rows: 34px minmax(0, 1fr);
 }
 .py-terminal-logs {
   overflow: auto;

@@ -2,25 +2,15 @@ import { useState } from "react";
 
 const MENU_MAP = {
   File: [
-    { id: "file-new", label: "New", shortcut: "Ctrl+N" },
-    { id: "file-save", label: "Save", shortcut: "Ctrl+S" },
-    { id: "file-save-as", label: "Save As", shortcut: "Ctrl+Shift+S" },
-    { id: "file-save-all", label: "Save All" },
-    { id: "file-new-project", label: "New Project" },
-    { id: "file-import-project", label: "Import Project" },
-    { id: "file-export-json", label: "Export JSON" },
-    { id: "file-export-zip", label: "Export ZIP" },
-  ],
-  Edit: [
-    { id: "edit-undo", label: "Undo", shortcut: "Ctrl+Z" },
-    { id: "edit-redo", label: "Redo", shortcut: "Ctrl+Y" },
-    { id: "edit-find", label: "Find", shortcut: "Ctrl+F" },
+    { id: "file-new", label: "New File" },
+    { id: "file-new-folder", label: "New Folder" },
+    { id: "file-close-tab", label: "Close Tab" },
   ],
   View: [
+    { id: "view-toggle-sidebar", label: "Toggle Sidebar" },
     { id: "view-toggle-terminal", label: "Toggle Terminal" },
-    { id: "view-toggle-explorer", label: "Toggle Explorer" },
   ],
-  Run: [{ id: "run-python", label: "Run Python Code", shortcut: "Ctrl+Enter" }],
+  Run: [{ id: "run-code", label: "Run Code" }],
 };
 
 export const MenuBar = ({ onAction }) => {
@@ -45,7 +35,6 @@ export const MenuBar = ({ onAction }) => {
                   }}
                 >
                   <span>{item.label}</span>
-                  {item.shortcut ? <small>{item.shortcut}</small> : null}
                 </button>
               ))}
             </div>
