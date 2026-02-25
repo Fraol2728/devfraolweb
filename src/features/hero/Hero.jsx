@@ -57,8 +57,8 @@ export const HeroSection = () => {
             A modern learning platform built to help creators and developers move from theory to portfolio-ready execution.
           </p>
           <div className="flex flex-wrap gap-4 mt-8">
-            <Link to="/apps" className="cosmic-button inline-flex items-center gap-2">
-              Explore Apps <ArrowRight className="h-4 w-4" />
+            <Link to="/courses" className="cosmic-button inline-flex items-center gap-2">
+              Start learning <ArrowRight className="h-4 w-4" />
             </Link>
             <Link to="/instructors" className="px-6 py-2 rounded-full border border-border hover:bg-card transition-colors">
               Meet the Instructor
