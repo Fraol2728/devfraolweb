@@ -3,6 +3,7 @@ import {
   Download,
   FileCog,
   Globe,
+  Braces,
   Layers3,
   Megaphone,
   Clapperboard,
@@ -83,21 +84,7 @@ export const appDetailPages = [
     ],
   },
   {
-    id: "video-editing-tools",
-    route: "/apps/video-editing-tools",
-    name: "Video Editing Tools",
-    description: "Find curated resources for templates, sound effects, and stock footage for editing workflows.",
-    category: "Video",
-    icon: Clapperboard,
-    features: [
-      "Browse video editing resources grouped into practical categories.",
-      "Open trusted external websites in one click.",
-      "Quick access to templates, effects, music, and footage.",
-      "Simple launcher layout for faster production workflows.",
-    ],
-    resources: [
-      { name: "Graphics Tools", link: "/apps/graphics-tools" },
-      { name: "Digital Marketing Tools", link: "/apps/digital-marketing-tools" },
+
     ],
   },
   {

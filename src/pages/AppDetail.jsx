@@ -6,14 +6,7 @@ import { VideoDownloader } from "@/features/apps/VideoDownloader";
 import { AdvancedTools } from "@/features/apps/AdvancedTools";
 import { GraphicsTools } from "@/features/apps/GraphicsTools";
 import { DigitalMarketingTools } from "@/features/apps/DigitalMarketingTools";
-import { VideoEditingTools } from "@/features/apps/VideoEditingTools";
 
-const appComponentMap = {
-  "video-downloaders": VideoDownloader,
-  "advanced-tools": AdvancedTools,
-  "graphics-tools": GraphicsTools,
-  "digital-marketing-tools": DigitalMarketingTools,
-  "video-editing-tools": VideoEditingTools,
 };
 
 export const AppDetail = () => {
