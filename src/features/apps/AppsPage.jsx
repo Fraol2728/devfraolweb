@@ -42,7 +42,7 @@ export const AppsPage = () => {
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/45" />
             <input id="app-search" value={appQuery} onChange={(e) => setAppQuery(e.target.value)} placeholder="Search apps" className="w-full rounded-xl border border-white/10 bg-black/25 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#FF3B30]/65" />
           </label>
-          <div className="flex flex-wrap gap-2">{appCategories.map((category) => <Button key={category} variant={appCategory === category ? "primary" : "outline"} className="rounded-full px-3 py-1.5 text-xs" onClick={() => setAppCategory(category)} aria-label={`Filter apps by ${category}`}>{category}</Button>)}</div>
+          <div className="flex flex-wrap gap-2">{appCategories.map((category) => <Button key={category} variant={appCategory === category ? "primary" : "outline"} className="rounded-full px-4 py-2 text-sm font-semibold" onClick={() => setAppCategory(category)} aria-label={`Filter apps by ${category}`}>{category}</Button>)}</div>
         </div>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -77,7 +77,7 @@ export const AppsPage = () => {
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/45" />
             <input id="website-search" value={webQuery} onChange={(e) => setWebQuery(e.target.value)} placeholder="Search websites" className="w-full rounded-xl border border-white/10 bg-black/25 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#FF3B30]/65" />
           </label>
-          <div className="flex flex-wrap gap-2">{dynamicWebCategories.map((category) => <Button key={category} variant={webCategory === category ? "primary" : "outline"} className="rounded-full px-3 py-1.5 text-xs" onClick={() => setWebCategory(category)} aria-label={`Filter websites by ${category}`}>{category}</Button>)}</div>
+          <div className="flex flex-wrap gap-2">{dynamicWebCategories.map((category) => <Button key={category} variant={webCategory === category ? "primary" : "outline"} className="rounded-full px-4 py-2 text-sm font-semibold" onClick={() => setWebCategory(category)} aria-label={`Filter websites by ${category}`}>{category}</Button>)}</div>
         </div>
         {filteredWebsites.length === 0 ? <EmptyState text="No websites found for the current filters." /> : null}
         <ResourceCategory websites={filteredWebsites} />
