@@ -4,6 +4,7 @@ import {
   FileCog,
   Globe,
   Braces,
+  Bot,
   Layers3,
   Megaphone,
   Clapperboard,
@@ -135,6 +136,24 @@ export const appDetailPages = [
     resources: [
       { name: "Web Recommended", link: "/apps/web-recommended" },
       { name: "File Converter", link: "/apps/file-converter" },
+    ],
+  },
+  {
+    id: "ai-tools",
+    route: "/apps/ai-tools",
+    name: "AI Tools",
+    description: "Explore top AI tools for chat, media generation, writing, coding, research, productivity, and audio.",
+    category: "AI",
+    icon: Bot,
+    features: [
+      "Discover curated AI platforms grouped by practical real-world categories.",
+      "Open official AI websites in one click from a single organized page.",
+      "Quickly compare tools across assistants, image/video, writing, coding, and research.",
+      "Simple launcher interface designed for fast discovery and workflow setup.",
+    ],
+    resources: [
+      { name: "Programing Tools", link: "/apps/programing-tools" },
+      { name: "Web Recommended", link: "/apps/web-recommended" },
     ],
   },
   {
