@@ -71,7 +71,7 @@ export const InstructorPage = ({ instructor }) => {
           <h2 className="text-3xl font-black sm:text-4xl">Ready to build your next breakthrough skill?</h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">Join hands-on programs designed to sharpen your engineering mindset and visual design craft.</p>
           <div className="mt-8 inline-flex">
-            <Link to="/courses" className="inline-flex items-center justify-center rounded-xl bg-[#FF3B30] px-8 py-3 text-base font-semibold text-white">View Courses</Link>
+            <Link to="/apps" className="inline-flex items-center justify-center rounded-xl bg-[#FF3B30] px-8 py-3 text-base font-semibold text-white">View Apps</Link>
           </div>
         </section>
       </div>

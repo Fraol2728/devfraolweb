@@ -5,7 +5,7 @@ import { cardReveal } from "@/lib/animations";
 
 const MotionLink = motion(Link);
 
-export const TrackCard = ({ title, description, icon: Icon, highlights = [], href = "/courses" }) => {
+export const TrackCard = ({ title, description, icon: Icon, highlights = [], href = "/apps" }) => {
   return (
     <MotionLink
       to={href}

@@ -1,6 +1,6 @@
 import { createIdFromTitle, readAdminStore, withStoreMutation } from "../utils/adminStore.js";
 
-const CRUD_KEYS = ["courses", "apps", "resources"];
+const CRUD_KEYS = ["apps", "resources"];
 
 const ensureKey = (key) => {
   if (!CRUD_KEYS.includes(key)) {
@@ -88,7 +88,6 @@ export const getDashboardStats = async (_req, res) => {
   return res.json({
     success: true,
     data: {
-      courses: store.courses?.length ?? 0,
       apps: store.apps?.length ?? 0,
       resources: store.resources?.length ?? 0,
       users: store.users?.length ?? 0,

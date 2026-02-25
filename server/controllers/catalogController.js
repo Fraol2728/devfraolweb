@@ -1,10 +1,5 @@
 import { readAdminStore } from "../utils/adminStore.js";
 
-export const getPublicCourses = async (_req, res) => {
-  const store = await readAdminStore();
-  return res.json({ success: true, data: store.courses ?? [] });
-};
-
 export const getPublicApps = async (_req, res) => {
   const store = await readAdminStore();
   return res.json({ success: true, data: store.apps ?? [] });

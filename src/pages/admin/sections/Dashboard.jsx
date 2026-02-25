@@ -3,19 +3,17 @@ import { motion } from "framer-motion";
 const mockStats = {
   apps: 7,
   users: 124,
-  courses: 12,
   blogs: 6,
 };
 
 const statCards = [
   { label: "Total Apps", value: mockStats.apps },
   { label: "Total Users", value: mockStats.users },
-  { label: "Total Courses", value: mockStats.courses },
   { label: "Total Blogs", value: mockStats.blogs },
 ];
 
 const recentActivity = [
-  { id: 1, action: "New course draft created: React Mastery" },
+  { id: 1, action: "New app draft created: Portfolio Analyzer" },
   { id: 2, action: "User role updated to Instructor" },
   { id: 3, action: "App status changed: Background Remover" },
   { id: 4, action: "Blog post published: Learn Tailwind v4" },

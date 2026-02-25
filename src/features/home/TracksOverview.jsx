@@ -9,14 +9,14 @@ const tracks = [
     description: "Build modern websites and applications from frontend foundations to backend logic.",
     icon: Code2,
     highlights: ["HTML & CSS", "JavaScript", "React JS", "PHP + MySQL", "Python"],
-    href: "/courses",
+    href: "/apps",
   },
   {
     title: "Graphic Design Track",
     description: "Create polished visual assets with industry-standard Adobe tools and workflows.",
     icon: Brush,
     highlights: ["Illustrator", "Photoshop", "InDesign", "Composition"],
-    href: "/courses",
+    href: "/apps",
   },
 ];
 

@@ -12,7 +12,7 @@ export const CTA = () => {
       >
         <h2 className="text-3xl sm:text-4xl text-left">Start Your Journey Today</h2>
         <p className="mt-3 text-left text-muted-foreground">Build real projects, sharpen your creative confidence, and move toward your next professional milestone.</p>
-        <Link to="/courses" className="mt-6 inline-flex cosmic-button">
+        <Link to="/apps" className="mt-6 inline-flex cosmic-button">
           Start Learning
         </Link>
       </motion.div>
