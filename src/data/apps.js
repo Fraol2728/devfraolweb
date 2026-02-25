@@ -5,6 +5,7 @@ import {
   Globe,
   Layers3,
   Megaphone,
+  Clapperboard,
   Sparkles,
 } from "lucide-react";
 
@@ -79,6 +80,24 @@ export const appDetailPages = [
     resources: [
       { name: "Graphics Tools", link: "/apps/graphics-tools" },
       { name: "Web Recommended", link: "/apps/web-recommended" },
+    ],
+  },
+  {
+    id: "video-editing-tools",
+    route: "/apps/video-editing-tools",
+    name: "Video Editing Tools",
+    description: "Find curated resources for templates, sound effects, and stock footage for editing workflows.",
+    category: "Video",
+    icon: Clapperboard,
+    features: [
+      "Browse video editing resources grouped into practical categories.",
+      "Open trusted external websites in one click.",
+      "Quick access to templates, effects, music, and footage.",
+      "Simple launcher layout for faster production workflows.",
+    ],
+    resources: [
+      { name: "Graphics Tools", link: "/apps/graphics-tools" },
+      { name: "Digital Marketing Tools", link: "/apps/digital-marketing-tools" },
     ],
   },
   {
