@@ -119,7 +119,7 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
               </label>
               <div className="flex flex-wrap gap-2">
                 {categories.map((item) => (
-                  <motion.button key={item} type="button" whileTap={{ scale: 0.96 }} onClick={() => setCategory(item)} className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${category === item ? "bg-[#FF3B30] text-white" : "border border-white/10 text-foreground/75 hover:border-[#FF3B30]/50 hover:text-[#FF3B30]"}`}>
+                  <motion.button key={item} type="button" whileTap={{ scale: 0.96 }} onClick={() => setCategory(item)} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${category === item ? "bg-[#FF3B30] text-white shadow-[0_10px_20px_rgba(255,59,48,0.28)]" : "border border-white/10 text-foreground/80 hover:border-[#FF3B30]/50 hover:text-[#FF3B30]"}`}>
                     {item}
                   </motion.button>
                 ))}
