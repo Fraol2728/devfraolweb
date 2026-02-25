@@ -4,7 +4,7 @@ import { useMemo, useRef } from "react";
 import { NavbarDock } from "@/features/home/NavbarDock";
 import { Footer } from "@/features/footer/Footer";
 
-const routeOrder = ["/", "/blogs", "/apps", "/apps/python-code-editor", "/instructors", "/testimonials", "/contact", "/faq", "/login", "/signup"];
+const routeOrder = ["/", "/courses", "/blogs", "/apps", "/apps/python-code-editor", "/instructors", "/testimonials", "/contact", "/faq", "/login", "/signup"];
 
 const routeIndex = (pathname) => {
   const matched = routeOrder.findIndex((route) => pathname === route || pathname.startsWith(`${route}/`));
