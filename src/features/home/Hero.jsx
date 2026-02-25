@@ -109,10 +109,10 @@ export const Hero = () => {
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
               <Link
-                to="/apps"
+                to="/courses"
                 className="inline-flex items-center justify-center rounded-lg bg-[#FF3B30] px-7 py-3 text-base font-semibold text-white transition hover:shadow-[0_0_20px_rgba(255,59,48,0.4)]"
               >
-                Explore Apps
+                Start Learning
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>

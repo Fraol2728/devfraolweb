@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { House, Mail, NotebookPen, Smartphone, UserRound } from "lucide-react";
+import { GraduationCap, House, Mail, NotebookPen, Smartphone, UserRound } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const dockItems = [
   { label: "Home", to: "/", icon: House },
+  { label: "Courses", to: "/courses", icon: GraduationCap },
   { label: "Apps", to: "/apps", icon: Smartphone },
   { label: "Instructor", to: "/instructors", icon: UserRound },
   { label: "Blog", to: "/blogs", icon: NotebookPen },
