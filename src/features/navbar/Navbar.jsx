@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AppWindow, Home, Mail, Moon, Newspaper, Sun, UserRound } from "lucide-react";
+import { AppWindow, BookOpen, Home, Mail, Moon, Newspaper, Sun, UserRound } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTheme } from "next-themes";
@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { name: "Home", href: "/", icon: Home },
+  { name: "Cources", href: "/courses", icon: BookOpen },
   { name: "Instructor", href: "/instructors", icon: UserRound },
   { name: "Blog", href: "/blogs", icon: Newspaper },
   { name: "Apps", href: "/apps", icon: AppWindow },
