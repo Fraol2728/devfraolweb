@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { BookOpen, House, Mail, NotebookPen, Smartphone, UserRound, MessagesSquare } from "lucide-react";
+import { BookOpen, House, Mail, NotebookPen, Smartphone, UserRound } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -8,7 +8,6 @@ const dockItems = [
   { label: "Courses", to: "/courses", icon: BookOpen },
   { label: "Apps", to: "/apps", icon: Smartphone },
   { label: "Instructor", to: "/instructors", icon: UserRound },
-  { label: "Testimonials", to: "/testimonials", icon: MessagesSquare },
   { label: "Blog", to: "/blogs", icon: NotebookPen },
   { label: "Contact", to: "/contact", icon: Mail },
 ];
