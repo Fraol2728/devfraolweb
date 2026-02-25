@@ -3,6 +3,7 @@ import {
   Download,
   FileCog,
   Globe,
+  Braces,
   Layers3,
   Megaphone,
   Sparkles,
@@ -79,6 +80,24 @@ export const appDetailPages = [
     resources: [
       { name: "Graphics Tools", link: "/apps/graphics-tools" },
       { name: "Web Recommended", link: "/apps/web-recommended" },
+    ],
+  },
+  {
+    id: "programing-tools",
+    route: "/apps/programing-tools",
+    name: "Programing Tools",
+    description: "Discover curated platforms for learning, practice, docs, and coding collaboration.",
+    category: "Programming",
+    icon: Braces,
+    features: [
+      "Open top learning websites like FreeCodeCamp, The Odin Project, and CS50.",
+      "Practice coding challenges with LeetCode, HackerRank, and Codewars.",
+      "Quick access to documentation websites like MDN and W3Schools.",
+      "Launch collaboration tools like GitHub, Replit, and Glitch in one place.",
+    ],
+    resources: [
+      { name: "Web Recommended", link: "/apps/web-recommended" },
+      { name: "Python Code Editor", link: "/apps/python-code-editor" },
     ],
   },
   {
