@@ -22,6 +22,8 @@ const Blog = lazy(() => import("@/pages/Blog").then((m) => ({ default: m.Blog })
 const BlogDetail = lazy(() => import("@/pages/BlogDetail").then((m) => ({ default: m.BlogDetail })));
 const Apps = lazy(() => import("@/pages/Apps").then((m) => ({ default: m.Apps })));
 const AppDetail = lazy(() => import("@/pages/AppDetail").then((m) => ({ default: m.AppDetail })));
+const CoursesPage = lazy(() => import("@/pages/CoursesPage").then((m) => ({ default: m.CoursesPage })));
+const CourseDetailPage = lazy(() => import("@/pages/CourseDetailPage").then((m) => ({ default: m.CourseDetailPage })));
 const PythonCodeEditor = lazy(() => import("@/pages/CodeEditor").then((m) => ({ default: m.CodeEditor })));
 const Admin = lazy(() => import("@/pages/Admin").then((m) => ({ default: m.Admin })));
 const Login = lazy(() => import("@/pages/Login").then((m) => ({ default: m.Login })));
@@ -75,6 +77,8 @@ function App() {
                   <Route path="/apps/instagram-downloader" element={<Navigate to="/apps/video-downloaders" replace />} />
                   <Route path="/apps/:id" element={<AppDetail />} />
                   <Route path="/apps/python-code-editor" element={<PythonCodeEditor />} />
+                  <Route path="/courses" element={<CoursesPage />} />
+                  <Route path="/courses/:courseId" element={<CourseDetailPage />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/auth/google" element={<AuthRedirectPlaceholder />} />
