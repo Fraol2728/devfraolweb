@@ -208,7 +208,7 @@ export const useFilesStore = create<FilesState>((set, get) => {
       return next;
     }),
     createFile: (parentId, name) => set((s) => {
-      const nextNode = { id: id(), type: "file" as const, name, language: lang(name), content: "", isDirty: false };
+      const nextNode = { id: id(), type: "file" as const, name, language: lang(name), content: "" };
       const tree = insert(s.tree, parentId, nextNode);
       const openTabs = [...s.openTabs, nextNode.id];
       const next = { ...s, tree, activeFileId: nextNode.id, openTabs };
@@ -252,21 +252,13 @@ export const useFilesStore = create<FilesState>((set, get) => {
       });
     },
     updateContent: (nodeId, content) => set((s) => {
-      const tree = updateTree(s.tree, nodeId, (n) => {
-        if (n.type !== "file") return n;
-        if (n.content === content) return n;
-        return { ...n, content, isDirty: true };
-      });
+      const tree = updateTree(s.tree, nodeId, (n) => (n.type === "file" ? { ...n, content } : n));
       const next = { ...s, tree };
       next.projects = { ...s.projects, [s.currentProjectId]: { ...s.projects[s.currentProjectId], tree } };
       persist(next);
       return next;
     }),
     closeTab: (tabId) => set((s) => {
-      const tab = find(s.tree, tabId);
-      if (tab?.type === "file" && tab.isDirty && !window.confirm("Unsaved changes. Close anyway?")) {
-        return s;
-      }
       const openTabs = s.openTabs.filter((t) => t !== tabId);
       const activeFileId = s.activeFileId === tabId ? openTabs[0] ?? null : s.activeFileId;
       const next = { ...s, openTabs, activeFileId };

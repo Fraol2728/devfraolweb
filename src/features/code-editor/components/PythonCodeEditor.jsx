@@ -1,4 +1,5 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "@/hooks/useToastStore";
 import { FileExplorer } from "@/features/code-editor/components/FileExplorer";
 import { Terminal } from "@/features/code-editor/components/Terminal";
 import { ActivityBar } from "@/features/code-editor/components/ActivityBar";
@@ -8,27 +9,14 @@ import { BreadcrumbBar } from "@/features/code-editor/components/BreadcrumbBar";
 import { BottomPanel } from "@/features/code-editor/components/BottomPanel";
 import { StatusBar } from "@/features/code-editor/components/StatusBar";
 import { LayoutDivider } from "@/features/code-editor/components/LayoutDivider";
-import { MenuBar } from "@/features/code-editor/components/MenuBar";
-import { ContextMenu } from "@/features/code-editor/components/ContextMenu";
 import { useFilesStore, selectFiles } from "@/features/code-editor/stores/useFilesStore";
+import { useEditorStore } from "@/features/code-editor/stores/useEditorStore";
 import { useIDELayoutStore } from "@/features/code-editor/stores/useIDELayoutStore";
-import { useLayoutStore } from "@/features/code-editor/stores/useLayoutStore";
-import { useContextMenuStore } from "@/features/code-editor/stores/useContextMenuStore";
-import { useTerminalStore } from "@/features/code-editor/stores/useTerminalStore";
+import { exportProjectAsJson, exportProjectAsZip, importProjectFromFile } from "@/features/code-editor/ProjectManager";
 import "@/features/code-editor/codeEditor.css";
 
 const MonacoEditor = lazy(() => import("@/features/code-editor/components/MonacoFromCDN"));
-
-const findNode = (nodes, id) => {
-  for (const node of nodes) {
-    if (node.id === id) return node;
-    if (node.children) {
-      const next = findNode(node.children, id);
-      if (next) return next;
-    }
-  }
-  return null;
-};
+const PYODIDE_SCRIPT_ID = "pyodide-cdn-script";
 
 export const PythonCodeEditor = () => {
   const tree = useFilesStore((s) => s.tree);
@@ -41,198 +29,289 @@ export const PythonCodeEditor = () => {
   const reorderTabs = useFilesStore((s) => s.reorderTabs);
   const updateContent = useFilesStore((s) => s.updateContent);
   const createFile = useFilesStore((s) => s.createFile);
-  const createFolder = useFilesStore((s) => s.createFolder);
-  const renameNode = useFilesStore((s) => s.renameNode);
-  const deleteNode = useFilesStore((s) => s.deleteNode);
+  const createProject = useFilesStore((s) => s.createProject);
+  const importProject = useFilesStore((s) => s.importProject);
   const setCurrentProject = useFilesStore((s) => s.setCurrentProject);
+  const saveAllFiles = useFilesStore((s) => s.saveAllFiles);
 
+  const logs = useEditorStore((s) => s.logs);
+  const appendOutput = useEditorStore((s) => s.appendOutput);
+  const clearLogs = useEditorStore((s) => s.clearLogs);
+  const addCommandHistory = useEditorStore((s) => s.addCommandHistory);
+  const navigateCommandHistory = useEditorStore((s) => s.navigateCommandHistory);
+  const autoScrollTerminal = useEditorStore((s) => s.autoScrollTerminal);
+  const toggleAutoScrollTerminal = useEditorStore((s) => s.toggleAutoScrollTerminal);
+
+  const isSidePanelOpen = useIDELayoutStore((s) => s.isSidePanelOpen);
+  const isBottomPanelOpen = useIDELayoutStore((s) => s.isBottomPanelOpen);
   const activeActivityTab = useIDELayoutStore((s) => s.activeActivityTab);
+  const sidePanelWidth = useIDELayoutStore((s) => s.sidePanelWidth);
+  const bottomPanelHeight = useIDELayoutStore((s) => s.bottomPanelHeight);
+  const toggleSidePanel = useIDELayoutStore((s) => s.toggleSidePanel);
+  const toggleBottomPanel = useIDELayoutStore((s) => s.toggleBottomPanel);
   const setActiveActivityTab = useIDELayoutStore((s) => s.setActiveActivityTab);
+  const setSidePanelWidth = useIDELayoutStore((s) => s.setSidePanelWidth);
+  const setBottomPanelHeight = useIDELayoutStore((s) => s.setBottomPanelHeight);
 
-  const sidebarOpen = useLayoutStore((s) => s.sidebarOpen);
-  const bottomPanelOpen = useLayoutStore((s) => s.bottomPanelOpen);
-  const sidebarWidth = useLayoutStore((s) => s.sidebarWidth);
-  const bottomPanelHeight = useLayoutStore((s) => s.bottomPanelHeight);
-  const toggleSidebar = useLayoutStore((s) => s.toggleSidebar);
-  const toggleBottomPanel = useLayoutStore((s) => s.toggleBottomPanel);
-  const setSidebarWidth = useLayoutStore((s) => s.setSidebarWidth);
-  const setBottomPanelHeight = useLayoutStore((s) => s.setBottomPanelHeight);
-
-  const openContext = useContextMenuStore((s) => s.open);
-  const closeContext = useContextMenuStore((s) => s.close);
-  const contextType = useContextMenuStore((s) => s.type);
-  const contextTargetId = useContextMenuStore((s) => s.targetId);
-
-  const logs = useTerminalStore((s) => s.logs);
-  const runCode = useTerminalStore((s) => s.runCode);
-  const clearLogs = useTerminalStore((s) => s.clearLogs);
-  const appendLog = useTerminalStore((s) => s.appendLog);
-
+  const [isPyodideReady, setIsPyodideReady] = useState(Boolean(window.__pyodide));
+  const [runtimeLoading, setRuntimeLoading] = useState(false);
   const editorRef = useRef(null);
-  const resizeRef = useRef(null);
+  const saveDebounceRef = useRef();
+  const resizeFrameRef = useRef(0);
+  const resizeStateRef = useRef(null);
 
   const files = useMemo(() => selectFiles(tree), [tree]);
   const activeFile = files.find((item) => item.id === activeFileId) ?? null;
   const tabs = openTabs.map((tabId) => files.find((item) => item.id === tabId)).filter(Boolean);
 
-  const runCodeAction = useCallback(() => {
-    if (!bottomPanelOpen) toggleBottomPanel();
-    runCode();
-  }, [bottomPanelOpen, runCode, toggleBottomPanel]);
+  const onResizeMove = useCallback((event) => {
+    if (!resizeStateRef.current) return;
+    const state = resizeStateRef.current;
+    state.currentX = event.clientX;
+    state.currentY = event.clientY;
+    if (resizeFrameRef.current) return;
+    resizeFrameRef.current = window.requestAnimationFrame(() => {
+      resizeFrameRef.current = 0;
+      const current = resizeStateRef.current;
+      if (!current) return;
+      if (current.type === "side") {
+        const nextWidth = current.startSize + (current.currentX - current.startX);
+        setSidePanelWidth(nextWidth);
+      } else {
+        const nextHeight = current.startSize + (current.startY - current.currentY);
+        setBottomPanelHeight(nextHeight);
+      }
+    });
+  }, [setBottomPanelHeight, setSidePanelWidth]);
 
-  const handleEditorContextMenu = (event) => {
+  const stopResize = useCallback(() => {
+    window.removeEventListener("mousemove", onResizeMove);
+    window.removeEventListener("mouseup", stopResize);
+    if (resizeFrameRef.current) {
+      window.cancelAnimationFrame(resizeFrameRef.current);
+      resizeFrameRef.current = 0;
+    }
+    resizeStateRef.current = null;
+    document.body.style.userSelect = "";
+    document.body.style.cursor = "";
+  }, [onResizeMove]);
+
+  const startResize = useCallback((type, event) => {
     event.preventDefault();
-    openContext(event.clientX, event.clientY, "editor", activeFile?.id ?? null);
+    resizeStateRef.current = {
+      type,
+      startX: event.clientX,
+      startY: event.clientY,
+      currentX: event.clientX,
+      currentY: event.clientY,
+      startSize: type === "side" ? useIDELayoutStore.getState().sidePanelWidth : useIDELayoutStore.getState().bottomPanelHeight,
+    };
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = type === "side" ? "col-resize" : "row-resize";
+    window.addEventListener("mousemove", onResizeMove);
+    window.addEventListener("mouseup", stopResize);
+  }, [onResizeMove, stopResize]);
+
+  useEffect(() => () => stopResize(), [stopResize]);
+
+  const handleActivityChange = (tab) => {
+    if (tab === activeActivityTab) {
+      toggleSidePanel();
+      return;
+    }
+    setActiveActivityTab(tab);
+    if (!useIDELayoutStore.getState().isSidePanelOpen) {
+      toggleSidePanel();
+    }
   };
 
-  const handleExplorerContextMenu = (event, targetId) => {
-    event.preventDefault();
-    openContext(event.clientX, event.clientY, "explorer", targetId ?? undefined);
+  const initializePyodide = async () => {
+    if (window.__pyodide) {
+      setIsPyodideReady(true);
+      return window.__pyodide;
+    }
+    setRuntimeLoading(true);
+    try {
+      if (!window.loadPyodide) {
+        await new Promise((resolve, reject) => {
+          const existing = document.getElementById(PYODIDE_SCRIPT_ID);
+          if (existing) {
+            existing.addEventListener("load", resolve, { once: true });
+            existing.addEventListener("error", reject, { once: true });
+            return;
+          }
+          const script = document.createElement("script");
+          script.id = PYODIDE_SCRIPT_ID;
+          script.src = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js";
+          script.onload = resolve;
+          script.onerror = reject;
+          document.body.appendChild(script);
+        });
+      }
+      window.__pyodide = await window.loadPyodide();
+      setIsPyodideReady(true);
+      appendOutput("Pyodide runtime initialized.");
+      return window.__pyodide;
+    } catch {
+      appendOutput("Failed to load Pyodide runtime.", "error");
+      return null;
+    } finally {
+      setRuntimeLoading(false);
+    }
   };
 
-  const handleContextAction = (action) => {
-    if (action === "editor-run") {
-      runCodeAction();
-      return;
+  const runPythonCode = async () => {
+    if (!activeFile) return;
+    addCommandHistory(activeFile.name);
+    const pyodide = await initializePyodide();
+    if (!pyodide) return;
+    setRuntimeLoading(true);
+    appendOutput(`Running ${activeFile.name} ...`);
+    try {
+      const pyFiles = files.filter((file) => file.name.endsWith(".py"));
+      pyodide.FS.mkdirTree("/project");
+      for (const file of pyFiles) {
+        pyodide.FS.writeFile(`/project/${file.name}`, file.content ?? "", { encoding: "utf8" });
+      }
+      pyodide.runPython("import sys; sys.path.append('/project')");
+      pyodide.setStdout({ batched: (text) => appendOutput(text, "log") });
+      pyodide.setStderr({ batched: (text) => appendOutput(text, "error") });
+      await pyodide.runPythonAsync(activeFile.content ?? "");
+      appendOutput("Execution completed.");
+    } catch (error) {
+      appendOutput(String(error), "error");
+    } finally {
+      setRuntimeLoading(false);
     }
-    if (action === "editor-format") {
-      if (!activeFile) return;
-      const formatted = (activeFile.content ?? "").split("\n").map((line) => line.replace(/\s+$/u, "")).join("\n");
-      updateContent(activeFile.id, formatted);
-      appendLog({ type: "info", message: "Document formatted." });
-      return;
-    }
+  };
 
-    const target = contextTargetId ? findNode(tree, contextTargetId) : null;
+  const runSnippet = async (command) => {
+    if (!command?.trim()) return;
+    addCommandHistory(command);
+    const pyodide = await initializePyodide();
+    try {
+      pyodide.setStdout({ batched: (text) => appendOutput(text, "log") });
+      pyodide.setStderr({ batched: (text) => appendOutput(text, "error") });
+      await pyodide.runPythonAsync(command);
+    } catch (error) {
+      appendOutput(String(error), "error");
+    }
+  };
 
-    if (action === "explorer-open") {
-      if (target?.type === "file") setActiveFile(target.id);
-      return;
-    }
-    if (action === "explorer-rename") {
-      if (!target) return;
-      const next = window.prompt("Rename", target.name);
-      if (next) renameNode(target.id, next);
-      return;
-    }
-    if (action === "explorer-delete") {
-      if (!target) return;
-      deleteNode(target.id);
-      return;
-    }
-    if (action === "explorer-new-file") {
-      const parentId = target?.type === "folder" ? target.id : null;
-      const next = window.prompt("New file", "new_file.py");
-      if (next) createFile(parentId, next);
-      return;
-    }
-    if (action === "explorer-new-folder") {
-      const parentId = target?.type === "folder" ? target.id : null;
-      const next = window.prompt("New folder", "new_folder");
-      if (next) createFolder(parentId, next);
-    }
+  const saveFile = () => {
+    saveAllFiles();
+    toast({ title: "Saved", description: "Files saved locally." });
   };
 
   const handleMenuAction = (action) => {
     if (action === "file-new") {
-      const next = window.prompt("New file", "main.py");
-      if (next) createFile(null, next);
+      createFile(null, `script-${Date.now()}.py`);
+      appendOutput("Created a new Python file.");
       return;
     }
-    if (action === "file-new-folder") {
-      const next = window.prompt("New folder", "folder");
-      if (next) createFolder(null, next);
+    if (action === "file-save" || action === "file-save-as" || action === "file-save-all") {
+      saveFile();
       return;
     }
-    if (action === "file-close-tab" && activeFileId) {
-      closeTab(activeFileId);
+    if (action === "file-new-project") {
+      const name = window.prompt("Project name", "project");
+      if (name) createProject(name);
       return;
     }
-    if (action === "view-toggle-sidebar") {
-      toggleSidebar();
+    if (action === "file-export-json") {
+      exportProjectAsJson(projects[currentProjectId]);
       return;
     }
-    if (action === "view-toggle-terminal") {
-      toggleBottomPanel();
+    if (action === "file-export-zip") {
+      initializePyodide().then((pyodide) => exportProjectAsZip(projects[currentProjectId], pyodide));
       return;
     }
-    if (action === "run-code") {
-      runCodeAction();
+    if (action === "file-import-project") {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".json,.zip";
+      input.onchange = async () => {
+        const file = input.files?.[0];
+        if (!file) return;
+        const project = await importProjectFromFile(file, window.__pyodide);
+        importProject(project);
+      };
+      input.click();
+      return;
     }
+    if (action === "run-python") {
+      runPythonCode();
+      return;
+    }
+    if (action === "edit-undo") editorRef.current?.trigger("keyboard", "undo", null);
+    if (action === "edit-redo") editorRef.current?.trigger("keyboard", "redo", null);
+    if (action === "edit-find") editorRef.current?.getAction("actions.find")?.run();
+  };
+
+  const handleEditorChange = (fileId, value) => {
+    updateContent(fileId, value);
+    window.clearTimeout(saveDebounceRef.current);
+    saveDebounceRef.current = window.setTimeout(() => saveAllFiles(), 450);
   };
 
   useEffect(() => {
-    const handleMouseMove = (event) => {
-      if (!resizeRef.current) return;
-      if (resizeRef.current.type === "sidebar") {
-        const next = resizeRef.current.startSize + (event.clientX - resizeRef.current.start);
-        setSidebarWidth(next);
-      } else {
-        const next = resizeRef.current.startSize + (resizeRef.current.start - event.clientY);
-        setBottomPanelHeight(next);
+    useFilesStore.getState().loadProjectFromLocalStorage();
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (!event.ctrlKey) return;
+      if (event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        if (event.shiftKey) handleMenuAction("file-save-as");
+        else handleMenuAction("file-save");
+      }
+      if (event.key.toLowerCase() === "n") {
+        event.preventDefault();
+        handleMenuAction("file-new");
+      }
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleMenuAction("run-python");
+      }
+      if (event.key.toLowerCase() === "f") {
+        event.preventDefault();
+        handleMenuAction("edit-find");
       }
     };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [activeFile]);
 
-    const stopResize = () => {
-      resizeRef.current = null;
-      document.body.style.userSelect = "";
-      document.body.style.cursor = "";
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", stopResize);
-    };
-
-    if (resizeRef.current) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", stopResize);
-    }
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", stopResize);
-    };
-  }, [setBottomPanelHeight, setSidebarWidth]);
-
-  const startResize = (type, event) => {
-    event.preventDefault();
-    resizeRef.current = {
-      type,
-      start: type === "sidebar" ? event.clientX : event.clientY,
-      startSize: type === "sidebar" ? sidebarWidth : bottomPanelHeight,
-    };
-    document.body.style.userSelect = "none";
-    document.body.style.cursor = type === "sidebar" ? "col-resize" : "row-resize";
-  };
-
-  const handleActivityChange = (activityId) => {
-    setActiveActivityTab(activityId);
-    if (!sidebarOpen) toggleSidebar();
+  const copyOutput = async () => {
+    await navigator.clipboard.writeText(logs.map((line) => line.text).join("\n"));
+    toast({ title: "Copied", description: "Terminal output copied." });
   };
 
   return (
     <section className="py-root" aria-label="Python code editor workspace">
-      <div className="vsc-shell" onClick={() => closeContext()}>
+      <div className="vsc-shell">
         <div className="vsc-workbench">
           <ActivityBar activeItem={activeActivityTab} onChange={handleActivityChange} />
           <div className="vsc-main-column">
-            <MenuBar onAction={handleMenuAction} />
             <div className="vsc-main-row">
-              {sidebarOpen ? (
+              {isSidePanelOpen ? (
                 <>
-                  <div className="vsc-side-panel-wrap" style={{ width: `${sidebarWidth}px` }}>
+                  <div className="vsc-side-panel-wrap" style={{ width: `${sidePanelWidth}px` }}>
                     <SidePanel projectId={currentProjectId} projects={projects} onProjectChange={setCurrentProject}>
-                      <FileExplorer onOpenContextMenu={handleExplorerContextMenu} />
+                      <FileExplorer />
                     </SidePanel>
                   </div>
-                  <LayoutDivider orientation="vertical" ariaLabel="Resize side panel" onMouseDown={(event) => startResize("sidebar", event)} />
+                  <LayoutDivider orientation="vertical" ariaLabel="Resize side panel" onMouseDown={(event) => startResize("side", event)} />
                 </>
               ) : null}
-              <main className="vsc-editor-section" onContextMenu={handleEditorContextMenu}>
+              <main className="vsc-editor-section">
                 <TabBar tabs={tabs} activeFile={activeFile} onTabSwitch={setActiveFile} onTabClose={closeTab} onTabReorder={reorderTabs} />
                 <BreadcrumbBar activeFile={activeFile} />
                 <div className="vsc-editor-body">
                   {activeFile ? (
                     <Suspense fallback={<div className="py-empty-state">Loading Monaco…</div>}>
-                      <MonacoEditor file={activeFile} onChange={(value) => updateContent(activeFile.id, value)} onEditorReady={(editor) => { editorRef.current = editor; }} />
+                      <MonacoEditor file={activeFile} onChange={(value) => handleEditorChange(activeFile.id, value)} onEditorReady={(editor) => { editorRef.current = editor; }} />
                     </Suspense>
                   ) : (
                     <div className="py-empty-state">Open a file from Explorer to start coding.</div>
@@ -240,20 +319,28 @@ export const PythonCodeEditor = () => {
                 </div>
               </main>
             </div>
-            {bottomPanelOpen ? (
+            {isBottomPanelOpen ? (
               <>
                 <LayoutDivider orientation="horizontal" ariaLabel="Resize bottom panel" onMouseDown={(event) => startResize("bottom", event)} />
                 <div className="vsc-bottom-wrap" style={{ height: `${bottomPanelHeight}px` }}>
                   <BottomPanel onToggle={toggleBottomPanel}>
-                    <Terminal logs={logs} onClear={clearLogs} />
+                    <Terminal
+                      hideHeader
+                      logs={logs}
+                      onClear={clearLogs}
+                      onCopy={copyOutput}
+                      autoScroll={autoScrollTerminal}
+                      onToggleAutoScroll={toggleAutoScrollTerminal}
+                      onCommand={runSnippet}
+                      onHistory={navigateCommandHistory}
+                    />
                   </BottomPanel>
                 </div>
               </>
             ) : null}
           </div>
         </div>
-        <StatusBar activeFile={activeFile} runtimeLoading={false} isPyodideReady />
-        <ContextMenu onAction={handleContextAction} />
+        <StatusBar activeFile={activeFile} runtimeLoading={runtimeLoading} isPyodideReady={isPyodideReady} />
       </div>
     </section>
   );
