@@ -14,7 +14,7 @@ const dockItems = [
 
 const dockLinkClassName = ({ isActive }) =>
   cn(
-    "group relative flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-medium backdrop-blur-xl transition-all duration-200",
+    "group relative flex h-10 touch-manipulation select-none items-center gap-2 rounded-xl border px-3 text-sm font-medium backdrop-blur-xl transition-all duration-200",
     isActive
       ? "border-[#FF3B30]/70 bg-[#3A1D1A]/80 text-[#FF3B30] shadow-[0_0_22px_rgba(255,59,48,0.35)]"
       : "border-white/10 bg-white/5 text-[#D4D4D4] hover:border-[#FF3B30]/55 hover:text-[#FF3B30] hover:shadow-[0_0_20px_rgba(255,59,48,0.25)]"
