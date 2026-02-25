@@ -11,7 +11,7 @@ import { EmptyState } from "@/shared/ui/EmptyState";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Section } from "@/shared/ui/Section";
 
-const appCategories = ["All", "Downloaders", "Utilities", "Editors", "Design", "Marketing", "Programming", "Converters", "Resources"];
+
 export const AppsPage = () => {
   const { apps: appsCatalog = [], webRecommendations = [], loading, openApp, actionLoading } = useApps();
   const [appQuery, setAppQuery] = useState("");
