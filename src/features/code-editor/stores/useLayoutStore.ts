@@ -1,26 +1,23 @@
 import { create } from "zustand";
 
 type LayoutState = {
-  sidebarOpen: boolean;
-  bottomPanelOpen: boolean;
-  sidebarWidth: number;
-  bottomPanelHeight: number;
-  toggleSidebar: () => void;
-  toggleBottomPanel: () => void;
-  setSidebarWidth: (width: number) => void;
-  setBottomPanelHeight: (height: number) => void;
+  terminalOpen: boolean;
+  explorerOpen: boolean;
+  leftWidth: number;
+  terminalHeight: number;
+  toggleTerminal: () => void;
+  toggleExplorer: () => void;
+  setLeftWidth: (w: number) => void;
+  setTerminalHeight: (h: number) => void;
 };
 
-const clampSidebar = (width: number) => Math.max(180, Math.min(600, width));
-const clampBottomPanel = (height: number) => Math.max(120, Math.min(500, height));
-
 export const useLayoutStore = create<LayoutState>((set) => ({
-  sidebarOpen: true,
-  bottomPanelOpen: false,
-  sidebarWidth: 260,
-  bottomPanelHeight: 200,
-  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-  toggleBottomPanel: () => set((state) => ({ bottomPanelOpen: !state.bottomPanelOpen })),
-  setSidebarWidth: (width) => set({ sidebarWidth: clampSidebar(width) }),
-  setBottomPanelHeight: (height) => set({ bottomPanelHeight: clampBottomPanel(height) }),
+  terminalOpen: true,
+  explorerOpen: true,
+  leftWidth: 280,
+  terminalHeight: 190,
+  toggleTerminal: () => set((s) => ({ terminalOpen: !s.terminalOpen })),
+  toggleExplorer: () => set((s) => ({ explorerOpen: !s.explorerOpen })),
+  setLeftWidth: (leftWidth) => set({ leftWidth }),
+  setTerminalHeight: (terminalHeight) => set({ terminalHeight }),
 }));

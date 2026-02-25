@@ -5,7 +5,6 @@ export type FileNode = {
   children?: FileNode[];
   content?: string;
   language?: string;
-  isDirty?: boolean;
 };
 
 export type TerminalLog = {
