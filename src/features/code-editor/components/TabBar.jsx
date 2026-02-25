@@ -18,9 +18,9 @@ export const TabBar = ({ tabs, activeFile, onTabSwitch, onTabClose, onTabReorder
           }}
         >
           <button type="button" className="vsc-tab-name" onClick={() => onTabSwitch(tab.id)}>
-            {tab.name}
+            {tab.name}{tab.isDirty ? " *" : ""}
           </button>
-          <button type="button" className="vsc-tab-close" onClick={() => onTabClose(tab.id)} aria-label={`Close ${tab.name}`}>
+          <button type="button" className="vsc-tab-close" onClick={() => onTabClose(tab.id)} aria-label={`Close ${tab.name}${tab.isDirty ? " *" : ""}`}>
             ×
           </button>
         </div>
