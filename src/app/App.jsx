@@ -70,6 +70,7 @@ function App() {
                   <Route path="/blog" element={<Navigate to="/blogs" replace />} />
                   <Route path="/blog/:slug" element={<BlogDetail />} />
                   <Route path="/apps" element={<Apps />} />
+                  <Route path="/devfraol-apps" element={<Navigate to="/apps" replace />} />
                   <Route path="/apps/qr-generator" element={<Navigate to="/apps/advanced-tools" replace />} />
                   <Route path="/apps/background-remover" element={<Navigate to="/apps/advanced-tools" replace />} />
                   <Route path="/apps/file-converter" element={<Navigate to="/apps/advanced-tools" replace />} />
