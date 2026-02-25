@@ -42,11 +42,13 @@ function App() {
           <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, ease: "easeOut" }}>
             <ScrollToTop />
             <FixedAuthActions />
-            <img
-              src={logoDark}
-              alt="Devfraol logo"
-              className="pointer-events-none fixed right-4 top-4 z-50 h-8 w-auto select-none sm:h-10"
-            />
+            <div className="pointer-events-none fixed right-2 top-2 z-50 rounded-2xl border border-[#FF3B30]/45 bg-[linear-gradient(145deg,rgba(255,59,48,0.2),rgba(40,10,10,0.45))] p-1.5 shadow-[0_0_24px_rgba(255,59,48,0.42),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-xl sm:right-3 sm:top-3 sm:p-2">
+              <img
+                src={logoDark}
+                alt="Devfraol logo"
+                className="block h-6 w-auto select-none drop-shadow-[0_0_10px_rgba(255,59,48,0.75)] sm:h-7"
+              />
+            </div>
             <Suspense fallback={<div className="flex min-h-[30vh] items-center justify-center"><LoadingSpinner label="Loading page..." /></div>}>
               <Routes>
                 <Route element={<MainLayout />}>
