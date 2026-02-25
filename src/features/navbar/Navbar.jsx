@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AppWindow, BookOpen, Home, Mail, MessageSquareQuote, Moon, Newspaper, Sun, UserRound } from "lucide-react";
+import { AppWindow, BookOpen, Home, Mail, Moon, Newspaper, Sun, UserRound } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTheme } from "next-themes";
@@ -9,7 +9,6 @@ const navItems = [
   { name: "Home", href: "/", icon: Home },
   { name: "Courses", href: "/courses", icon: BookOpen },
   { name: "Instructor", href: "/instructors", icon: UserRound },
-  { name: "Testimonials", href: "/testimonials", icon: MessageSquareQuote },
   { name: "Blog", href: "/blogs", icon: Newspaper },
   { name: "Apps", href: "/apps", icon: AppWindow },
   { name: "Contact", href: "/contact", icon: Mail },
