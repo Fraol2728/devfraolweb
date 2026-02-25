@@ -7,6 +7,15 @@ import { AdvancedTools } from "@/features/apps/AdvancedTools";
 import { GraphicsTools } from "@/features/apps/GraphicsTools";
 import { DigitalMarketingTools } from "@/features/apps/DigitalMarketingTools";
 import { CinematographyTools } from "@/features/apps/CinematographyTools";
+import { ProgramingTools } from "@/features/apps/ProgramingTools";
+
+const appComponentMap = {
+  "video-downloaders": VideoDownloader,
+  "advanced-tools": AdvancedTools,
+  "graphics-tools": GraphicsTools,
+  "digital-marketing-tools": DigitalMarketingTools,
+  "cinematography-tools": CinematographyTools,
+  "programing-tools": ProgramingTools,
 };
 
 export const AppDetail = () => {

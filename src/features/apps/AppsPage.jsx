@@ -19,6 +19,8 @@ export const AppsPage = () => {
   const [webQuery, setWebQuery] = useState("");
   const [webCategory, setWebCategory] = useState("All");
 
+  const appCategories = useMemo(() => ["All", ...new Set(appsCatalog.map((app) => app.category))], [appsCatalog]);
+
   const filteredApps = useMemo(() => {
     const q = appQuery.trim().toLowerCase();
     return appsCatalog.filter((app) => (appCategory === "All" || app.category === appCategory) && (!q || `${app.name} ${app.description}`.toLowerCase().includes(q)));

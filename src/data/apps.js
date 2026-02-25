@@ -1,5 +1,4 @@
 import {
-  Clapperboard,
   Palette,
   Download,
   FileCog,
@@ -85,7 +84,21 @@ export const appDetailPages = [
     ],
   },
   {
-
+    id: "programing-tools",
+    route: "/apps/programing-tools",
+    name: "Programing Tools",
+    description: "Explore top programming resources for learning, practice, documentation, and collaboration.",
+    category: "Development",
+    icon: Braces,
+    features: [
+      "Learn with full programming paths from freeCodeCamp, The Odin Project, and CS50.",
+      "Practice problem-solving with LeetCode, HackerRank, and Codewars.",
+      "Quick access to trusted docs like MDN Web Docs and W3Schools.",
+      "Use collaboration and coding platforms such as GitHub, Replit, and Glitch.",
+    ],
+    resources: [
+      { name: "Web Recommended", link: "/apps/web-recommended" },
+      { name: "Python Code Editor", link: "/apps/python-code-editor" },
     ],
   },
   {
