@@ -101,7 +101,7 @@ export const Hero = () => {
             DEV FRAOL ACADEMY
           </p>
           <h1 className="mt-5 text-4xl sm:text-5xl md:text-6xl font-extrabold">
-            Master <span className="text-primary">Programing</span> + <span className="text-primary">Graphic Design</span> with real-world projects.
+            <span className="text-primary">Programing</span> + <span className="text-primary">Graphic Design</span> with real-world projects.
           </h1>
           <p className="mt-6 max-w-xl text-lg text-muted-foreground leading-relaxed">
             Learn in a practice-first curriculum with guided modules, mentor-style explanations, and project workflows that mirror creative tech teams.
