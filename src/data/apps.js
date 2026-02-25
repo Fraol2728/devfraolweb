@@ -4,6 +4,7 @@ import {
   FileCog,
   Globe,
   Layers3,
+  Megaphone,
   Sparkles,
 } from "lucide-react";
 
@@ -60,6 +61,24 @@ export const appDetailPages = [
     resources: [
       { name: "Web Recommended", link: "/apps/web-recommended" },
       { name: "Advanced Tools", link: "/apps/advanced-tools" },
+    ],
+  },
+  {
+    id: "digital-marketing-tools",
+    route: "/apps/digital-marketing-tools",
+    name: "Digital Marketing Tools",
+    description: "Discover curated marketing websites for content, SEO, analytics, social media, email, and creative assets.",
+    category: "Marketing",
+    icon: Megaphone,
+    features: [
+      "Explore digital marketing resources grouped into practical categories.",
+      "Open trusted external websites in one click.",
+      "Quick access to content, SEO, analytics, social, and email tools.",
+      "Simple launcher layout for faster campaign workflow setup.",
+    ],
+    resources: [
+      { name: "Graphics Tools", link: "/apps/graphics-tools" },
+      { name: "Web Recommended", link: "/apps/web-recommended" },
     ],
   },
   {

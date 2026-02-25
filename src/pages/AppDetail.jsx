@@ -5,11 +5,13 @@ import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { VideoDownloader } from "@/features/apps/VideoDownloader";
 import { AdvancedTools } from "@/features/apps/AdvancedTools";
 import { GraphicsTools } from "@/features/apps/GraphicsTools";
+import { DigitalMarketingTools } from "@/features/apps/DigitalMarketingTools";
 
 const appComponentMap = {
   "video-downloaders": VideoDownloader,
   "advanced-tools": AdvancedTools,
   "graphics-tools": GraphicsTools,
+  "digital-marketing-tools": DigitalMarketingTools,
 };
 
 export const AppDetail = () => {
