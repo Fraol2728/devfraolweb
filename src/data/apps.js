@@ -1,4 +1,5 @@
 import {
+  Palette,
   Download,
   FileCog,
   Globe,
@@ -41,6 +42,24 @@ export const appDetailPages = [
     resources: [
       { name: "Video Downloaders", link: "/apps/video-downloaders" },
       { name: "Web Recommended", link: "/apps/web-recommended" },
+    ],
+  },
+  {
+    id: "graphics-tools",
+    route: "/apps/graphics-tools",
+    name: "Graphics Tools",
+    description: "Explore top graphic design websites by category, from templates and fonts to icons and stock assets.",
+    category: "Design",
+    icon: Palette,
+    features: [
+      "Browse graphics resources grouped into clear categories.",
+      "Open trusted external design websites in one click.",
+      "Quick access to templates, palettes, fonts, images, and vectors.",
+      "Simple launcher layout optimized for fast tool discovery.",
+    ],
+    resources: [
+      { name: "Web Recommended", link: "/apps/web-recommended" },
+      { name: "Advanced Tools", link: "/apps/advanced-tools" },
     ],
   },
   {
