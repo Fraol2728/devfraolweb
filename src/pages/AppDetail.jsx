@@ -6,12 +6,14 @@ import { VideoDownloader } from "@/features/apps/VideoDownloader";
 import { AdvancedTools } from "@/features/apps/AdvancedTools";
 import { GraphicsTools } from "@/features/apps/GraphicsTools";
 import { DigitalMarketingTools } from "@/features/apps/DigitalMarketingTools";
+import { CinematographyTools } from "@/features/apps/CinematographyTools";
 
 const appComponentMap = {
   "video-downloaders": VideoDownloader,
   "advanced-tools": AdvancedTools,
   "graphics-tools": GraphicsTools,
   "digital-marketing-tools": DigitalMarketingTools,
+  "cinematography-tools": CinematographyTools,
 };
 
 export const AppDetail = () => {

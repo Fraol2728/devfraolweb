@@ -1,4 +1,5 @@
 import {
+  Clapperboard,
   Palette,
   Download,
   FileCog,
@@ -79,6 +80,24 @@ export const appDetailPages = [
     resources: [
       { name: "Graphics Tools", link: "/apps/graphics-tools" },
       { name: "Web Recommended", link: "/apps/web-recommended" },
+    ],
+  },
+  {
+    id: "cinematography-tools",
+    route: "/apps/cinematography-tools",
+    name: "Cinematography Tools",
+    description: "Explore curated filmmaking websites for inspiration, screenwriting, storyboarding, and cinematography guidance.",
+    category: "Filmmaking",
+    icon: Clapperboard,
+    features: [
+      "Browse cinematography resources grouped into practical filmmaking categories.",
+      "Open trusted external filmmaking websites in one click.",
+      "Quick access to learning, scriptwriting, storyboarding, and lighting/camera guides.",
+      "Simple launcher layout to speed up pre-production research workflows.",
+    ],
+    resources: [
+      { name: "Digital Marketing Tools", link: "/apps/digital-marketing-tools" },
+      { name: "Graphics Tools", link: "/apps/graphics-tools" },
     ],
   },
   {
