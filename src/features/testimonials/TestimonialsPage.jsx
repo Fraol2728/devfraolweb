@@ -34,7 +34,7 @@ export const TestimonialsPage = () => {
           </p>
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="mt-6">
             <Link
-              to="/courses"
+              to="/apps"
               className="inline-flex items-center justify-center rounded-full bg-[#FF3B30] px-7 py-3 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(255,59,48,0.3)] transition-all duration-300 hover:bg-[#ff4f46] hover:shadow-[0_14px_28px_rgba(255,59,48,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF3B30] focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-950"
             >
               Start Learning Today

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, ChevronDown, LogOut, Settings } from "lucide-react";
+import { ChevronDown, LogOut, Settings } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "@/context/UserContext";
 import { cn } from "@/lib/utils";
@@ -59,7 +59,6 @@ export const FixedAuthActions = () => {
               transition={{ duration: 0.2 }}
               className="absolute right-0 mt-2 w-44 rounded-xl border border-white/10 bg-[#0b0b0b]/95 p-1.5 shadow-xl backdrop-blur-xl"
             >
-              <DropdownLink to="/my-courses" icon={BookOpen} label="My Courses" onSelect={() => setProfileOpen(false)} />
               <DropdownLink to="/settings" icon={Settings} label="Settings" onSelect={() => setProfileOpen(false)} />
               <button
                 type="button"

@@ -10,10 +10,10 @@ export const CTASection = () => {
       </p>
       <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} className="mt-8 inline-flex">
         <Link
-          to="/courses"
+          to="/apps"
           className="inline-flex items-center justify-center rounded-xl bg-[#FF3B30] px-8 py-3 text-base font-semibold text-white transition hover:bg-[#ff5449] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF3B30] focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
-          View Courses
+          View Apps
         </Link>
       </motion.div>
     </section>

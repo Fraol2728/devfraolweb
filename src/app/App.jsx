@@ -13,9 +13,6 @@ import { LoadingSpinner } from "@/shared/ui/LoadingSpinner";
 import logoDark from "@/assets/Logo dark.png";
 
 const Home = lazy(() => import("@/pages/Home").then((m) => ({ default: m.Home })));
-const Courses = lazy(() => import("@/pages/Courses").then((m) => ({ default: m.Courses })));
-const CourseDetail = lazy(() => import("@/pages/CourseDetail").then((m) => ({ default: m.CourseDetail })));
-const CourseLearning = lazy(() => import("@/pages/CourseLearning").then((m) => ({ default: m.CourseLearning })));
 const Instructor = lazy(() => import("@/pages/Instructor").then((m) => ({ default: m.Instructor })));
 const InstructorDetail = lazy(() => import("@/pages/InstructorDetail").then((m) => ({ default: m.InstructorDetail })));
 const Testimonials = lazy(() => import("@/pages/Testimonials").then((m) => ({ default: m.Testimonials })));
@@ -57,10 +54,6 @@ function App() {
               <Routes>
                 <Route element={<MainLayout />}>
                   <Route path="/" element={<Home />} />
-                  <Route path="/courses" element={<Courses />} />
-                  <Route path="/courses/:slug" element={<CourseDetail />} />
-                  <Route path="/courses/:slug/enroll" element={<CourseLearning />} />
-                  <Route path="/learn/:courseId" element={<CourseLearning />} />
                   <Route path="/instructors" element={<Instructor />} />
                   <Route path="/instructors/:id" element={<InstructorDetail />} />
                   <Route path="/instructor" element={<Navigate to="/instructors" replace />} />
@@ -86,7 +79,6 @@ function App() {
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/auth/google" element={<AuthRedirectPlaceholder />} />
                   <Route path="/auth/github" element={<AuthRedirectPlaceholder />} />
-                  <Route path="/my-courses" element={<SimplePlaceholderPage title="My Courses" />} />
                   <Route path="/settings" element={<SimplePlaceholderPage title="Settings" />} />
                 </Route>
                 <Route path="/admin" element={<Admin />} />

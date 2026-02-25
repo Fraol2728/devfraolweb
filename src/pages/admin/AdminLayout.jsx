@@ -6,7 +6,6 @@ import { Dashboard } from "@/pages/admin/sections/Dashboard";
 import { AppManagement } from "@/pages/admin/sections/AppManagement";
 import { Users } from "@/pages/admin/sections/Users";
 import { WebRecommendation } from "@/pages/admin/sections/WebRecommendation";
-import { Courses } from "@/pages/admin/sections/Courses";
 import { Blog } from "@/pages/admin/sections/Blog";
 import { Testimonial } from "@/pages/admin/sections/Testimonial";
 import { Settings } from "@/pages/admin/sections/Settings";
@@ -16,7 +15,6 @@ const sectionLabels = {
   apps: "App Management",
   users: "Users",
   web: "Web Recommendation",
-  courses: "Courses",
   blog: "Blog",
   testimonial: "Testimonial",
   settings: "Settings",
@@ -32,7 +30,6 @@ export const AdminLayout = () => {
       apps: <AppManagement />,
       users: <Users />,
       web: <WebRecommendation />,
-      courses: <Courses />,
       blog: <Blog />,
       testimonial: <Testimonial />,
       settings: <Settings />,

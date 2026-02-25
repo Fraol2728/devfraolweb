@@ -1,5 +1,4 @@
 import { createContext, useContext, useMemo, useState } from "react";
-import { courses as coursesSeed } from "@/data/courses";
 import { appsCatalog, appDetailPages, webRecommendations as webRecommendationsSeed } from "@/data/apps";
 import { blogPosts as blogSeed } from "@/data/blog";
 import { testimonials as testimonialsSeed } from "@/data/testimonials";
@@ -65,7 +64,6 @@ const withDelay = (value, ms = 350) =>
   });
 
 export const MockApiProvider = ({ children }) => {
-  const [courses, setCourses] = useState(coursesSeed);
   const [apps, setApps] = useState(appsCatalog);
   const [appDetails, setAppDetails] = useState(appDetailPages);
   const [blogs, setBlogs] = useState(blogSeed);
@@ -75,7 +73,6 @@ export const MockApiProvider = ({ children }) => {
   const [instructors, setInstructors] = useState(instructorsSeed);
   const [contact, setContact] = useState(contactSeed);
   const [webRecommendations, setWebRecommendations] = useState(webRecommendationsSeed);
-  const [expandedCourseModules, setExpandedCourseModules] = useState({});
   const [loading, setLoading] = useState({ list: false, submit: false });
   const [actionLoading, setActionLoading] = useState({});
   const [error, setError] = useState(null);
@@ -90,28 +87,7 @@ export const MockApiProvider = ({ children }) => {
     }
   };
 
-  const createCourse = async (payload) => {
-    setLoading((prev) => ({ ...prev, submit: true }));
-    const nextCourse = {
-      id: payload.id || payload.title.toLowerCase().replace(/\s+/g, "-"),
-      slug: payload.slug || payload.title.toLowerCase().replace(/\s+/g, "-"),
-      modules: payload.modules || 0,
-      ...payload,
-    };
-    await withDelay(null);
-    setCourses((prev) => [nextCourse, ...prev]);
-    setLoading((prev) => ({ ...prev, submit: false }));
-    return nextCourse;
-  };
 
-  const updateCourse = async (courseId, payload) => {
-    setLoading((prev) => ({ ...prev, submit: true }));
-    await withDelay(null);
-    setCourses((prev) => prev.map((course) => (course.id === courseId ? { ...course, ...payload } : course)));
-    setLoading((prev) => ({ ...prev, submit: false }));
-  };
-
-  const deleteCourse = (courseId) => setCourses((prev) => prev.filter((course) => course.id !== courseId));
 
   const createApp = async (payload) => {
     setLoading((prev) => ({ ...prev, submit: true }));
@@ -148,33 +124,12 @@ export const MockApiProvider = ({ children }) => {
   const openApp = (appId) =>
     runAction(`open-app:${appId}`, () => apps.find((app) => app.id === appId) ?? null);
 
-  const openCourse = (courseId) =>
-    runAction(`open-course:${courseId}`, () => courses.find((course) => course.id === courseId || course.slug === courseId) ?? null);
-
-  const enrollCourse = (courseId) =>
-    runAction(`enroll-course:${courseId}`, () => courses.find((course) => course.id === courseId || course.slug === courseId) ?? null);
 
   const openBlog = (slug) => runAction(`open-blog:${slug}`, () => blogs.find((blog) => blog.slug === slug) ?? null);
 
-  const toggleCourseModule = (courseId, moduleId) => {
-    setExpandedCourseModules((previous) => {
-      const currentModules = previous[courseId] ?? [];
-      const nextModules = currentModules.includes(moduleId) ? currentModules.filter((id) => id !== moduleId) : [...currentModules, moduleId];
-      return { ...previous, [courseId]: nextModules };
-    });
-  };
-
-  const toggleAllCourseModules = (courseId, moduleIds) => {
-    setExpandedCourseModules((previous) => {
-      const currentModules = previous[courseId] ?? [];
-      const allExpanded = moduleIds.length > 0 && currentModules.length === moduleIds.length;
-      return { ...previous, [courseId]: allExpanded ? [] : moduleIds };
-    });
-  };
 
   const value = useMemo(
     () => ({
-      courses,
       apps,
       appDetails,
       setAppDetails,
@@ -185,7 +140,6 @@ export const MockApiProvider = ({ children }) => {
       faqs,
       contact,
       webRecommendations,
-      expandedCourseModules,
       setWebRecommendations,
       setFaqs,
       setContact,
@@ -193,21 +147,14 @@ export const MockApiProvider = ({ children }) => {
       loading,
       error,
       setUsers,
-      createCourse,
-      updateCourse,
-      deleteCourse,
       createApp,
       createBlog,
       submitContact,
       openApp,
-      openCourse,
-      enrollCourse,
       openBlog,
-      toggleCourseModule,
-      toggleAllCourseModules,
       actionLoading,
     }),
-    [courses, apps, appDetails, blogs, users, instructors, testimonials, faqs, contact, webRecommendations, expandedCourseModules, loading, error, actionLoading],
+    [apps, appDetails, blogs, users, instructors, testimonials, faqs, contact, webRecommendations, loading, error, actionLoading],
   );
 
   return <MockApiContext.Provider value={value}>{children}</MockApiContext.Provider>;

@@ -17,11 +17,6 @@ router.use(requireAdminAuth);
 router.get("/stats", getDashboardStats);
 router.get("/users", listUsers);
 
-router.get("/courses", listCollection("courses"));
-router.post("/courses", createItem("courses"));
-router.put("/courses/:id", updateItem("courses"));
-router.delete("/courses/:id", deleteItem("courses"));
-
 router.get("/apps", listCollection("apps"));
 router.post("/apps", createItem("apps"));
 router.put("/apps/:id", updateItem("apps"));

@@ -1,7 +1,6 @@
 import { Suspense, lazy } from "react";
 import { Hero } from "@/features/home/Hero";
 import { TracksOverview } from "@/features/home/TracksOverview";
-import { FeaturedCourses } from "@/features/home/FeaturedCourses";
 import { FeaturedApps } from "@/features/home/FeaturedApps";
 import { CTA } from "@/features/home/CTA";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
@@ -14,14 +13,14 @@ const SectionSkeleton = () => <div className="mx-auto h-40 w-full max-w-6xl anim
 
 export const Home = () => {
   useSeoMeta({
-    title: "Dev Fraol Academy | Web Development, Design Courses & Devfraol Apps",
+    title: "Dev Fraol Academy | Web Development, Design & Devfraol Apps",
     description:
-      "Dev Fraol Academy helps you master web development, graphic design, and digital skills through project-first courses and Devfraol Apps.",
+      "Dev Fraol Academy helps you master web development, graphic design, and digital skills through project-first content and Devfraol Apps.",
     keywords: [
       "Dev Fraol Academy",
       "Devfraol Apps",
-      "web development courses",
-      "graphic design courses",
+      "web development",
+      "graphic design",
       "learn coding online",
       "digital marketing tools",
     ],
@@ -52,7 +51,6 @@ export const Home = () => {
     <>
       <Hero />
       <TracksOverview />
-      <FeaturedCourses />
       <FeaturedApps />
       <Suspense fallback={<SectionSkeleton />}>
         <BlogPreview />

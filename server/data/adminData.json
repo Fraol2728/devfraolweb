@@ -1,40 +1,4 @@
 {
-  "courses": [
-    {
-      "id": "html-css",
-      "slug": "html-css",
-      "title": "HTML & CSS Course",
-      "description": "Learn the basics of building websites with HTML and CSS.",
-      "category": "Web Development",
-      "thumbnail": "/projects/project1.png",
-      "price": 0,
-      "pricing": "Free",
-      "level": "Beginner",
-      "duration": "4 weeks",
-      "durationWeeks": 4,
-      "modules": ["HTML Basics", "CSS Basics", "Responsive Design"],
-      "badge": "New",
-      "popularity": 95,
-      "tags": ["frontend", "responsive", "starter"]
-    },
-    {
-      "id": "javascript",
-      "slug": "javascript",
-      "title": "JavaScript Course",
-      "description": "Master JavaScript fundamentals and DOM manipulation.",
-      "category": "Web Development",
-      "thumbnail": "/projects/project2.png",
-      "price": 49,
-      "pricing": "$49",
-      "level": "Intermediate",
-      "duration": "6 weeks",
-      "durationWeeks": 6,
-      "modules": ["JavaScript Fundamentals", "Functions & Scope", "DOM Manipulation", "Asynchronous JS"],
-      "badge": "Popular",
-      "popularity": 98,
-      "tags": ["dom", "logic", "es6"]
-    }
-  ],
   "apps": [
     {
       "id": "file-converter",
