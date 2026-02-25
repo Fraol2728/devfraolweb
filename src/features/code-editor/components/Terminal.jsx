@@ -22,7 +22,7 @@ export const Terminal = ({ logs, onClear, onCopy, autoScroll, onToggleAutoScroll
         </div>
       ) : null}
       <div ref={ref} className="py-terminal-logs">
-        {logs.map((log) => <p key={log.id} className={log.type === "error" ? "py-log-error" : "py-log-stdout"}>{log.text}</p>)}
+        {logs.map((log) => <p key={log.id} className={log.type === "error" ? "py-log-error" : "py-log-stdout"}>{log.message}</p>)}
       </div>
       <form
         className="py-terminal-input"
