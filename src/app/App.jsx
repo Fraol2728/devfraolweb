@@ -78,6 +78,7 @@ function App() {
                   <Route path="/apps/:id" element={<AppDetail />} />
                   <Route path="/apps/python-code-editor" element={<PythonCodeEditor />} />
                   <Route path="/courses" element={<CoursesPage />} />
+                  <Route path="/course/:slug" element={<CourseDetailPage />} />
                   <Route path="/courses/:courseId" element={<CourseDetailPage />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
