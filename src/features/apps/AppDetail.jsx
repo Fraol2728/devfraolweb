@@ -39,11 +39,6 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
     onOpenApp?.();
   };
 
-  const handleExploreDetails = () => {
-    const detailsSection = document.getElementById("details");
-    detailsSection?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   return (
     <main className="px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 text-left">
@@ -63,13 +58,9 @@ export const AppDetail = ({ title, description, icon: Icon, features = [], demoU
               <ArrowLeft className="h-4 w-4" />
               Back to Apps
             </Link>
-            <button
-              type="button"
-              onClick={handleExploreDetails}
-              className="inline-flex items-center rounded-xl border border-white/20 bg-black/30 px-5 py-3 text-sm font-semibold text-foreground/90 transition hover:border-[#FF3B30]/60 hover:text-[#FF3B30]"
-            >
+            <a href="#details" className="inline-flex items-center rounded-xl border border-white/20 bg-black/30 px-5 py-3 text-sm font-semibold text-foreground/90 transition hover:border-[#FF3B30]/60 hover:text-[#FF3B30]">
               Explore Details
-            </button>
+            </a>
           </div>
         </motion.section>
 
