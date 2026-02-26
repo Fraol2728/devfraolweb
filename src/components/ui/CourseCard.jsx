@@ -5,7 +5,7 @@ export const CourseCard = ({ course, index = 0 }) => {
   const navigate = useNavigate();
 
   const goToDetail = () => {
-    navigate(`/courses/${course.id}`);
+    navigate(`/course/${course.slug || course.id}`);
   };
 
   return (
