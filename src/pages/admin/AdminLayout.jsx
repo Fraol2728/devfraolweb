@@ -5,6 +5,7 @@ import { AdminHeader } from "@/pages/admin/components/AdminHeader";
 import { Dashboard } from "@/pages/admin/sections/Dashboard";
 import { AppManagement } from "@/pages/admin/sections/AppManagement";
 import { Users } from "@/pages/admin/sections/Users";
+import { AdminCourses } from "@/pages/admin/sections/AdminCourses";
 import { WebRecommendation } from "@/pages/admin/sections/WebRecommendation";
 import { Blog } from "@/pages/admin/sections/Blog";
 import { Testimonial } from "@/pages/admin/sections/Testimonial";
@@ -13,6 +14,7 @@ import { Settings } from "@/pages/admin/sections/Settings";
 const sectionLabels = {
   dashboard: "Dashboard",
   apps: "App Management",
+  courses: "Courses",
   users: "Users",
   web: "Web Recommendation",
   blog: "Blog",
@@ -28,6 +30,7 @@ export const AdminLayout = () => {
     () => ({
       dashboard: <Dashboard />,
       apps: <AppManagement />,
+      courses: <AdminCourses />,
       users: <Users />,
       web: <WebRecommendation />,
       blog: <Blog />,

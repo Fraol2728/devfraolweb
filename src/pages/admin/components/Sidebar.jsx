@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
-import { AppWindow, Globe, LayoutDashboard, MenuSquare, MessageSquareText, Settings, Users, X } from "lucide-react";
+import { AppWindow, BookOpen, Globe, LayoutDashboard, MenuSquare, MessageSquareText, Settings, Users, X } from "lucide-react";
 
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "apps", label: "App Management", icon: AppWindow },
+  { id: "courses", label: "Courses", icon: BookOpen },
   { id: "users", label: "Users", icon: Users },
   { id: "web", label: "Web Recommendation", icon: Globe },
   { id: "blog", label: "Blog", icon: MenuSquare },

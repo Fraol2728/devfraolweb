@@ -11,7 +11,7 @@ import codeRoutes from "./routes/codeRoutes.js";
 import resourcesRoutes from "./routes/resourcesRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import catalogRoutes from "./routes/catalogRoutes.js";
-import courseRoutes from "./routes/courseRoutes.js";
+
 import { cleanupOlderThan } from "./utils/fileCleanup.js";
 import { UPLOADS_DIR } from "./utils/constants.js";
 
@@ -50,7 +50,7 @@ app.use("/api/bg-remove", bgRoutes);
 app.use("/api/code", codeRoutes);
 app.use("/api/resources", resourcesRoutes);
 app.use("/api/catalog", catalogRoutes);
-app.use("/api/courses", courseRoutes);
+
 app.use("/api/admin", adminRoutes);
 
 app.use((err, _req, res, _next) => {
