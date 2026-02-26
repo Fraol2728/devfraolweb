@@ -23,7 +23,7 @@ const BlogDetail = lazy(() => import("@/pages/BlogDetail").then((m) => ({ defaul
 const Apps = lazy(() => import("@/pages/Apps").then((m) => ({ default: m.Apps })));
 const AppDetail = lazy(() => import("@/pages/AppDetail").then((m) => ({ default: m.AppDetail })));
 const CoursesPage = lazy(() => import("@/pages/CoursesPage").then((m) => ({ default: m.CoursesPage })));
-const CourseDetailPage = lazy(() => import("@/pages/CourseDetail").then((m) => ({ default: m.CourseDetail })));
+const CourseDetailPage = lazy(() => import("@/pages/CourseDetailPage").then((m) => ({ default: m.CourseDetailPage })));
 const PythonCodeEditor = lazy(() => import("@/pages/CodeEditor").then((m) => ({ default: m.CodeEditor })));
 const Admin = lazy(() => import("@/pages/Admin").then((m) => ({ default: m.Admin })));
 const Login = lazy(() => import("@/pages/Login").then((m) => ({ default: m.Login })));
