@@ -188,7 +188,7 @@ export const CourseDetailPage = () => {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="grid gap-6 overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br from-[#1f2432]/90 via-[#1a1f2f]/80 to-[#131722]/90 p-6 shadow-[0_30px_60px_rgba(5,8,18,0.45)] lg:grid-cols-[1.2fr_360px] lg:p-8"
+            className="overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br from-[#1f2432]/90 via-[#1a1f2f]/80 to-[#131722]/90 p-6 shadow-[0_30px_60px_rgba(5,8,18,0.45)] lg:p-8"
           >
             <div className="space-y-5">
               <p className="text-xs uppercase tracking-[0.2em] text-[#ff8f87]">Course detail</p>
@@ -202,13 +202,6 @@ export const CourseDetailPage = () => {
                 <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1.5"><Globe className="h-3.5 w-3.5" />{courseBundle.course.language}</span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1.5"><Star className="h-3.5 w-3.5 text-amber-300" />{courseBundle.course.rating}</span>
               </div>
-            </div>
-
-            <div className="rounded-3xl border border-white/20 bg-black/30 p-4 backdrop-blur-xl">
-              <img src={courseBundle.course.thumbnail} alt={courseBundle.course.title} className="h-44 w-full rounded-2xl object-cover" />
-              <p className="mt-4 text-3xl font-bold text-white">{courseBundle.course.price}</p>
-              <button type="button" className="mt-3 w-full rounded-xl bg-gradient-to-r from-[#ff5d52] to-[#ff3b30] py-3 text-sm font-semibold text-white">Enroll Now</button>
-              <button type="button" className="mt-2 w-full rounded-xl border border-white/20 py-3 text-sm font-medium text-white/85">Add to Wishlist</button>
             </div>
           </motion.section>
 
