@@ -11,13 +11,14 @@ import codeRoutes from "./routes/codeRoutes.js";
 import resourcesRoutes from "./routes/resourcesRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import catalogRoutes from "./routes/catalogRoutes.js";
-import coursesRoutes from "./routes/coursesRoutes.js";
+
 import { cleanupOlderThan } from "./utils/fileCleanup.js";
 import { UPLOADS_DIR } from "./utils/constants.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+const ALLOWED_ORIGINS = FRONTEND_ORIGIN.split(",").map((origin) => origin.trim()).filter(Boolean);
 
 if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
@@ -26,8 +27,14 @@ if (!fs.existsSync(UPLOADS_DIR)) {
 app.use(helmet());
 app.use(
   cors({
-    origin: FRONTEND_ORIGIN,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: (origin, callback) => {
+      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(new Error("Origin not allowed by CORS"));
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true
   })
 );
@@ -43,7 +50,7 @@ app.use("/api/bg-remove", bgRoutes);
 app.use("/api/code", codeRoutes);
 app.use("/api/resources", resourcesRoutes);
 app.use("/api/catalog", catalogRoutes);
-app.use("/api/courses", coursesRoutes);
+
 app.use("/api/admin", adminRoutes);
 
 app.use((err, _req, res, _next) => {
