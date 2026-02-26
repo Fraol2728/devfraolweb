@@ -1,9 +1,12 @@
 /* eslint-env node */
+import path from "path";
 import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import coursesRouter from "./routes/courses.js";
+import adminRouter from "./routes/admin.js";
+import { UPLOADS_DIR } from "./utils/constants.js";
 
 dotenv.config();
 
@@ -21,11 +24,21 @@ app.use(
   }),
 );
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static(path.resolve(UPLOADS_DIR)));
+
+app.use((req, _res, next) => {
+  if (req.method === "POST") {
+    console.log(`POST ${req.originalUrl} body:`, req.body);
+  }
+  next();
+});
 
 app.get("/health", (_req, res) => {
   res.json({ success: true, status: "ok" });
 });
 
+app.use("/api/admin", adminRouter);
 app.use("/api/courses", coursesRouter);
 
 app.use((err, req, res, _next) => {
@@ -35,12 +48,20 @@ app.use((err, req, res, _next) => {
     return res.status(400).json({ success: false, message: err.message });
   }
 
+  if (err.name === "MulterError") {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+
   return res.status(500).json({ success: false, message: "Internal server error." });
 });
 
 const connectToDatabase = async () => {
   if (!MONGODB_URI) {
     throw new Error("MONGODB_URI is not defined. Add it to your environment variables.");
+  }
+
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is not defined. Add it to your environment variables.");
   }
 
   await mongoose.connect(MONGODB_URI);

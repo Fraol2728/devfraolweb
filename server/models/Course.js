@@ -4,7 +4,7 @@ const moduleSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
+      required: [true, "Module title is required."],
       trim: true,
     },
     description: {
@@ -49,6 +49,11 @@ const courseSchema = new mongoose.Schema({
   modules: {
     type: [moduleSchema],
     default: [],
+  },
+  thumbnailUrl: {
+    type: String,
+    default: "",
+    trim: true,
   },
   createdAt: {
     type: Date,
