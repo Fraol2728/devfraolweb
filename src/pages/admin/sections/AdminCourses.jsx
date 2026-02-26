@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { apiFetch } from "@/lib/api";
+import logoDark from "@/assets/Logo dark.png";
 import { Eye, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 
 const ITEMS_PER_PAGE = 10;
@@ -38,6 +39,8 @@ export const AdminCourses = () => {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [formNotice, setFormNotice] = useState({ type: "", text: "" });
+  const formOverlayRef = useRef(null);
 
   const [message, setMessage] = useState({ type: "", text: "" });
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -97,6 +100,7 @@ export const AdminCourses = () => {
     setEditingId(null);
     setFormState(emptyForm());
     setErrors({});
+    setFormNotice({ type: "", text: "" });
     setShowForm(true);
   };
 
@@ -116,6 +120,7 @@ export const AdminCourses = () => {
         })),
       });
       setErrors({});
+      setFormNotice({ type: "", text: "" });
       setShowForm(true);
     } catch (error) {
       setMessage({ type: "error", text: error.message || "Failed to load course." });
@@ -137,7 +142,15 @@ export const AdminCourses = () => {
     });
 
     setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    const hasErrors = Object.keys(nextErrors).length > 0;
+    setFormNotice(hasErrors ? { type: "error", text: "Please fix the highlighted fields before saving." } : { type: "", text: "" });
+    return !hasErrors;
+  };
+
+  const closeCourseForm = () => {
+    setShowForm(false);
+    setErrors({});
+    setFormNotice({ type: "", text: "" });
   };
 
   const handleFormChange = (field, value) => {
@@ -248,15 +261,63 @@ export const AdminCourses = () => {
         setMessage({ type: "success", text: "Course updated successfully." });
       }
 
-      setShowForm(false);
+      closeCourseForm();
       setFormState(emptyForm());
       await loadCourses();
     } catch (error) {
+      setFormNotice({ type: "error", text: error.message || "Failed to save course." });
       setMessage({ type: "error", text: error.message || "Failed to save course." });
     } finally {
       setSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (!showForm) return undefined;
+
+    const focusableSelector = [
+      "a[href]",
+      "button:not([disabled])",
+      "textarea:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "[tabindex]:not([tabindex='-1'])",
+    ].join(",");
+
+    const getFocusable = () => {
+      if (!formOverlayRef.current) return [];
+      return Array.from(formOverlayRef.current.querySelectorAll(focusableSelector));
+    };
+
+    getFocusable()[0]?.focus();
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeCourseForm();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const focusables = getFocusable();
+      if (!focusables.length) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [showForm]);
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
@@ -404,134 +465,177 @@ export const AdminCourses = () => {
 
       <AnimatePresence>
         {showForm && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 grid place-items-center bg-black/75 p-4">
+          <motion.div
+            ref={formOverlayRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={formMode === "create" ? "Add New Course" : "Edit Course"}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/45 md:left-72"
+          >
             <motion.form
-              initial={{ opacity: 0, y: 14, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, x: 72 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 72 }}
+              transition={{ type: "spring", stiffness: 240, damping: 28 }}
               onSubmit={submitForm}
-              className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-2xl border border-white/10 bg-zinc-950 p-5"
+              className="flex h-full w-full flex-col border-l border-white/10 bg-zinc-950/95"
             >
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white">{formMode === "create" ? "Add New Course" : "Edit Course"}</h3>
-                <button type="button" onClick={() => setShowForm(false)} className="rounded-lg border border-white/10 p-2 text-zinc-200 hover:border-[#FF3B30]/45">
+              <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-zinc-950/95 px-4 py-3 md:px-6">
+                <div className="flex items-center gap-3">
+                  <img src={logoDark} alt="Dev Fraol Academy" className="h-8 w-auto" />
+                  <h3 className="text-sm font-semibold tracking-wide text-zinc-100 md:text-base">
+                    {formMode === "create" ? "Create course" : "Edit course"}
+                  </h3>
+                </div>
+                <button type="button" onClick={closeCourseForm} className="rounded-lg border border-white/10 p-2 text-zinc-200 hover:border-[#FF3B30]/45" aria-label="Close course form">
                   <X size={16} />
                 </button>
-              </div>
+              </header>
 
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                {[
-                  ["title", "Title"],
-                  ["slug", "Slug"],
-                  ["category", "Category"],
-                  ["instructor", "Instructor"],
-                ].map(([key, label]) => (
-                  <label key={key} className="space-y-1 text-sm">
-                    <span className="text-zinc-300">{label}</span>
-                    <input
-                      value={formState[key] || ""}
-                      onChange={(event) => handleFormChange(key, event.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-zinc-900 px-3 py-2 text-zinc-100 outline-none focus:border-[#FF3B30]/60"
+              <div className="flex-1 space-y-6 overflow-y-auto px-4 py-4 md:px-6 md:py-5">
+                {formNotice.text && (
+                  <div
+                    className={`rounded-xl border px-4 py-2.5 text-sm ${
+                      formNotice.type === "error"
+                        ? "border-rose-400/45 bg-rose-500/10 text-rose-200"
+                        : "border-emerald-400/45 bg-emerald-500/10 text-emerald-200"
+                    }`}
+                  >
+                    {formNotice.text}
+                  </div>
+                )}
+
+                <section className="space-y-3 rounded-2xl border border-white/10 bg-zinc-900/45 p-4">
+                  <h4 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-300">Course details</h4>
+
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {[
+                      ["title", "Title"],
+                      ["slug", "Slug"],
+                      ["category", "Category"],
+                      ["instructor", "Instructor"],
+                    ].map(([key, label]) => (
+                      <label key={key} className="space-y-1 text-sm">
+                        <span className="text-zinc-300">{label}</span>
+                        <input
+                          value={formState[key]}
+                          onChange={(event) => handleFormChange(key, event.target.value)}
+                          className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-[#FF3B30]/60"
+                        />
+                        {errors[key] && <p className="text-xs text-rose-300">{errors[key]}</p>}
+                      </label>
+                    ))}
+                  </div>
+
+                  <label className="block space-y-1 text-sm">
+                    <span className="text-zinc-300">Description</span>
+                    <textarea
+                      rows={4}
+                      value={formState.description}
+                      onChange={(event) => handleFormChange("description", event.target.value)}
+                      className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-[#FF3B30]/60"
                     />
-                    {errors[key] && <p className="text-xs text-rose-300">{errors[key]}</p>}
+                    {errors.description && <p className="text-xs text-rose-300">{errors.description}</p>}
                   </label>
-                ))}
-              </div>
 
-              <label className="mt-3 block space-y-1 text-sm">
-                <span className="text-zinc-300">Description</span>
-                <textarea
-                  value={formState.description}
-                  onChange={(event) => handleFormChange("description", event.target.value)}
-                  rows={4}
-                  className="w-full rounded-xl border border-white/10 bg-zinc-900 px-3 py-2 text-zinc-100 outline-none focus:border-[#FF3B30]/60"
-                />
-                {errors.description && <p className="text-xs text-rose-300">{errors.description}</p>}
-              </label>
+                  <label className="block space-y-1 text-sm">
+                    <span className="text-zinc-300">Thumbnail</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={onThumbnailChange}
+                      className="block w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-300 file:mr-3 file:rounded-lg file:border-0 file:bg-[#FF3B30]/20 file:px-3 file:py-1 file:text-[#FF7C73]"
+                    />
+                    {formState.thumbnail && <p className="text-xs text-zinc-500">Thumbnail selected</p>}
+                  </label>
+                </section>
 
-              <label className="mt-3 block space-y-1 text-sm">
-                <span className="text-zinc-300">Thumbnail</span>
-                <input type="file" accept="image/*" onChange={onThumbnailChange} className="block w-full text-xs text-zinc-300 file:mr-3 file:rounded-lg file:border file:border-white/10 file:bg-zinc-900 file:px-3 file:py-2 file:text-zinc-100" />
-              </label>
-
-              <div className="mt-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-base font-semibold text-white">Modules</h4>
-                  <button type="button" onClick={addModule} className="rounded-lg border border-[#FF3B30]/60 bg-[#FF3B30]/15 px-3 py-1.5 text-xs text-[#FF7C73]">Add Module</button>
-                </div>
-
-                {formState.modules.map((module, moduleIndex) => (
-                  <motion.div key={`${moduleIndex}-${module.title}`} layout className="rounded-xl border border-white/10 bg-zinc-900/60">
-                    <button
-                      type="button"
-                      onClick={() => setModule(moduleIndex, "isOpen", !module.isOpen)}
-                      className="flex w-full items-center justify-between px-4 py-3 text-left text-sm text-zinc-100"
-                    >
-                      <span>{module.title || `Module ${moduleIndex + 1}`}</span>
-                      <span className="text-xs text-zinc-500">{module.isOpen ? "Collapse" : "Expand"}</span>
+                <section className="rounded-xl border border-white/10 bg-zinc-900/45 p-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h4 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-300">Modules</h4>
+                    <button type="button" onClick={addModule} className="rounded-lg border border-[#FF3B30]/60 px-3 py-1.5 text-xs text-[#FF7C73]">
+                      Add Module
                     </button>
+                  </div>
 
-                    <AnimatePresence initial={false}>
-                      {module.isOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden border-t border-white/10 px-4 pb-4 pt-3"
+                  <div className="space-y-3">
+                    {formState.modules.map((module, moduleIndex) => (
+                      <motion.div key={`module-${moduleIndex}`} layout className="rounded-xl border border-white/10 bg-black/25 p-3">
+                        <button
+                          type="button"
+                          onClick={() => setModule(moduleIndex, "isOpen", !module.isOpen)}
+                          className="flex w-full items-center justify-between text-left text-sm font-semibold text-zinc-100"
                         >
-                          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                            <input value={module.title} onChange={(event) => setModule(moduleIndex, "title", event.target.value)} placeholder="Module title" className="rounded-xl border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-100" />
-                            <input value={module.duration} onChange={(event) => setModule(moduleIndex, "duration", event.target.value)} placeholder="Module duration (e.g., 2h)" className="rounded-xl border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-100" />
-                          </div>
-                          <textarea value={module.description} onChange={(event) => setModule(moduleIndex, "description", event.target.value)} placeholder="Module description" rows={2} className="mt-3 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-100" />
-                          {errors[`module-${moduleIndex}-title`] && <p className="mt-1 text-xs text-rose-300">{errors[`module-${moduleIndex}-title`]}</p>}
+                          <span>{module.title || `Module ${moduleIndex + 1}`}</span>
+                          <span className="text-xs text-zinc-400">{module.isOpen ? "Hide" : "Show"}</span>
+                        </button>
 
-                          <div className="mt-4 space-y-2">
-                            <div className="flex items-center justify-between">
-                              <h5 className="text-sm font-semibold text-zinc-100">Lessons</h5>
-                              <div className="flex gap-2">
-                                <button type="button" onClick={() => addLesson(moduleIndex)} className="rounded-lg border border-white/10 px-2.5 py-1 text-xs text-zinc-200">Add Lesson</button>
-                                {formState.modules.length > 1 && (
-                                  <button type="button" onClick={() => removeModule(moduleIndex)} className="rounded-lg border border-rose-400/45 px-2.5 py-1 text-xs text-rose-300">Remove Module</button>
-                                )}
+                        <AnimatePresence initial={false}>
+                          {module.isOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="mt-3 overflow-hidden"
+                            >
+                              <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+                                <input value={module.title} onChange={(event) => setModule(moduleIndex, "title", event.target.value)} placeholder="Module title" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-100" />
+                                <input value={module.duration} onChange={(event) => setModule(moduleIndex, "duration", event.target.value)} placeholder="Duration" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-100" />
+                                <input value={module.description} onChange={(event) => setModule(moduleIndex, "description", event.target.value)} placeholder="Brief description" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-100" />
                               </div>
-                            </div>
+                              {errors[`module-${moduleIndex}-title`] && <p className="mt-1 text-xs text-rose-300">{errors[`module-${moduleIndex}-title`]}</p>}
 
-                            <AnimatePresence>
-                              {module.lessons.map((lesson, lessonIndex) => (
-                                <motion.div
-                                  key={`${moduleIndex}-${lessonIndex}`}
-                                  initial={{ opacity: 0, y: 8 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  exit={{ opacity: 0, y: -8 }}
-                                  className="rounded-lg border border-white/10 bg-black/25 p-3"
-                                >
-                                  <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-                                    <input value={lesson.title} onChange={(event) => setLesson(moduleIndex, lessonIndex, "title", event.target.value)} placeholder="Lesson title" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs text-zinc-100" />
-                                    <input value={lesson.duration} onChange={(event) => setLesson(moduleIndex, lessonIndex, "duration", event.target.value)} placeholder="Duration" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs text-zinc-100" />
-                                    <input value={lesson.youtubeVideoId} onChange={(event) => setLesson(moduleIndex, lessonIndex, "youtubeVideoId", event.target.value)} placeholder="YouTube video ID" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs text-zinc-100" />
-                                  </div>
-                                  <div className="mt-2 flex justify-end">
-                                    {module.lessons.length > 1 && (
-                                      <button type="button" onClick={() => removeLesson(moduleIndex, lessonIndex)} className="rounded-lg border border-rose-400/45 px-2 py-1 text-[11px] text-rose-300">Remove Lesson</button>
+                              <div className="mt-4 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <h5 className="text-sm font-semibold text-zinc-100">Lessons</h5>
+                                  <div className="flex gap-2">
+                                    <button type="button" onClick={() => addLesson(moduleIndex)} className="rounded-lg border border-white/10 px-2.5 py-1 text-xs text-zinc-200">Add Lesson</button>
+                                    {formState.modules.length > 1 && (
+                                      <button type="button" onClick={() => removeModule(moduleIndex)} className="rounded-lg border border-rose-400/45 px-2.5 py-1 text-xs text-rose-300">Remove Module</button>
                                     )}
                                   </div>
-                                  {errors[`module-${moduleIndex}-lesson-${lessonIndex}-title`] && (
-                                    <p className="mt-1 text-xs text-rose-300">{errors[`module-${moduleIndex}-lesson-${lessonIndex}-title`]}</p>
-                                  )}
-                                </motion.div>
-                              ))}
-                            </AnimatePresence>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                ))}
+                                </div>
+
+                                <AnimatePresence>
+                                  {module.lessons.map((lesson, lessonIndex) => (
+                                    <motion.div
+                                      key={`${moduleIndex}-${lessonIndex}`}
+                                      initial={{ opacity: 0, y: 8 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      exit={{ opacity: 0, y: -8 }}
+                                      className="rounded-lg border border-white/10 bg-black/25 p-3"
+                                    >
+                                      <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+                                        <input value={lesson.title} onChange={(event) => setLesson(moduleIndex, lessonIndex, "title", event.target.value)} placeholder="Lesson title" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs text-zinc-100" />
+                                        <input value={lesson.duration} onChange={(event) => setLesson(moduleIndex, lessonIndex, "duration", event.target.value)} placeholder="Duration" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs text-zinc-100" />
+                                        <input value={lesson.youtubeVideoId} onChange={(event) => setLesson(moduleIndex, lessonIndex, "youtubeVideoId", event.target.value)} placeholder="YouTube video ID" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs text-zinc-100" />
+                                      </div>
+                                      <div className="mt-2 flex justify-end">
+                                        {module.lessons.length > 1 && (
+                                          <button type="button" onClick={() => removeLesson(moduleIndex, lessonIndex)} className="rounded-lg border border-rose-400/45 px-2 py-1 text-[11px] text-rose-300">Remove Lesson</button>
+                                        )}
+                                      </div>
+                                      {errors[`module-${moduleIndex}-lesson-${lessonIndex}-title`] && (
+                                        <p className="mt-1 text-xs text-rose-300">{errors[`module-${moduleIndex}-lesson-${lessonIndex}-title`]}</p>
+                                      )}
+                                    </motion.div>
+                                  ))}
+                                </AnimatePresence>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
+                    ))}
+                  </div>
+                </section>
               </div>
 
-              <div className="mt-5 flex justify-end gap-2">
-                <button type="button" onClick={() => setShowForm(false)} className="rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-300">Cancel</button>
+              <div className="sticky bottom-0 z-10 mt-auto flex justify-end gap-2 border-t border-white/10 bg-zinc-950/95 px-4 py-3 md:px-6">
+                <button type="button" onClick={closeCourseForm} className="rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-300">Cancel</button>
                 <button type="submit" disabled={submitting} className="rounded-xl border border-[#FF3B30]/60 bg-[#FF3B30]/15 px-4 py-2 text-sm text-[#FF7C73] disabled:opacity-60">
                   {submitting ? "Saving..." : formMode === "create" ? "Create Course" : "Update Course"}
                 </button>
