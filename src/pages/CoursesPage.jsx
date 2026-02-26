@@ -1,170 +1,135 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { courses, courseLevels } from "@/data/courses";
+import { Search } from "lucide-react";
 import { CourseCard } from "@/components/ui/CourseCard";
-import { CourseFilter } from "@/components/ui/CourseFilter";
+import { courseCategories, courseLevels, courses } from "@/data/courses";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 
-const testimonials = [
-  { name: "Aisha", quote: "The course flow felt practical, modern, and instantly applicable to my projects." },
-  { name: "Ben", quote: "I landed my first freelance client after applying the portfolio lessons from week three." },
-  { name: "Nina", quote: "Great pacing and visuals. The syllabus structure made learning feel effortless." },
-];
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
+};
 
 export const CoursesPage = () => {
+  const [activeCategory, setActiveCategory] = useState("Programming");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All Categories");
-  const [activeLevel, setActiveLevel] = useState("All Levels");
+  const [activeLevel, setActiveLevel] = useState("All");
 
   useSeoMeta({
     title: "Courses | Dev Fraol Academy",
-    description: "Browse modern development courses with search and level-based filtering.",
+    description: "Browse programming, design, and fundamentals courses with quick filters and modern animations.",
   });
 
-  const categories = useMemo(() => ["All Categories", ...new Set(courses.map((course) => course.category))], []);
-
   const filteredCourses = useMemo(() => {
-    const lowerSearch = searchQuery.trim().toLowerCase();
+    const searchValue = searchQuery.trim().toLowerCase();
 
     return courses.filter((course) => {
-      const matchesSearch =
-        !lowerSearch ||
-        course.title.toLowerCase().includes(lowerSearch) ||
-        course.instructor.toLowerCase().includes(lowerSearch);
-      const matchesCategory = activeCategory === "All Categories" || course.category === activeCategory;
-      const matchesLevel = activeLevel === "All Levels" || course.level === activeLevel;
+      const matchesCategory = course.category === activeCategory;
+      const matchesLevel = activeLevel === "All" || course.level === activeLevel;
+      const matchesSearch = !searchValue || course.title.toLowerCase().includes(searchValue);
 
-      return matchesSearch && matchesCategory && matchesLevel;
+      return matchesCategory && matchesLevel && matchesSearch;
     });
-  }, [searchQuery, activeCategory, activeLevel]);
+  }, [activeCategory, activeLevel, searchQuery]);
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-10 px-4 pb-8 sm:px-6 lg:px-8">
+    <div className="mx-auto w-full max-w-6xl space-y-8 px-4 pb-10 sm:px-6 lg:px-8">
       <motion.section
-        initial={{ opacity: 0, y: 26 }}
+        initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
-        className="glass-panel relative overflow-hidden rounded-3xl border border-white/20 px-6 py-10 sm:px-10"
+        transition={{ duration: 0.35 }}
+        className="glass-panel rounded-3xl border border-white/15 p-5 shadow-[0_18px_40px_rgba(15,20,35,0.2)] sm:p-7"
       >
-        <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#ff3b30]/25 blur-3xl" />
-        <div className="absolute -bottom-24 left-0 h-56 w-56 rounded-full bg-[#ff7a45]/20 blur-3xl" />
-
-        <div className="relative z-10 grid items-center gap-8 lg:grid-cols-2">
-          <div className="space-y-4">
-            <p className="inline-flex rounded-full border border-[#ff3b30]/35 bg-[#ff3b30]/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#ff6b63]">
-              Course Library
-            </p>
-            <h1 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl lg:text-5xl">Learn in-demand skills with guided, modern courses.</h1>
-            <p className="max-w-xl text-sm text-foreground/75 sm:text-base">
-              Search by instructor, narrow by category and level, and jump into deeply practical modules designed for real-world outcomes.
-            </p>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.15, duration: 0.35 }}
-            className="overflow-hidden rounded-2xl border border-white/20"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1400&q=80"
-              alt="Students learning online"
-              className="h-full min-h-[220px] w-full object-cover"
-            />
-          </motion.div>
-        </div>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#ff6b63]">Academy Courses</p>
+        <h1 className="mt-2 text-2xl font-bold text-foreground sm:text-3xl">Build career-ready skills through structured learning tracks.</h1>
+        <p className="mt-3 max-w-2xl text-sm text-foreground/70 sm:text-base">
+          Programming is highlighted as our primary learning path, with additional courses in graphic design and computer fundamentals.
+        </p>
       </motion.section>
 
       <section className="space-y-4">
-        <div className="glass-panel rounded-2xl border border-white/15 p-4 shadow-[0_16px_32px_rgba(15,20,35,0.22)]">
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search by course name or instructor"
-            className="w-full rounded-xl border border-white/15 bg-background/80 px-4 py-3 text-sm text-foreground outline-none ring-[#FF3B30] transition focus:ring-2"
-          />
+        <div className="flex flex-wrap gap-2">
+          {courseCategories.map((category) => {
+            const active = category === activeCategory;
+
+            return (
+              <motion.button
+                key={category}
+                type="button"
+                whileTap={{ scale: 0.97 }}
+                whileHover={{ y: -1 }}
+                onClick={() => setActiveCategory(category)}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition sm:text-base ${
+                  active
+                    ? "border-[#ff3b30] bg-gradient-to-r from-[#ff564c] to-[#ff3b30] text-white shadow-[0_8px_20px_rgba(255,59,48,0.35)]"
+                    : "border-white/20 bg-background/60 text-foreground/75 hover:border-[#ff3b30]/50"
+                }`}
+              >
+                {category}
+              </motion.button>
+            );
+          })}
         </div>
 
-        <CourseFilter
-          categories={categories}
-          levels={courseLevels}
-          activeCategory={activeCategory}
-          activeLevel={activeLevel}
-          onCategoryChange={setActiveCategory}
-          onLevelChange={setActiveLevel}
-        />
+        <div className="grid gap-3 md:grid-cols-[1fr_220px]">
+          <label className="group relative block">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/45 transition group-focus-within:text-[#ff3b30]" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search courses by title"
+              className="w-full rounded-xl border border-white/20 bg-background/70 py-3 pl-10 pr-4 text-sm text-foreground outline-none ring-[#ff3b30] transition focus:border-[#ff3b30]/60 focus:ring-2"
+            />
+          </label>
+
+          <select
+            value={activeLevel}
+            onChange={(event) => setActiveLevel(event.target.value)}
+            className="w-full rounded-xl border border-white/20 bg-background/70 px-3 py-3 text-sm text-foreground outline-none ring-[#ff3b30] transition focus:border-[#ff3b30]/60 focus:ring-2"
+          >
+            {courseLevels.map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </select>
+        </div>
       </section>
 
-      <motion.section layout className="space-y-4">
+      <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-foreground sm:text-2xl">Available courses</h2>
-          <p className="text-sm text-foreground/70">{filteredCourses.length} results</p>
+          <h2 className="text-lg font-semibold text-foreground sm:text-xl">{activeCategory}</h2>
+          <p className="text-sm text-foreground/65">{filteredCourses.length} course(s)</p>
         </div>
 
         <motion.div layout className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           <AnimatePresence mode="popLayout">
             {filteredCourses.map((course, index) => (
-              <CourseCard key={course.id} course={course} index={index} />
+              <motion.div
+                layout
+                key={course.id}
+                variants={itemVariants}
+                initial="hidden"
+                animate="show"
+                exit={{ opacity: 0, y: -16, transition: { duration: 0.2 } }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <CourseCard course={course} index={index} />
+              </motion.div>
             ))}
           </AnimatePresence>
         </motion.div>
 
         {filteredCourses.length === 0 ? (
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-xl border border-dashed border-white/25 p-5 text-sm text-foreground/75">
-            No courses matched your filters. Try broadening your search.
-          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-dashed border-white/25 bg-background/40 p-6 text-center text-sm text-foreground/70"
+          >
+            No courses match your current search and level filters.
+          </motion.div>
         ) : null}
-      </motion.section>
-
-      <section className="grid gap-5 lg:grid-cols-[1.3fr_1fr]">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          className="glass-panel rounded-2xl border border-white/15 p-6"
-        >
-          <h3 className="text-lg font-semibold">Learner testimonials</h3>
-          <div className="mt-4 space-y-3">
-            {testimonials.map((item, index) => (
-              <motion.blockquote
-                key={item.name}
-                initial={{ opacity: 0, x: 12 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.08 }}
-                viewport={{ once: true }}
-                className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm"
-              >
-                <p className="text-foreground/80">“{item.quote}”</p>
-                <footer className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-foreground/60">— {item.name}</footer>
-              </motion.blockquote>
-            ))}
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          className="glass-panel rounded-2xl border border-white/15 p-6"
-        >
-          <h3 className="text-lg font-semibold">Get weekly learning tips</h3>
-          <p className="mt-2 text-sm text-foreground/75">Join the newsletter for curated resources, new tracks, and student-only discounts.</p>
-          <form className="mt-4 space-y-3">
-            <input
-              type="email"
-              placeholder="Your email"
-              className="w-full rounded-xl border border-white/15 bg-background/75 px-3 py-2.5 text-sm outline-none ring-[#FF3B30] focus:ring-2"
-            />
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-              className="w-full rounded-xl bg-gradient-to-r from-[#ff564c] to-[#ff3b30] px-4 py-2.5 text-sm font-semibold text-white"
-            >
-              Subscribe
-            </motion.button>
-          </form>
-        </motion.div>
       </section>
     </div>
   );
