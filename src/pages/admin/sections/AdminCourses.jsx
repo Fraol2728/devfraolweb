@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { apiFetch } from "@/lib/api";
 import logoDark from "@/assets/Logo dark.png";
-import { Eye, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Eye, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -41,6 +41,7 @@ export const AdminCourses = () => {
   const [errors, setErrors] = useState({});
   const [formNotice, setFormNotice] = useState({ type: "", text: "" });
   const formOverlayRef = useRef(null);
+  const formPanelRef = useRef(null);
 
   const [message, setMessage] = useState({ type: "", text: "" });
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -115,8 +116,16 @@ export const AdminCourses = () => {
         ...data,
         modules: (data.modules?.length ? data.modules : [emptyModule()]).map((module) => ({
           ...module,
+          title: module.title || "",
+          description: module.description || "",
+          duration: module.duration || "",
           isOpen: true,
-          lessons: module.lessons?.length ? module.lessons : [emptyLesson()],
+          lessons: module.lessons?.length
+            ? module.lessons.map((lesson) => ({
+                ...emptyLesson(),
+                ...lesson,
+              }))
+            : [emptyLesson()],
         })),
       });
       setErrors({});
@@ -285,8 +294,8 @@ export const AdminCourses = () => {
     ].join(",");
 
     const getFocusable = () => {
-      if (!formOverlayRef.current) return [];
-      return Array.from(formOverlayRef.current.querySelectorAll(focusableSelector));
+      if (!formPanelRef.current) return [];
+      return Array.from(formPanelRef.current.querySelectorAll(focusableSelector));
     };
 
     getFocusable()[0]?.focus();
@@ -318,6 +327,8 @@ export const AdminCourses = () => {
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [showForm]);
+
+  const isEditMode = formMode === "edit";
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
@@ -474,8 +485,14 @@ export const AdminCourses = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/45 md:left-72"
+            onMouseDown={(event) => {
+              if (event.target === formOverlayRef.current) {
+                closeCourseForm();
+              }
+            }}
           >
             <motion.form
+              ref={formPanelRef}
               initial={{ opacity: 0, x: 72 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 72 }}
@@ -486,9 +503,10 @@ export const AdminCourses = () => {
               <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-zinc-950/95 px-4 py-3 md:px-6">
                 <div className="flex items-center gap-3">
                   <img src={logoDark} alt="Dev Fraol Academy" className="h-8 w-auto" />
-                  <h3 className="text-sm font-semibold tracking-wide text-zinc-100 md:text-base">
-                    {formMode === "create" ? "Create course" : "Edit course"}
-                  </h3>
+                  <div>
+                    <h3 className="text-sm font-semibold tracking-wide text-zinc-100 md:text-base">{isEditMode ? "Edit course" : "Create course"}</h3>
+                    {isEditMode && <p className="text-xs text-zinc-400">{formState.title || "Untitled course"}</p>}
+                  </div>
                 </div>
                 <button type="button" onClick={closeCourseForm} className="rounded-lg border border-white/10 p-2 text-zinc-200 hover:border-[#FF3B30]/45" aria-label="Close course form">
                   <X size={16} />
@@ -570,7 +588,10 @@ export const AdminCourses = () => {
                           className="flex w-full items-center justify-between text-left text-sm font-semibold text-zinc-100"
                         >
                           <span>{module.title || `Module ${moduleIndex + 1}`}</span>
-                          <span className="text-xs text-zinc-400">{module.isOpen ? "Hide" : "Show"}</span>
+                          <span className="inline-flex items-center gap-1 text-xs text-zinc-400">
+                            {module.isOpen ? "Hide" : "Show"}
+                            {module.isOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                          </span>
                         </button>
 
                         <AnimatePresence initial={false}>
