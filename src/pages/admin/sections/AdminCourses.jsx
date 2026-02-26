@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, Reorder, motion } from "framer-motion";
 import { apiFetch } from "@/lib/api";
+import { AdminCoursePreview } from "@/pages/admin/components/AdminCoursePreview";
 import { useToastStore } from "@/pages/admin/store/useToastStore";
 import logoDark from "@/assets/Logo dark.png";
 import { ChevronDown, ChevronUp, Eye, Pencil, Plus, Search, Trash2, X } from "lucide-react";
@@ -50,7 +51,8 @@ export const AdminCourses = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const addToast = useToastStore((state) => state.addToast);
-  const [viewTarget, setViewTarget] = useState(null);
+  const [previewTarget, setPreviewTarget] = useState(null);
+  const [loadingPreviewId, setLoadingPreviewId] = useState(null);
   const deleteOverlayRef = useRef(null);
 
   const categories = useMemo(() => {
@@ -169,6 +171,33 @@ export const AdminCourses = () => {
     setFormNotice({ type: "", text: "" });
     setDraggingModuleId(null);
     setDraggingLessonId(null);
+  };
+
+  const closePreview = () => setPreviewTarget(null);
+
+  const openPreviewFromCourse = async (courseId) => {
+    setLoadingPreviewId(courseId);
+    try {
+      const payload = await apiFetch(`/api/courses/${courseId}`);
+      setPreviewTarget(payload.data || null);
+      addToast({ type: "info", message: "This is a preview, changes not saved." });
+    } catch (error) {
+      addToast({ type: "error", message: `Failed to load preview: ${error.message || "Unknown error"}` });
+    } finally {
+      setLoadingPreviewId(null);
+    }
+  };
+
+  const openPreviewFromForm = () => {
+    setPreviewTarget({
+      ...formState,
+      modules: formState.modules.map(({ isOpen, clientId, lessons = [], ...module }) => ({
+        ...module,
+        id: module.id || clientId,
+        lessons: lessons.map(({ clientId: lessonClientId, ...lesson }) => ({ ...lesson, id: lesson.id || lessonClientId })),
+      })),
+    });
+    addToast({ type: "info", message: "This is a preview, changes not saved." });
   };
 
   const handleFormChange = (field, value) => {
@@ -504,8 +533,14 @@ export const AdminCourses = () => {
                       <button onClick={() => setDeleteTarget(course)} className="rounded-lg border border-white/10 p-2 text-zinc-200 hover:border-rose-400/40 hover:text-rose-200" aria-label={`Delete ${course.title}`}>
                         <Trash2 size={14} />
                       </button>
-                      <button onClick={() => setViewTarget(course)} className="rounded-lg border border-white/10 p-2 text-zinc-200 hover:border-sky-400/40 hover:text-sky-200" aria-label={`View ${course.title}`}>
-                        <Eye size={14} />
+                      <button
+                        onClick={() => openPreviewFromCourse(course.id)}
+                        disabled={loadingPreviewId === course.id}
+                        className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1.5 text-xs text-zinc-200 hover:border-sky-400/40 hover:text-sky-200 disabled:cursor-not-allowed disabled:opacity-60"
+                        aria-label={`Preview ${course.title}`}
+                      >
+                        <Eye size={13} />
+                        {loadingPreviewId === course.id ? "Loading..." : "Preview"}
                       </button>
                     </div>
                   </td>
@@ -735,7 +770,8 @@ export const AdminCourses = () => {
                 </section>
               </div>
 
-              <div className="sticky bottom-0 z-10 mt-auto flex justify-end gap-2 border-t border-white/10 bg-zinc-950/95 px-4 py-3 md:px-6">
+              <div className="sticky bottom-0 z-10 mt-auto flex flex-wrap justify-end gap-2 border-t border-white/10 bg-zinc-950/95 px-4 py-3 md:px-6">
+                <button type="button" onClick={openPreviewFromForm} className="rounded-xl border border-sky-400/45 bg-sky-500/10 px-4 py-2 text-sm text-sky-200">Preview</button>
                 <button type="button" onClick={closeCourseForm} className="rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-300">Cancel</button>
                 <button type="submit" disabled={submitting} className="rounded-xl border border-[#FF3B30]/60 bg-[#FF3B30]/15 px-4 py-2 text-sm text-[#FF7C73] disabled:opacity-60">
                   {submitting ? "Saving..." : formMode === "create" ? "Create Course" : "Update Course"}
@@ -814,35 +850,9 @@ export const AdminCourses = () => {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {viewTarget && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 grid place-items-center bg-black/75 p-4">
-            <motion.div initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 8, opacity: 0 }} className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-white/10 bg-zinc-950 p-5">
-              <div className="mb-4 flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-lg font-semibold text-white">{viewTarget.title}</h3>
-                  <p className="text-sm text-zinc-400">{viewTarget.category || "Uncategorized"} • {viewTarget.instructor || "No instructor"}</p>
-                </div>
-                <button onClick={() => setViewTarget(null)} className="rounded-lg border border-white/10 p-2 text-zinc-200"><X size={16} /></button>
-              </div>
-              <p className="text-sm text-zinc-300">{viewTarget.description}</p>
-              <div className="mt-4 space-y-2">
-                {(viewTarget.modules || []).map((module, index) => (
-                  <div key={`${module.title}-${index}`} className="rounded-xl border border-white/10 bg-zinc-900/55 p-3">
-                    <p className="font-medium text-zinc-100">{module.title}</p>
-                    <p className="text-xs text-zinc-400">{module.duration}</p>
-                    <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-zinc-300">
-                      {(module.lessons || []).map((lesson, li) => (
-                        <li key={`${lesson.title}-${li}`}>{lesson.title} {lesson.duration ? `(${lesson.duration})` : ""}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+
+      <AdminCoursePreview isOpen={Boolean(previewTarget)} course={previewTarget} onClose={closePreview} />
     </section>
   );
 };
