@@ -12,12 +12,14 @@ const storage = multer.diskStorage({
   filename: (_req, file, cb) => {
     const safeOriginal = file.originalname.replace(/[^a-zA-Z0-9_.-]/g, "_");
     cb(null, `${Date.now()}-${safeOriginal}`);
-  }
+  },
 });
 
 export const upload = multer({
   storage,
-  limits: { fileSize: MAX_UPLOAD_SIZE_BYTES }
+  limits: { fileSize: MAX_UPLOAD_SIZE_BYTES },
 });
+
+export const thumbnailUpload = upload.single("thumbnail");
 
 export const getFileExtension = (fileName) => path.extname(fileName).toLowerCase();
