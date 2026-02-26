@@ -7,6 +7,7 @@ import { courses } from "@/data/courses";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { LessonPlayer } from "@/components/ui/LessonPlayer";
 import { CurriculumSidebar } from "@/components/ui/CurriculumSidebar";
+import { CourseOutline } from "@/components/ui/CourseOutline";
 import { WhatYouLearn } from "@/components/ui/WhatYouLearn";
 import { InstructorSection } from "@/components/ui/InstructorSection";
 import { RelatedCourses } from "@/components/ui/RelatedCourses";
@@ -96,6 +97,7 @@ export const CourseDetailPage = () => {
   const [openModuleId, setOpenModuleId] = useState(null);
   const [showLockedModal, setShowLockedModal] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [outlineOpenModuleId, setOutlineOpenModuleId] = useState(null);
 
   useEffect(() => {
     let isCancelled = false;
@@ -128,6 +130,7 @@ export const CourseDetailPage = () => {
   useEffect(() => {
     if (!courseBundle?.modules?.length) return;
     setOpenModuleId(courseBundle.modules[0].id);
+    setOutlineOpenModuleId(`${courseBundle.modules[0].id}-outline-1`);
     const firstPreview = courseBundle.lessons.find((lesson) => lesson.is_preview);
     setActiveLesson(firstPreview || courseBundle.lessons[0]);
   }, [courseBundle]);
@@ -259,6 +262,12 @@ export const CourseDetailPage = () => {
               </motion.div>
             ) : null}
           </AnimatePresence>
+
+          <CourseOutline
+            modules={courseBundle.modules}
+            openModuleId={outlineOpenModuleId}
+            onToggleModule={setOutlineOpenModuleId}
+          />
 
           <WhatYouLearn outcomes={learningOutcomes} />
 
