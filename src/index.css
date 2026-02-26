@@ -183,3 +183,14 @@
   outline: 2px solid #FF3B30;
   outline-offset: 2px;
 }
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
