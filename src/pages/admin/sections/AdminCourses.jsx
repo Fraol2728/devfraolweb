@@ -7,6 +7,7 @@ import logoDark from "@/assets/Logo dark.png";
 import { ChevronDown, ChevronUp, Eye, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 
 const ITEMS_PER_PAGE = 10;
+const CATEGORY_TABS = ["All", "Programming", "Graphics Design", "Operate Computer"];
 
 const makeClientId = () => (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
 const emptyLesson = () => ({ clientId: makeClientId(), title: "", duration: "", youtubeVideoId: "" });
@@ -33,7 +34,8 @@ export const AdminCourses = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
 
   const [formState, setFormState] = useState(emptyForm);
@@ -55,12 +57,11 @@ export const AdminCourses = () => {
   const [loadingPreviewId, setLoadingPreviewId] = useState(null);
   const deleteOverlayRef = useRef(null);
 
+  const normalizeCategory = (value = "") => value.trim().toLowerCase();
+
   const categories = useMemo(() => {
-    const values = courses
-      .map((course) => course.category)
-      .filter(Boolean)
-      .sort((a, b) => a.localeCompare(b));
-    return [...new Set(values)];
+    const values = courses.map((course) => course.category).filter(Boolean);
+    return [...new Set([...CATEGORY_TABS, ...values])];
   }, [courses]);
 
   const loadCourses = async () => {
@@ -80,15 +81,20 @@ export const AdminCourses = () => {
   }, []);
 
   const filteredCourses = useMemo(() => {
-    return courses.filter((course) => {
-      const matchesSearch = [course.title, course.instructor, course.category]
-        .join(" ")
-        .toLowerCase()
-        .includes(query.toLowerCase());
-      const matchesCategory = selectedCategory === "all" || course.category === selectedCategory;
+    const filtered = courses.filter((course) => {
+      const matchesSearch = (course.title || "").toLowerCase().includes(query.trim().toLowerCase());
+      const matchesCategory =
+        selectedCategory === "All" || normalizeCategory(course.category) === normalizeCategory(selectedCategory);
       return matchesSearch && matchesCategory;
     });
-  }, [courses, query, selectedCategory]);
+
+    return [...filtered].sort((a, b) => {
+      if (sortBy === "alphabetical") {
+        return (a.title || "").localeCompare(b.title || "");
+      }
+      return Number(b.id || 0) - Number(a.id || 0);
+    });
+  }, [courses, query, selectedCategory, sortBy]);
 
   const totalPages = Math.max(1, Math.ceil(filteredCourses.length / ITEMS_PER_PAGE));
 
@@ -478,83 +484,110 @@ export const AdminCourses = () => {
               setQuery(event.target.value);
               setCurrentPage(1);
             }}
-            placeholder="Search by title, instructor, category"
+            placeholder="Search courses…"
             className="w-full rounded-xl border border-white/10 bg-zinc-950 px-10 py-2.5 text-sm text-zinc-100 outline-none focus:border-[#FF3B30]/60"
           />
         </label>
 
         <select
-          value={selectedCategory}
+          value={sortBy}
           onChange={(event) => {
-            setSelectedCategory(event.target.value);
-            setCurrentPage(1);
+            setSortBy(event.target.value);
           }}
-          className="rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-[#FF3B30]/60"
+          className="rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-[#FF3B30]/60 md:w-48"
         >
-          <option value="all">All categories</option>
-          {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
+          <option value="newest">Newest</option>
+          <option value="alphabetical">Alphabetical</option>
         </select>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[900px] text-left text-sm text-zinc-300">
-          <thead>
-            <tr className="border-b border-white/10 text-zinc-400">
-              <th className="px-3 py-2">Title</th>
-              <th className="px-3 py-2">Category</th>
-              <th className="px-3 py-2">Instructor</th>
-              <th className="px-3 py-2">Modules</th>
-              <th className="px-3 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={5} className="px-3 py-6 text-center text-zinc-400">
-                  Loading courses...
-                </td>
-              </tr>
-            ) : pagedCourses.length ? (
-              pagedCourses.map((course) => (
-                <tr key={course.id} className="border-b border-white/5">
-                  <td className="px-3 py-3 text-white">{course.title}</td>
-                  <td className="px-3 py-3">{course.category || "-"}</td>
-                  <td className="px-3 py-3">{course.instructor || "-"}</td>
-                  <td className="px-3 py-3">{course.modules?.length || 0}</td>
-                  <td className="px-3 py-3">
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => openEdit(course.id)} className="rounded-lg border border-white/10 p-2 text-zinc-200 hover:border-[#FF3B30]/40 hover:text-white" aria-label={`Edit ${course.title}`}>
-                        <Pencil size={14} />
+      <div className="flex flex-wrap items-center gap-2">
+        {categories.map((category) => {
+          const isActive = selectedCategory === category;
+          return (
+            <button
+              key={category}
+              onClick={() => {
+                setSelectedCategory(category);
+                setCurrentPage(1);
+              }}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition md:text-sm ${
+                isActive
+                  ? "border-[#FF3B30]/65 bg-[#FF3B30]/20 text-[#FF7C73]"
+                  : "border-white/10 bg-zinc-950 text-zinc-300 hover:border-[#FF3B30]/40 hover:text-zinc-100"
+              }`}
+            >
+              {category}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="min-h-56">
+        {loading ? (
+          <p className="rounded-xl border border-white/10 bg-zinc-950/70 px-4 py-8 text-center text-zinc-400">Loading courses...</p>
+        ) : pagedCourses.length ? (
+          <motion.div
+            key={`${selectedCategory}-${query}-${sortBy}-${currentPage}`}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+          >
+            <AnimatePresence>
+              {pagedCourses.map((course) => (
+                <motion.article
+                  key={course.id}
+                  layout
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.2 }}
+                  className="group overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/70 transition hover:-translate-y-0.5 hover:scale-[1.01] hover:border-[#FF3B30]/35 hover:shadow-[0_12px_35px_rgba(0,0,0,0.3)]"
+                >
+                  <div className="aspect-video overflow-hidden bg-zinc-900">
+                    {course.thumbnail ? (
+                      <img src={course.thumbnail} alt={course.title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-xs uppercase tracking-[0.16em] text-zinc-500">No Thumbnail</div>
+                    )}
+                  </div>
+
+                  <div className="space-y-3 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="line-clamp-2 text-sm font-semibold text-white md:text-base">{course.title}</h3>
+                        <p className="mt-1 text-xs text-zinc-400 md:text-sm">{course.instructor || "Unknown instructor"}</p>
+                      </div>
+                      <span className="rounded-full border border-white/10 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-300">{course.category || "General"}</span>
+                    </div>
+
+                    <p className="text-xs text-zinc-500">{course.modules?.length || 0} modules</p>
+
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <button onClick={() => openEdit(course.id)} className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-zinc-200 transition hover:border-[#FF3B30]/40 hover:text-white" aria-label={`Edit ${course.title}`}>
+                        <span className="inline-flex items-center gap-1"><Pencil size={12} /> Edit</span>
                       </button>
-                      <button onClick={() => setDeleteTarget(course)} className="rounded-lg border border-white/10 p-2 text-zinc-200 hover:border-rose-400/40 hover:text-rose-200" aria-label={`Delete ${course.title}`}>
-                        <Trash2 size={14} />
+                      <button onClick={() => setDeleteTarget(course)} className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-zinc-200 transition hover:border-rose-400/40 hover:text-rose-200" aria-label={`Delete ${course.title}`}>
+                        <span className="inline-flex items-center gap-1"><Trash2 size={12} /> Delete</span>
                       </button>
                       <button
                         onClick={() => openPreviewFromCourse(course.id)}
                         disabled={loadingPreviewId === course.id}
-                        className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1.5 text-xs text-zinc-200 hover:border-sky-400/40 hover:text-sky-200 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-zinc-200 transition hover:border-sky-400/40 hover:text-sky-200 disabled:cursor-not-allowed disabled:opacity-60"
                         aria-label={`Preview ${course.title}`}
                       >
-                        <Eye size={13} />
-                        {loadingPreviewId === course.id ? "Loading..." : "Preview"}
+                        <span className="inline-flex items-center gap-1"><Eye size={12} /> {loadingPreviewId === course.id ? "Loading..." : "Preview"}</span>
                       </button>
                     </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="px-3 py-6 text-center text-zinc-400">
-                  No courses found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                  </div>
+                </motion.article>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        ) : (
+          <p className="rounded-xl border border-white/10 bg-zinc-950/70 px-4 py-8 text-center text-zinc-400">No courses found.</p>
+        )}
       </div>
 
       {totalPages > 1 && (
