@@ -15,6 +15,9 @@ const slugify = (value = "") =>
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
 
+const makeId = (prefix = "id") =>
+  `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
 const readCourses = async () => {
   try {
     const raw = await fs.readFile(coursesPath, "utf-8");
@@ -38,6 +41,28 @@ const writeCourses = async (courses) => {
   await fs.writeFile(coursesPath, `${JSON.stringify(courses, null, 2)}\n`, "utf-8");
 };
 
+const normalizeLesson = (lesson = {}, courseId, moduleId, lessonIndex = 0) => ({
+  id: String(lesson?.id || `${courseId}-${moduleId}-l${lessonIndex + 1}` || makeId("lesson")),
+  title: String(lesson?.title || "").trim(),
+  description: String(lesson?.description || "").trim(),
+  duration: String(lesson?.duration || "").trim(),
+  youtubeVideoId: String(lesson?.youtubeVideoId || lesson?.youtube_video_id || "").trim(),
+  isPreview: Boolean(lesson?.isPreview ?? lesson?.is_preview ?? lessonIndex === 0),
+});
+
+const normalizeModule = (module = {}, courseId, moduleIndex = 0) => {
+  const moduleId = String(module?.id || `${courseId}-m${moduleIndex + 1}` || makeId("module"));
+  return {
+    id: moduleId,
+    title: String(module?.title || "").trim(),
+    description: String(module?.description || "").trim(),
+    duration: String(module?.duration || "").trim(),
+    lessons: Array.isArray(module?.lessons)
+      ? module.lessons.map((lesson, lessonIndex) => normalizeLesson(lesson, courseId, moduleId, lessonIndex))
+      : [],
+  };
+};
+
 const normalizeCourse = (payload = {}, fallbackId = undefined) => {
   const title = String(payload.title || "").trim();
   const slug = slugify(payload.slug || title);
@@ -52,22 +77,7 @@ const normalizeCourse = (payload = {}, fallbackId = undefined) => {
     description: String(payload.description || "").trim(),
     thumbnail: String(payload.thumbnail || "").trim(),
     modules: Array.isArray(payload.modules)
-      ? payload.modules.map((module, moduleIndex) => ({
-          id: String(module?.id || `${id}-m${moduleIndex + 1}`),
-          title: String(module?.title || "").trim(),
-          description: String(module?.description || "").trim(),
-          duration: String(module?.duration || "").trim(),
-          lessons: Array.isArray(module?.lessons)
-            ? module.lessons.map((lesson, lessonIndex) => ({
-                id: String(lesson?.id || `${id}-m${moduleIndex + 1}-l${lessonIndex + 1}`),
-                title: String(lesson?.title || "").trim(),
-                description: String(lesson?.description || "").trim(),
-                duration: String(lesson?.duration || "").trim(),
-                youtubeVideoId: String(lesson?.youtubeVideoId || lesson?.youtube_video_id || "").trim(),
-                isPreview: Boolean(lesson?.isPreview ?? lesson?.is_preview ?? lessonIndex === 0),
-              }))
-            : [],
-        }))
+      ? payload.modules.map((module, moduleIndex) => normalizeModule(module, id, moduleIndex))
       : [],
   };
 };
@@ -90,6 +100,31 @@ const toCourseSummary = (course) => ({
   description: course.description,
 });
 
+const findCourseIndex = (courses, lookupValue = "") => {
+  const lookup = String(lookupValue || "").trim().toLowerCase();
+  return courses.findIndex(
+    (item) => item.id === lookup || item.slug.toLowerCase() === lookup || item.id.toLowerCase() === lookup,
+  );
+};
+
+const withCourseMutation = async (req, res, callback) => {
+  const courses = await readCourses();
+  const courseIndex = courses.findIndex((item) => item.id === req.params.id);
+
+  if (courseIndex === -1) {
+    return res.status(404).json({ success: false, message: "Course not found." });
+  }
+
+  const result = callback(normalizeCourse(courses[courseIndex], courses[courseIndex].id));
+  if (result?.error) {
+    return res.status(result.status || 400).json({ success: false, message: result.error });
+  }
+
+  courses[courseIndex] = normalizeCourse(result.course, courses[courseIndex].id);
+  await writeCourses(courses);
+  return res.json({ success: true, data: courses[courseIndex] });
+};
+
 export const getCourses = async (_req, res) => {
   const courses = await readCourses();
   return res.json({ success: true, data: courses.map(toCourseSummary) });
@@ -97,8 +132,8 @@ export const getCourses = async (_req, res) => {
 
 export const getCourseById = async (req, res) => {
   const courses = await readCourses();
-  const lookup = String(req.params.id || "").trim().toLowerCase();
-  const course = courses.find((item) => item.id === lookup || item.slug.toLowerCase() === lookup || item.id.toLowerCase() === lookup);
+  const courseIndex = findCourseIndex(courses, req.params.slug || req.params.id);
+  const course = courseIndex >= 0 ? courses[courseIndex] : null;
 
   if (!course) {
     return res.status(404).json({ success: false, message: "Course not found." });
@@ -150,6 +185,82 @@ export const updateCourse = async (req, res) => {
 
   return res.json({ success: true, data: merged });
 };
+
+export const addModule = async (req, res) =>
+  withCourseMutation(req, res, (course) => {
+    const nextModule = normalizeModule(req.body || {}, course.id, course.modules.length);
+    return { course: { ...course, modules: [...course.modules, nextModule] } };
+  });
+
+export const updateModule = async (req, res) =>
+  withCourseMutation(req, res, (course) => {
+    const moduleIndex = course.modules.findIndex((module) => module.id === req.params.moduleId);
+    if (moduleIndex < 0) return { error: "Module not found.", status: 404 };
+
+    const merged = normalizeModule(
+      { ...course.modules[moduleIndex], ...(req.body || {}), id: course.modules[moduleIndex].id },
+      course.id,
+      moduleIndex,
+    );
+    const modules = [...course.modules];
+    modules[moduleIndex] = merged;
+    return { course: { ...course, modules } };
+  });
+
+export const deleteModule = async (req, res) =>
+  withCourseMutation(req, res, (course) => {
+    const modules = course.modules.filter((module) => module.id !== req.params.moduleId);
+    if (modules.length === course.modules.length) return { error: "Module not found.", status: 404 };
+    return { course: { ...course, modules } };
+  });
+
+export const addLesson = async (req, res) =>
+  withCourseMutation(req, res, (course) => {
+    const moduleIndex = course.modules.findIndex((module) => module.id === req.params.moduleId);
+    if (moduleIndex < 0) return { error: "Module not found.", status: 404 };
+
+    const module = course.modules[moduleIndex];
+    const nextLesson = normalizeLesson(req.body || {}, course.id, module.id, module.lessons.length);
+    const modules = [...course.modules];
+    modules[moduleIndex] = { ...module, lessons: [...module.lessons, nextLesson] };
+    return { course: { ...course, modules } };
+  });
+
+export const updateLesson = async (req, res) =>
+  withCourseMutation(req, res, (course) => {
+    const moduleIndex = course.modules.findIndex((module) => module.id === req.params.moduleId);
+    if (moduleIndex < 0) return { error: "Module not found.", status: 404 };
+
+    const module = course.modules[moduleIndex];
+    const lessonIndex = module.lessons.findIndex((lesson) => lesson.id === req.params.lessonId);
+    if (lessonIndex < 0) return { error: "Lesson not found.", status: 404 };
+
+    const lessons = [...module.lessons];
+    lessons[lessonIndex] = normalizeLesson(
+      { ...lessons[lessonIndex], ...(req.body || {}), id: lessons[lessonIndex].id },
+      course.id,
+      module.id,
+      lessonIndex,
+    );
+
+    const modules = [...course.modules];
+    modules[moduleIndex] = { ...module, lessons };
+    return { course: { ...course, modules } };
+  });
+
+export const deleteLesson = async (req, res) =>
+  withCourseMutation(req, res, (course) => {
+    const moduleIndex = course.modules.findIndex((module) => module.id === req.params.moduleId);
+    if (moduleIndex < 0) return { error: "Module not found.", status: 404 };
+
+    const module = course.modules[moduleIndex];
+    const lessons = module.lessons.filter((lesson) => lesson.id !== req.params.lessonId);
+    if (lessons.length === module.lessons.length) return { error: "Lesson not found.", status: 404 };
+
+    const modules = [...course.modules];
+    modules[moduleIndex] = { ...module, lessons };
+    return { course: { ...course, modules } };
+  });
 
 export const deleteCourse = async (req, res) => {
   const courses = await readCourses();
