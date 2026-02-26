@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Sidebar } from "@/pages/admin/components/Sidebar";
 import { AdminHeader } from "@/pages/admin/components/AdminHeader";
+import { AdminToast } from "@/pages/admin/components/AdminToast";
 import { Dashboard } from "@/pages/admin/sections/Dashboard";
 import { AppManagement } from "@/pages/admin/sections/AppManagement";
 import { Users } from "@/pages/admin/sections/Users";
@@ -50,8 +51,9 @@ export const AdminLayout = () => {
           setIsMobileOpen={setIsMobileOpen}
         />
 
-        <section className="w-full px-4 py-4 md:px-6 md:py-6">
+        <section className="relative w-full px-4 py-4 md:px-6 md:py-6">
           <AdminHeader onMenuClick={() => setIsMobileOpen(true)} activeLabel={sectionLabels[activeSection]} />
+          <AdminToast />
 
           <AnimatePresence mode="wait">
             <motion.div
