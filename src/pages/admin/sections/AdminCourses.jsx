@@ -4,19 +4,19 @@ import { AdminCoursePreview } from "@/pages/admin/components/AdminCoursePreview"
 import { useToastStore } from "@/pages/admin/store/useToastStore";
 import { useAdminCourses } from "@/pages/admin/hooks/useAdminCourses";
 import logoDark from "@/assets/Logo dark.png";
-import { ChevronDown, ChevronUp, Eye, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Eye, Loader2, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 
 const ITEMS_PER_PAGE = 10;
 const CATEGORY_TABS = ["All", "Programming", "Graphics Design", "Operate Computer"];
 
 const makeClientId = () => (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
-const emptyLesson = () => ({ clientId: makeClientId(), title: "", duration: "", youtubeVideoId: "" });
-const emptyModule = () => ({ clientId: makeClientId(), title: "", description: "", duration: "", isOpen: true, lessons: [emptyLesson()] });
+const emptyLesson = () => ({ clientId: makeClientId(), title: "", videoUrl: "", freePreview: false });
+const emptyModule = () => ({ clientId: makeClientId(), title: "", description: "", isOpen: true, lessons: [emptyLesson()] });
 const emptyForm = () => ({
   title: "",
   slug: "",
   category: "",
-  instructor: "",
+  instructor: "Dev Fraol",
   description: "",
   thumbnail: "",
   modules: [emptyModule()],
@@ -34,6 +34,7 @@ export const AdminCourses = () => {
   const {
     courses,
     isLoadingCourses: loading,
+    fetchCourses,
     getCourseById,
     createCourse,
     updateCourse,
@@ -121,12 +122,13 @@ export const AdminCourses = () => {
           clientId: module.clientId || module.id || makeClientId(),
           title: module.title || "",
           description: module.description || "",
-          duration: module.duration || "",
           isOpen: true,
           lessons: module.lessons?.length
             ? module.lessons.map((lesson) => ({
                 ...emptyLesson(),
                 ...lesson,
+                videoUrl: lesson.videoUrl || lesson.youtubeVideoId || "",
+                freePreview: lesson.freePreview ?? lesson.isPreview ?? false,
                 clientId: lesson.clientId || lesson.id || makeClientId(),
               }))
             : [emptyLesson()],
@@ -145,12 +147,18 @@ export const AdminCourses = () => {
     if (!formState.title.trim()) nextErrors.title = "Title is required";
     if (!formState.slug.trim()) nextErrors.slug = "Slug is required";
     if (!formState.category.trim()) nextErrors.category = "Category is required";
+    if (!formState.instructor.trim()) nextErrors.instructor = "Instructor is required";
     if (!formState.description.trim()) nextErrors.description = "Description is required";
+    if (!formState.thumbnail.trim()) nextErrors.thumbnail = "Thumbnail is required";
+    if (!formState.modules.length) nextErrors.modules = "At least one module is required";
 
     formState.modules.forEach((module, moduleIndex) => {
       if (!module.title.trim()) nextErrors[`module-${moduleIndex}-title`] = "Module title is required";
+      if (!module.description.trim()) nextErrors[`module-${moduleIndex}-description`] = "Module description is required";
+      if (!module.lessons.length) nextErrors[`module-${moduleIndex}-lessons`] = "At least one lesson is required";
       module.lessons.forEach((lesson, lessonIndex) => {
         if (!lesson.title.trim()) nextErrors[`module-${moduleIndex}-lesson-${lessonIndex}-title`] = "Lesson title is required";
+        if (!lesson.videoUrl.trim()) nextErrors[`module-${moduleIndex}-lesson-${lessonIndex}-videoUrl`] = "Video URL is required";
       });
     });
 
@@ -301,10 +309,14 @@ export const AdminCourses = () => {
     setSubmitting(true);
     const payload = {
       ...formState,
+      instructor: formState.instructor.trim() || "Dev Fraol",
       slug: slugify(formState.slug),
       modules: formState.modules.map(({ isOpen, clientId: _clientId, ...module }) => ({
         ...module,
-        lessons: module.lessons.map(({ clientId: _lessonClientId, ...lesson }) => lesson),
+        lessons: module.lessons.map(({ clientId: _lessonClientId, ...lesson }) => ({
+          ...lesson,
+          freePreview: Boolean(lesson.freePreview),
+        })),
       })),
     };
 
@@ -317,6 +329,7 @@ export const AdminCourses = () => {
         addToast({ type: "success", message: `Course ${payload.title || "Untitled"} updated successfully` });
       }
 
+      await fetchCourses();
       closeCourseForm();
       setFormState(emptyForm());
     } catch (error) {
@@ -617,13 +630,13 @@ export const AdminCourses = () => {
               initial={{ opacity: 0, x: 72 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 72 }}
-              transition={{ type: "spring", stiffness: 240, damping: 28 }}
+              transition={{ type: "spring", stiffness: 210, damping: 24 }}
               onSubmit={submitForm}
               className="flex h-full w-full flex-col border-l border-white/10 bg-zinc-950/95"
             >
               <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-zinc-950/95 px-4 py-3 md:px-6">
                 <div className="flex items-center gap-3">
-                  <img src={logoDark} alt="Dev Fraol Academy" className="h-8 w-auto" />
+                  <img src={logoDark} alt="Dev Fraol" className="h-8 w-auto" />
                   <div>
                     <h3 className="text-sm font-semibold tracking-wide text-zinc-100 md:text-base">{isEditMode ? "Edit course" : "Create course"}</h3>
                     {isEditMode && <p className="text-xs text-zinc-400">{formState.title || "Untitled course"}</p>}
@@ -662,7 +675,8 @@ export const AdminCourses = () => {
                         <input
                           value={formState[key]}
                           onChange={(event) => handleFormChange(key, event.target.value)}
-                          className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-[#FF3B30]/60"
+                          required
+                          className={`w-full rounded-lg border bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-[#FF3B30]/60 ${errors[key] ? "border-rose-400/70" : "border-white/10"}`}
                         />
                         {errors[key] && <p className="text-xs text-rose-300">{errors[key]}</p>}
                       </label>
@@ -675,7 +689,8 @@ export const AdminCourses = () => {
                       rows={4}
                       value={formState.description}
                       onChange={(event) => handleFormChange("description", event.target.value)}
-                      className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-[#FF3B30]/60"
+                      required
+                      className={`w-full rounded-lg border bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-[#FF3B30]/60 ${errors.description ? "border-rose-400/70" : "border-white/10"}`}
                     />
                     {errors.description && <p className="text-xs text-rose-300">{errors.description}</p>}
                   </label>
@@ -686,9 +701,10 @@ export const AdminCourses = () => {
                       type="file"
                       accept="image/*"
                       onChange={onThumbnailChange}
-                      className="block w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-300 file:mr-3 file:rounded-lg file:border-0 file:bg-[#FF3B30]/20 file:px-3 file:py-1 file:text-[#FF7C73]"
+                      className={`block w-full rounded-lg border bg-zinc-950 px-3 py-2 text-sm text-zinc-300 file:mr-3 file:rounded-lg file:border-0 file:bg-[#FF3B30]/20 file:px-3 file:py-1 file:text-[#FF7C73] ${errors.thumbnail ? "border-rose-400/70" : "border-white/10"}`}
                     />
                     {formState.thumbnail && <p className="text-xs text-zinc-500">Thumbnail selected</p>}
+                    {errors.thumbnail && <p className="text-xs text-rose-300">{errors.thumbnail}</p>}
                   </label>
                 </section>
 
@@ -730,12 +746,12 @@ export const AdminCourses = () => {
                               exit={{ opacity: 0, height: 0 }}
                               className="mt-3 overflow-hidden"
                             >
-                              <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-                                <input value={module.title} onChange={(event) => setModule(moduleIndex, "title", event.target.value)} placeholder="Module title" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-100" />
-                                <input value={module.duration} onChange={(event) => setModule(moduleIndex, "duration", event.target.value)} placeholder="Duration" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-100" />
-                                <input value={module.description} onChange={(event) => setModule(moduleIndex, "description", event.target.value)} placeholder="Brief description" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-100" />
+                              <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                                <input value={module.title} onChange={(event) => setModule(moduleIndex, "title", event.target.value)} placeholder="Module title" className={`rounded-lg border bg-zinc-950 px-3 py-2 text-sm text-zinc-100 ${errors[`module-${moduleIndex}-title`] ? "border-rose-400/70" : "border-white/10"}`} />
+                                <input value={module.description} onChange={(event) => setModule(moduleIndex, "description", event.target.value)} placeholder="Brief description" className={`rounded-lg border bg-zinc-950 px-3 py-2 text-sm text-zinc-100 ${errors[`module-${moduleIndex}-description`] ? "border-rose-400/70" : "border-white/10"}`} />
                               </div>
                               {errors[`module-${moduleIndex}-title`] && <p className="mt-1 text-xs text-rose-300">{errors[`module-${moduleIndex}-title`]}</p>}
+                              {errors[`module-${moduleIndex}-description`] && <p className="mt-1 text-xs text-rose-300">{errors[`module-${moduleIndex}-description`]}</p>}
 
                               <div className={`mt-4 space-y-2 rounded-lg border p-2 transition ${draggingLessonId ? "border-[#FF7C73]/35" : "border-white/5"}`}>
                                 <div className="flex items-center justify-between">
@@ -759,9 +775,12 @@ export const AdminCourses = () => {
                                       className={`rounded-lg border bg-black/25 p-3 transition ${draggingLessonId === lesson.clientId ? "z-20 border-[#FF7C73]/70 shadow-[0_0_0_1px_rgba(255,124,115,0.45),0_10px_24px_rgba(0,0,0,0.45)]" : "border-white/10"}`}
                                     >
                                       <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-                                        <input value={lesson.title} onChange={(event) => setLesson(moduleIndex, lessonIndex, "title", event.target.value)} placeholder="Lesson title" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs text-zinc-100" />
-                                        <input value={lesson.duration} onChange={(event) => setLesson(moduleIndex, lessonIndex, "duration", event.target.value)} placeholder="Duration" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs text-zinc-100" />
-                                        <input value={lesson.youtubeVideoId} onChange={(event) => setLesson(moduleIndex, lessonIndex, "youtubeVideoId", event.target.value)} placeholder="YouTube video ID" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs text-zinc-100" />
+                                        <input value={lesson.title} onChange={(event) => setLesson(moduleIndex, lessonIndex, "title", event.target.value)} placeholder="Lesson title" className={`rounded-lg border bg-zinc-950 px-3 py-2 text-xs text-zinc-100 ${errors[`module-${moduleIndex}-lesson-${lessonIndex}-title`] ? "border-rose-400/70" : "border-white/10"}`} />
+                                        <input value={lesson.videoUrl} onChange={(event) => setLesson(moduleIndex, lessonIndex, "videoUrl", event.target.value)} placeholder="Video URL" className={`rounded-lg border bg-zinc-950 px-3 py-2 text-xs text-zinc-100 ${errors[`module-${moduleIndex}-lesson-${lessonIndex}-videoUrl`] ? "border-rose-400/70" : "border-white/10"}`} />
+                                        <label className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs text-zinc-100">
+                                          <input type="checkbox" checked={Boolean(lesson.freePreview)} onChange={(event) => setLesson(moduleIndex, lessonIndex, "freePreview", event.target.checked)} />
+                                          Free preview
+                                        </label>
                                       </div>
                                       <div className="mt-2 flex justify-end">
                                         {module.lessons.length > 1 && (
@@ -770,6 +789,9 @@ export const AdminCourses = () => {
                                       </div>
                                       {errors[`module-${moduleIndex}-lesson-${lessonIndex}-title`] && (
                                         <p className="mt-1 text-xs text-rose-300">{errors[`module-${moduleIndex}-lesson-${lessonIndex}-title`]}</p>
+                                      )}
+                                      {errors[`module-${moduleIndex}-lesson-${lessonIndex}-videoUrl`] && (
+                                        <p className="mt-1 text-xs text-rose-300">{errors[`module-${moduleIndex}-lesson-${lessonIndex}-videoUrl`]}</p>
                                       )}
                                     </Reorder.Item>
                                   ))}
@@ -787,7 +809,8 @@ export const AdminCourses = () => {
               <div className="sticky bottom-0 z-10 mt-auto flex flex-wrap justify-end gap-2 border-t border-white/10 bg-zinc-950/95 px-4 py-3 md:px-6">
                 <button type="button" onClick={openPreviewFromForm} className="rounded-xl border border-sky-400/45 bg-sky-500/10 px-4 py-2 text-sm text-sky-200">Preview</button>
                 <button type="button" onClick={closeCourseForm} className="rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-300">Cancel</button>
-                <button type="submit" disabled={submitting} className="rounded-xl border border-[#FF3B30]/60 bg-[#FF3B30]/15 px-4 py-2 text-sm text-[#FF7C73] disabled:opacity-60">
+                <button type="submit" disabled={submitting} className="inline-flex items-center gap-2 rounded-xl border border-[#FF3B30]/60 bg-[#FF3B30]/15 px-4 py-2 text-sm text-[#FF7C73] disabled:opacity-60">
+                  {submitting ? <Loader2 size={14} className="animate-spin" /> : null}
                   {submitting ? "Saving..." : formMode === "create" ? "Create Course" : "Update Course"}
                 </button>
               </div>
