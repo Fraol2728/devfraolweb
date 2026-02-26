@@ -16,11 +16,15 @@ const parseModules = (modules) => {
   }
 
   if (typeof modules === "string") {
-    const parsedModules = JSON.parse(modules);
-    if (!Array.isArray(parsedModules)) {
-      throw new Error("Modules must be an array.");
+    try {
+      const parsedModules = JSON.parse(modules);
+      if (!Array.isArray(parsedModules)) {
+        throw new Error("Modules must be an array.");
+      }
+      return parsedModules;
+    } catch {
+      throw new Error("Modules must be a valid JSON array.");
     }
-    return parsedModules;
   }
 
   throw new Error("Modules must be an array.");
@@ -76,7 +80,11 @@ router.post("/", requireAuth, thumbnailUpload, async (req, res) => {
   } catch (error) {
     console.error("POST /api/courses error:", error);
 
-    if (error instanceof mongoose.Error.ValidationError || error.message === "Modules must be an array.") {
+    if (
+      error instanceof mongoose.Error.ValidationError
+      || error.message === "Modules must be an array."
+      || error.message === "Modules must be a valid JSON array."
+    ) {
       return res.status(400).json({ success: false, message: error.message });
     }
 
@@ -107,6 +115,7 @@ router.put("/:id", requireAuth, thumbnailUpload, async (req, res) => {
       error instanceof mongoose.Error.ValidationError
       || error instanceof mongoose.Error.CastError
       || error.message === "Modules must be an array."
+      || error.message === "Modules must be a valid JSON array."
     ) {
       return res.status(400).json({ success: false, message: "Invalid course data or ID." });
     }
