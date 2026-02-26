@@ -45,7 +45,9 @@ export const AdminCourses = () => {
 
   const [message, setMessage] = useState({ type: "", text: "" });
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [viewTarget, setViewTarget] = useState(null);
+  const deleteOverlayRef = useRef(null);
 
   const categories = useMemo(() => {
     const values = courses
@@ -333,6 +335,7 @@ export const AdminCourses = () => {
   const confirmDelete = async () => {
     if (!deleteTarget) return;
 
+    setDeleting(true);
     try {
       await apiFetch(`/api/courses/${deleteTarget.id}`, { method: "DELETE" });
       setDeleteTarget(null);
@@ -340,8 +343,57 @@ export const AdminCourses = () => {
       await loadCourses();
     } catch (error) {
       setMessage({ type: "error", text: error.message || "Failed to delete course." });
+    } finally {
+      setDeleting(false);
     }
   };
+
+  useEffect(() => {
+    if (!deleteTarget) return undefined;
+
+    const focusableSelector = [
+      "a[href]",
+      "button:not([disabled])",
+      "textarea:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "[tabindex]:not([tabindex='-1'])",
+    ].join(",");
+
+    const getFocusable = () => {
+      if (!deleteOverlayRef.current) return [];
+      return Array.from(deleteOverlayRef.current.querySelectorAll(focusableSelector));
+    };
+
+    getFocusable()[0]?.focus();
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setDeleteTarget(null);
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const focusables = getFocusable();
+      if (!focusables.length) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [deleteTarget]);
 
   return (
     <section className="space-y-5 rounded-2xl border border-white/10 bg-zinc-900/65 p-5 backdrop-blur-xl">
@@ -668,13 +720,66 @@ export const AdminCourses = () => {
 
       <AnimatePresence>
         {deleteTarget && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 grid place-items-center bg-black/75 p-4">
-            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-950 p-5">
-              <h3 className="text-lg font-semibold text-white">Delete Course?</h3>
-              <p className="mt-2 text-sm text-zinc-300">Are you sure you want to delete <span className="text-white">{deleteTarget.title}</span>? This action cannot be undone.</p>
-              <div className="mt-5 flex justify-end gap-2">
-                <button onClick={() => setDeleteTarget(null)} className="rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-300">Cancel</button>
-                <button onClick={confirmDelete} className="rounded-xl border border-rose-400/40 bg-rose-500/10 px-4 py-2 text-sm text-rose-300">Delete</button>
+          <motion.div
+            ref={deleteOverlayRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Confirm course deletion"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/55 md:left-72"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) setDeleteTarget(null);
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 16 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="mx-auto flex h-full w-full max-w-lg flex-col border-x border-white/10 bg-zinc-950/95 shadow-2xl"
+            >
+              <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-zinc-950/95 px-4 py-3 md:px-6">
+                <div className="flex items-center gap-3">
+                  <img src={logoDark} alt="Dev Fraol Academy" className="h-8 w-auto" />
+                  <h3 className="text-sm font-semibold tracking-wide text-zinc-100 md:text-base">Confirm Delete</h3>
+                </div>
+                <button type="button" onClick={() => setDeleteTarget(null)} className="rounded-lg border border-white/10 p-2 text-zinc-200 hover:border-[#FF3B30]/45" aria-label="Close delete confirmation">
+                  <X size={16} />
+                </button>
+              </header>
+
+              <div className="flex flex-1 flex-col gap-5 px-4 py-5 md:px-6 md:py-6">
+                {deleteTarget.thumbnail ? (
+                  <img
+                    src={deleteTarget.thumbnail}
+                    alt={`${deleteTarget.title} thumbnail`}
+                    className="h-44 w-full rounded-2xl border border-white/10 object-cover"
+                  />
+                ) : null}
+
+                <p className="text-sm leading-relaxed text-zinc-300 md:text-base">
+                  Are you sure you want to delete the course <span className="font-semibold text-white">{deleteTarget.title}</span>? This action cannot be undone.
+                </p>
+              </div>
+
+              <div className="mt-auto grid grid-cols-1 gap-2 border-t border-white/10 bg-zinc-950/95 px-4 py-3 md:grid-cols-2 md:px-6">
+                <button
+                  type="button"
+                  onClick={() => setDeleteTarget(null)}
+                  className="w-full rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-300 transition hover:border-white/20"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmDelete}
+                  disabled={deleting}
+                  className="w-full rounded-xl border border-[#FF3B30]/60 bg-[#FF3B30]/15 px-4 py-2 text-sm font-medium text-[#FF7C73] transition hover:bg-[#FF3B30]/25 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {deleting ? "Deleting..." : "Delete"}
+                </button>
               </div>
             </motion.div>
           </motion.div>
