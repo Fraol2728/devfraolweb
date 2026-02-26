@@ -1,7 +1,15 @@
 import { create } from "@/lib/zustand";
 import { apiFetch } from "@/lib/api";
 
-const toArray = (payload) => payload?.data ?? payload ?? [];
+const toArray = (payload) => {
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data?.courses)) return payload.data.courses;
+  if (Array.isArray(payload?.courses)) return payload.courses;
+  if (Array.isArray(payload?.data?.users)) return payload.data.users;
+  if (Array.isArray(payload?.users)) return payload.users;
+  return [];
+};
 
 const appendActivity = (state, action, course) => {
   const timestamp = new Date().toISOString();
