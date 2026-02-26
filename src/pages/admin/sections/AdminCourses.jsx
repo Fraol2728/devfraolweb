@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, Reorder, motion } from "framer-motion";
-import { apiFetch } from "@/lib/api";
 import { AdminCoursePreview } from "@/pages/admin/components/AdminCoursePreview";
 import { useToastStore } from "@/pages/admin/store/useToastStore";
+import { useAdminCourses } from "@/pages/admin/hooks/useAdminCourses";
 import logoDark from "@/assets/Logo dark.png";
 import { ChevronDown, ChevronUp, Eye, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 
@@ -31,8 +31,14 @@ const slugify = (value = "") =>
     .replace(/-+/g, "-");
 
 export const AdminCourses = () => {
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const {
+    courses,
+    isLoadingCourses: loading,
+    getCourseById,
+    createCourse,
+    updateCourse,
+    deleteCourse,
+  } = useAdminCourses();
   const [query, setQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
@@ -63,22 +69,6 @@ export const AdminCourses = () => {
     const values = courses.map((course) => course.category).filter(Boolean);
     return [...new Set([...CATEGORY_TABS, ...values])];
   }, [courses]);
-
-  const loadCourses = async () => {
-    setLoading(true);
-    try {
-      const payload = await apiFetch("/api/courses");
-      setCourses(payload.data ?? []);
-    } catch (error) {
-      addToast({ type: "error", message: `Failed to fetch courses: ${error.message || "Unknown error"}` });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadCourses();
-  }, []);
 
   const filteredCourses = useMemo(() => {
     const filtered = courses.filter((course) => {
@@ -120,8 +110,7 @@ export const AdminCourses = () => {
 
   const openEdit = async (courseId) => {
     try {
-      const payload = await apiFetch(`/api/courses/${courseId}`);
-      const data = payload.data;
+      const data = await getCourseById(courseId);
       setFormMode("edit");
       setEditingId(courseId);
       setFormState({
@@ -184,8 +173,8 @@ export const AdminCourses = () => {
   const openPreviewFromCourse = async (courseId) => {
     setLoadingPreviewId(courseId);
     try {
-      const payload = await apiFetch(`/api/courses/${courseId}`);
-      setPreviewTarget(payload.data || null);
+      const data = await getCourseById(courseId);
+      setPreviewTarget(data || null);
       addToast({ type: "info", message: "This is a preview, changes not saved." });
     } catch (error) {
       addToast({ type: "error", message: `Failed to load preview: ${error.message || "Unknown error"}` });
@@ -321,22 +310,15 @@ export const AdminCourses = () => {
 
     try {
       if (formMode === "create") {
-        await apiFetch("/api/courses", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
+        await createCourse(payload);
         addToast({ type: "success", message: `Course ${payload.title || "Untitled"} added successfully` });
       } else {
-        await apiFetch(`/api/courses/${editingId}`, {
-          method: "PUT",
-          body: JSON.stringify(payload),
-        });
+        await updateCourse(editingId, payload);
         addToast({ type: "success", message: `Course ${payload.title || "Untitled"} updated successfully` });
       }
 
       closeCourseForm();
       setFormState(emptyForm());
-      await loadCourses();
     } catch (error) {
       const errorMessage = error.message || "Unknown error";
       setFormNotice({ type: "error", text: `Failed to save course: ${errorMessage}` });
@@ -403,10 +385,9 @@ export const AdminCourses = () => {
 
     setDeleting(true);
     try {
-      await apiFetch(`/api/courses/${deleteTarget.id}`, { method: "DELETE" });
+      await deleteCourse(deleteTarget.id);
       setDeleteTarget(null);
       addToast({ type: "success", message: `Course ${deleteTarget.title || "Untitled"} deleted successfully` });
-      await loadCourses();
     } catch (error) {
       addToast({ type: "error", message: `Failed to delete course: ${error.message || "Unknown error"}` });
     } finally {

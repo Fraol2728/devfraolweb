@@ -24,34 +24,40 @@ export const EnrollmentTrendChart = ({ data = [] }) => {
       <h3 className="text-base font-semibold text-white">Enrollment Trends</h3>
       <p className="mt-1 text-xs text-zinc-400">Estimated enrollments by month</p>
 
-      <div className="mt-5 overflow-x-auto">
-        <svg viewBox={`0 0 ${width} ${height}`} className="h-52 min-w-[430px] w-full">
-          {[0, 1, 2, 3].map((tick) => {
-            const y = padding + (tick * (height - padding * 2)) / 3;
-            return <line key={tick} x1={padding} y1={y} x2={width - padding} y2={y} className="stroke-white/10" strokeDasharray="4 6" />;
-          })}
+      {data.length ? (
+        <div className="mt-5 overflow-x-auto">
+          <svg viewBox={`0 0 ${width} ${height}`} className="h-52 min-w-[430px] w-full">
+            {[0, 1, 2, 3].map((tick) => {
+              const y = padding + (tick * (height - padding * 2)) / 3;
+              return <line key={tick} x1={padding} y1={y} x2={width - padding} y2={y} className="stroke-white/10" strokeDasharray="4 6" />;
+            })}
 
-          <motion.path
-            d={pathData}
-            fill="none"
-            stroke="#FF3B30"
-            strokeWidth="3"
-            strokeLinecap="round"
-            initial={{ pathLength: 0, opacity: 0.7 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
-          />
+            <motion.path
+              key={pathData}
+              d={pathData}
+              fill="none"
+              stroke="#FF3B30"
+              strokeWidth="3"
+              strokeLinecap="round"
+              initial={{ pathLength: 0, opacity: 0.7 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{ duration: 0.9, ease: "easeOut" }}
+            />
 
-          {points.map((point, index) => (
-            <motion.g key={point.label} initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 + index * 0.06 }}>
-              <circle cx={point.x} cy={point.y} r="4" fill="#FF7C73" />
-              <text x={point.x} y={height - 6} textAnchor="middle" className="fill-zinc-400 text-[10px]">
-                {point.label}
-              </text>
-            </motion.g>
-          ))}
-        </svg>
-      </div>
+            {points.map((point, index) => (
+              <motion.g key={point.label} initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 + index * 0.06 }}>
+                <circle cx={point.x} cy={point.y} r="4" fill="#FF7C73" />
+                <title>{`${point.label}: ${point.value}`}</title>
+                <text x={point.x} y={height - 6} textAnchor="middle" className="fill-zinc-400 text-[10px]">
+                  {point.label}
+                </text>
+              </motion.g>
+            ))}
+          </svg>
+        </div>
+      ) : (
+        <p className="mt-6 rounded-xl border border-dashed border-white/15 bg-black/20 px-4 py-8 text-center text-sm text-zinc-400">No enrollment trend data available.</p>
+      )}
     </motion.article>
   );
 };
