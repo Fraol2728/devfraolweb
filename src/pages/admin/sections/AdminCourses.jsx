@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { apiFetch } from "@/lib/api";
+import { useToastStore } from "@/pages/admin/store/useToastStore";
 import logoDark from "@/assets/Logo dark.png";
 import { ChevronDown, ChevronUp, Eye, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 
@@ -43,9 +44,9 @@ export const AdminCourses = () => {
   const formOverlayRef = useRef(null);
   const formPanelRef = useRef(null);
 
-  const [message, setMessage] = useState({ type: "", text: "" });
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const addToast = useToastStore((state) => state.addToast);
   const [viewTarget, setViewTarget] = useState(null);
   const deleteOverlayRef = useRef(null);
 
@@ -62,9 +63,8 @@ export const AdminCourses = () => {
     try {
       const payload = await apiFetch("/api/courses");
       setCourses(payload.data ?? []);
-      setMessage({ type: "", text: "" });
     } catch (error) {
-      setMessage({ type: "error", text: error.message || "Failed to fetch courses." });
+      addToast({ type: "error", message: `Failed to fetch courses: ${error.message || "Unknown error"}` });
     } finally {
       setLoading(false);
     }
@@ -134,7 +134,7 @@ export const AdminCourses = () => {
       setFormNotice({ type: "", text: "" });
       setShowForm(true);
     } catch (error) {
-      setMessage({ type: "error", text: error.message || "Failed to load course." });
+      addToast({ type: "error", message: `Failed to load course: ${error.message || "Unknown error"}` });
     }
   };
 
@@ -239,7 +239,7 @@ export const AdminCourses = () => {
       const dataUrl = await toDataUrl();
       setFormState((prev) => ({ ...prev, thumbnail: dataUrl }));
     } catch {
-      setMessage({ type: "error", text: "Unable to process thumbnail file." });
+      addToast({ type: "error", message: "Unable to process thumbnail file." });
     }
   };
 
@@ -263,21 +263,25 @@ export const AdminCourses = () => {
           method: "POST",
           body: JSON.stringify(payload),
         });
-        setMessage({ type: "success", text: "Course created successfully." });
+        addToast({ type: "success", message: `Course ${payload.title || "Untitled"} added successfully` });
       } else {
         await apiFetch(`/api/courses/${editingId}`, {
           method: "PUT",
           body: JSON.stringify(payload),
         });
-        setMessage({ type: "success", text: "Course updated successfully." });
+        addToast({ type: "success", message: `Course ${payload.title || "Untitled"} updated successfully` });
       }
 
       closeCourseForm();
       setFormState(emptyForm());
       await loadCourses();
     } catch (error) {
-      setFormNotice({ type: "error", text: error.message || "Failed to save course." });
-      setMessage({ type: "error", text: error.message || "Failed to save course." });
+      const errorMessage = error.message || "Unknown error";
+      setFormNotice({ type: "error", text: `Failed to save course: ${errorMessage}` });
+      addToast({
+        type: "error",
+        message: formMode === "create" ? `Failed to add course: ${errorMessage}` : `Failed to update course: ${errorMessage}`,
+      });
     } finally {
       setSubmitting(false);
     }
@@ -339,10 +343,10 @@ export const AdminCourses = () => {
     try {
       await apiFetch(`/api/courses/${deleteTarget.id}`, { method: "DELETE" });
       setDeleteTarget(null);
-      setMessage({ type: "success", text: "Course deleted successfully." });
+      addToast({ type: "success", message: `Course ${deleteTarget.title || "Untitled"} deleted successfully` });
       await loadCourses();
     } catch (error) {
-      setMessage({ type: "error", text: error.message || "Failed to delete course." });
+      addToast({ type: "error", message: `Failed to delete course: ${error.message || "Unknown error"}` });
     } finally {
       setDeleting(false);
     }
@@ -408,17 +412,6 @@ export const AdminCourses = () => {
         </button>
       </div>
 
-      {message.text && (
-        <div
-          className={`rounded-xl border px-4 py-3 text-sm ${
-            message.type === "error"
-              ? "border-rose-400/45 bg-rose-500/10 text-rose-200"
-              : "border-emerald-400/45 bg-emerald-500/10 text-emerald-200"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
         <label className="relative flex-1">
