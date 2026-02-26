@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, PlayCircle } from "lucide-react";
+import { ChevronDown, PlayCircle, Sparkles } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { useSeoMeta } from "@/hooks/useSeoMeta";
+
+const COURSE_REFRESH_EVENT = "course:updated";
 
 const toEmbedUrl = (youtubeVideoId = "") => {
   const videoId = youtubeVideoId.includes("youtube.com") || youtubeVideoId.includes("youtu.be")
@@ -13,48 +15,86 @@ const toEmbedUrl = (youtubeVideoId = "") => {
   return `https://www.youtube.com/embed/${videoId || "dQw4w9WgXcQ"}`;
 };
 
+const findFirstLesson = (modules = []) => {
+  for (const module of modules) {
+    const preferred = module.lessons?.find((lesson) => lesson.isPreview) || module.lessons?.[0];
+    if (preferred) return preferred;
+  }
+  return null;
+};
+
+const loadCourseDetail = async (routeKey) => {
+  try {
+    const payload = await apiFetch(`/api/courses/slug/${routeKey}`);
+    return payload?.data ?? null;
+  } catch {
+    const payload = await apiFetch(`/api/courses/${routeKey}`);
+    return payload?.data ?? null;
+  }
+};
+
 export const CourseDetailPage = () => {
   const { slug, courseId } = useParams();
   const routeKey = slug || courseId;
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [openModuleId, setOpenModuleId] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
+  const [showLiveBadge, setShowLiveBadge] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
-    const loadCourse = async (showLoader = false) => {
+    const syncCourse = async (showLoader = false) => {
       if (showLoader) setLoading(true);
+      else setIsRefreshing(true);
+
       try {
-        const payload = await apiFetch(`/api/courses/${routeKey}`);
-        if (!cancelled) {
-          const data = payload?.data ?? null;
-          setCourse(data);
-        }
+        const data = await loadCourseDetail(routeKey);
+        if (!cancelled) setCourse(data);
       } catch {
         if (!cancelled) setCourse(null);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setIsRefreshing(false);
+        }
       }
     };
 
-    loadCourse(true);
-    const intervalId = setInterval(() => loadCourse(false), 12000);
+    syncCourse(true);
+    const intervalId = setInterval(() => syncCourse(false), 5000);
+
+    const onCourseUpdate = (event) => {
+      const detail = event?.detail || {};
+      const shouldRefresh = detail.courseId ? detail.courseId === course?.id || detail.courseId === routeKey : true;
+      if (!shouldRefresh && detail.slug !== routeKey) return;
+      setShowLiveBadge(true);
+      syncCourse(false);
+      setTimeout(() => setShowLiveBadge(false), 2200);
+    };
+
+    window.addEventListener(COURSE_REFRESH_EVENT, onCourseUpdate);
 
     return () => {
       cancelled = true;
       clearInterval(intervalId);
+      window.removeEventListener(COURSE_REFRESH_EVENT, onCourseUpdate);
     };
-  }, [routeKey]);
+  }, [course?.id, routeKey]);
 
   useEffect(() => {
     if (!course?.modules?.length) return;
-    const firstModule = course.modules[0];
-    setOpenModuleId((prev) => prev || firstModule.id);
-    const firstLesson = firstModule.lessons?.find((lesson) => lesson.isPreview) || firstModule.lessons?.[0] || null;
-    setSelectedLesson((prev) => prev || firstLesson);
-  }, [course]);
+
+    const preferredModule = course.modules.find((module) => module.id === openModuleId) || course.modules[0];
+    setOpenModuleId(preferredModule.id);
+
+    const allLessonIds = new Set(course.modules.flatMap((module) => (module.lessons || []).map((lesson) => lesson.id)));
+    if (!selectedLesson || !allLessonIds.has(selectedLesson.id)) {
+      setSelectedLesson(findFirstLesson(course.modules));
+    }
+  }, [course, openModuleId, selectedLesson]);
 
   useSeoMeta(course
     ? { title: `${course.title} | Dev Fraol Academy`, description: course.description }
@@ -84,6 +124,9 @@ export const CourseDetailPage = () => {
                   <span className="rounded-full bg-white/10 px-3 py-1">Instructor: Dev Fraol</span>
                   <span className="rounded-full bg-white/10 px-3 py-1">{course.modules.length} modules</span>
                   <span className="rounded-full bg-white/10 px-3 py-1">{lessonCount} lessons</span>
+                  {showLiveBadge ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-3 py-1 text-emerald-200"><Sparkles className="h-3.5 w-3.5" /> Module updated</span>
+                  ) : null}
                 </div>
               </div>
               <img src={course.thumbnail} alt={course.title} className="h-44 w-full rounded-2xl object-cover" />
@@ -93,24 +136,31 @@ export const CourseDetailPage = () => {
           <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
             <motion.div layout className="overflow-hidden rounded-3xl border border-white/10 bg-black/25 p-4 sm:p-6">
               <h2 className="mb-4 text-xl font-semibold text-white">Lesson Preview</h2>
-              <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/50">
-                <div className="relative w-full pb-[56.25%]">
-                  <motion.iframe
-                    key={selectedLesson?.id}
-                    initial={{ opacity: 0.2 }}
-                    animate={{ opacity: 1 }}
-                    className="absolute left-0 top-0 h-full w-full"
-                    src={toEmbedUrl(selectedLesson?.youtubeVideoId)}
-                    title={selectedLesson?.title || "Course preview"}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              </div>
+              <AnimatePresence mode="wait">
+                <motion.div key={selectedLesson?.id || "placeholder"} initial={{ opacity: 0.25, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="overflow-hidden rounded-2xl border border-white/10 bg-black/50">
+                  <div className="relative w-full pb-[56.25%]">
+                    <iframe
+                      className="absolute left-0 top-0 h-full w-full"
+                      src={toEmbedUrl(selectedLesson?.youtubeVideoId)}
+                      title={selectedLesson?.title || "Course preview"}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                </motion.div>
+              </AnimatePresence>
               <p className="mt-3 text-sm text-white/70">Now playing: {selectedLesson?.title || "Choose a lesson from the module list"}</p>
             </motion.div>
 
             <div className="space-y-3">
+              {isRefreshing ? (
+                <div className="space-y-2 rounded-2xl border border-white/10 bg-black/20 p-4">
+                  <div className="h-4 w-1/2 animate-pulse rounded bg-white/10" />
+                  <div className="h-3 w-full animate-pulse rounded bg-white/10" />
+                  <div className="h-3 w-5/6 animate-pulse rounded bg-white/10" />
+                </div>
+              ) : null}
+
               {course.modules.map((module) => {
                 const isOpen = openModuleId === module.id;
                 return (
@@ -122,40 +172,38 @@ export const CourseDetailPage = () => {
                     >
                       <div>
                         <h3 className="text-base font-semibold text-white">{module.title}</h3>
-                        <p className="text-xs text-white/65">{module.description}</p>
+                        <p className="text-xs text-white/70">{module.description || "Detailed learning outcomes added by Admin."}</p>
                       </div>
-                      <ChevronDown className={`h-5 w-5 text-white/70 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                      <motion.span animate={{ rotate: isOpen ? 180 : 0 }}><ChevronDown className="h-4 w-4 text-white/70" /></motion.span>
                     </button>
 
                     <AnimatePresence initial={false}>
                       {isOpen ? (
-                        <motion.ul
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.25 }}
-                          className="space-y-2 overflow-hidden px-4 pb-4"
+                          className="border-t border-white/10"
                         >
-                          {module.lessons?.map((lesson) => {
-                            const active = selectedLesson?.id === lesson.id;
-                            return (
-                              <li key={lesson.id}>
-                                <button
-                                  type="button"
-                                  onClick={() => setSelectedLesson(lesson)}
-                                  className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left text-sm transition ${
-                                    active ? "border-[#ff6c63] bg-[#ff6c63]/20 text-white" : "border-white/10 bg-black/20 text-white/85"
-                                  }`}
-                                >
-                                  <span className="inline-flex items-center gap-2">
-                                    <PlayCircle className="h-4 w-4" /> {lesson.title}
-                                  </span>
-                                  <span className="text-xs text-white/70">{lesson.isPreview ? "Free preview" : "Locked"}</span>
-                                </button>
-                              </li>
-                            );
-                          })}
-                        </motion.ul>
+                          <ul className="space-y-1 p-3">
+                            {(module.lessons || []).map((lesson) => {
+                              const isSelected = selectedLesson?.id === lesson.id;
+                              return (
+                                <motion.li key={lesson.id} layout>
+                                  <button
+                                    type="button"
+                                    onClick={() => setSelectedLesson(lesson)}
+                                    className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition ${isSelected ? "bg-[#ff3b30]/20 text-white" : "hover:bg-white/5 text-white/80"}`}
+                                  >
+                                    <span className="inline-flex items-center gap-2 text-sm"><PlayCircle className="h-4 w-4" />{lesson.title}</span>
+                                    {lesson.isPreview ? <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">Free Preview</span> : null}
+                                  </button>
+                                </motion.li>
+                              );
+                            })}
+                          </ul>
+                        </motion.div>
                       ) : null}
                     </AnimatePresence>
                   </article>
@@ -168,3 +216,5 @@ export const CourseDetailPage = () => {
     </main>
   );
 };
+
+export default CourseDetailPage;

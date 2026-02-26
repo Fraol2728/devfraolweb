@@ -1,6 +1,12 @@
 import { create } from "@/lib/zustand";
 import { apiFetch } from "@/lib/api";
 
+const COURSE_REFRESH_EVENT = "course:updated";
+const notifyCourseRefresh = (detail = {}) => {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(COURSE_REFRESH_EVENT, { detail }));
+};
+
 const toArray = (payload) => {
   if (Array.isArray(payload?.data)) return payload.data;
   if (Array.isArray(payload)) return payload;
@@ -88,6 +94,7 @@ export const useAdminStore = create((set, get) => ({
         courses: created ? [created, ...state.courses] : state.courses,
         recentActivity: appendActivity(state, "created", created || courseData),
       }));
+      notifyCourseRefresh({ courseId: created?.id, slug: created?.slug, action: "created" });
       return created;
     } finally {
       set({ isSavingCourse: false });
@@ -106,6 +113,7 @@ export const useAdminStore = create((set, get) => ({
         courses: state.courses.map((course) => (course.id === courseId ? { ...course, ...updated } : course)),
         recentActivity: appendActivity(state, "updated", updated),
       }));
+      notifyCourseRefresh({ courseId, slug: updated?.slug, action: "updated" });
       return updated;
     } finally {
       set({ isSavingCourse: false });
@@ -121,6 +129,7 @@ export const useAdminStore = create((set, get) => ({
         courses: state.courses.filter((course) => course.id !== courseId),
         recentActivity: appendActivity(state, "deleted", target || { id: courseId }),
       }));
+      notifyCourseRefresh({ courseId, slug: target?.slug, action: "deleted" });
     } finally {
       set({ isSavingCourse: false });
     }
