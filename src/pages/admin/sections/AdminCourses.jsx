@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, Reorder, motion } from "framer-motion";
 import { apiFetch } from "@/lib/api";
 import { useToastStore } from "@/pages/admin/store/useToastStore";
 import logoDark from "@/assets/Logo dark.png";
@@ -7,8 +7,9 @@ import { ChevronDown, ChevronUp, Eye, Pencil, Plus, Search, Trash2, X } from "lu
 
 const ITEMS_PER_PAGE = 10;
 
-const emptyLesson = () => ({ title: "", duration: "", youtubeVideoId: "" });
-const emptyModule = () => ({ title: "", description: "", duration: "", isOpen: true, lessons: [emptyLesson()] });
+const makeClientId = () => (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
+const emptyLesson = () => ({ clientId: makeClientId(), title: "", duration: "", youtubeVideoId: "" });
+const emptyModule = () => ({ clientId: makeClientId(), title: "", description: "", duration: "", isOpen: true, lessons: [emptyLesson()] });
 const emptyForm = () => ({
   title: "",
   slug: "",
@@ -41,6 +42,8 @@ export const AdminCourses = () => {
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [formNotice, setFormNotice] = useState({ type: "", text: "" });
+  const [draggingModuleId, setDraggingModuleId] = useState(null);
+  const [draggingLessonId, setDraggingLessonId] = useState(null);
   const formOverlayRef = useRef(null);
   const formPanelRef = useRef(null);
 
@@ -118,6 +121,7 @@ export const AdminCourses = () => {
         ...data,
         modules: (data.modules?.length ? data.modules : [emptyModule()]).map((module) => ({
           ...module,
+          clientId: module.clientId || module.id || makeClientId(),
           title: module.title || "",
           description: module.description || "",
           duration: module.duration || "",
@@ -126,6 +130,7 @@ export const AdminCourses = () => {
             ? module.lessons.map((lesson) => ({
                 ...emptyLesson(),
                 ...lesson,
+                clientId: lesson.clientId || lesson.id || makeClientId(),
               }))
             : [emptyLesson()],
         })),
@@ -162,6 +167,8 @@ export const AdminCourses = () => {
     setShowForm(false);
     setErrors({});
     setFormNotice({ type: "", text: "" });
+    setDraggingModuleId(null);
+    setDraggingLessonId(null);
   };
 
   const handleFormChange = (field, value) => {
@@ -193,6 +200,26 @@ export const AdminCourses = () => {
   };
 
   const addModule = () => setFormState((prev) => ({ ...prev, modules: [...prev.modules, emptyModule()] }));
+
+  const reorderModules = (nextOrder) => {
+    setFormState((prev) => ({
+      ...prev,
+      modules: nextOrder.map((nextModule) => prev.modules.find((module) => module.clientId === nextModule.clientId) || nextModule),
+    }));
+  };
+
+  const reorderLessons = (moduleIndex, nextLessonsOrder) => {
+    setFormState((prev) => ({
+      ...prev,
+      modules: prev.modules.map((module, index) => {
+        if (index !== moduleIndex) return module;
+        return {
+          ...module,
+          lessons: nextLessonsOrder.map((nextLesson) => module.lessons.find((lesson) => lesson.clientId === nextLesson.clientId) || nextLesson),
+        };
+      }),
+    }));
+  };
 
   const removeModule = (moduleIndex) => {
     setFormState((prev) => ({
@@ -251,9 +278,9 @@ export const AdminCourses = () => {
     const payload = {
       ...formState,
       slug: slugify(formState.slug),
-      modules: formState.modules.map(({ isOpen, ...module }) => ({
+      modules: formState.modules.map(({ isOpen, clientId: _clientId, ...module }) => ({
         ...module,
-        lessons: module.lessons,
+        lessons: module.lessons.map(({ clientId: _lessonClientId, ...lesson }) => lesson),
       })),
     };
 
@@ -624,9 +651,16 @@ export const AdminCourses = () => {
                     </button>
                   </div>
 
-                  <div className="space-y-3">
+                  <Reorder.Group axis="y" values={formState.modules} onReorder={reorderModules} className="space-y-3">
                     {formState.modules.map((module, moduleIndex) => (
-                      <motion.div key={`module-${moduleIndex}`} layout className="rounded-xl border border-white/10 bg-black/25 p-3">
+                      <Reorder.Item
+                        key={module.clientId}
+                        value={module}
+                        layout
+                        onDragStart={() => setDraggingModuleId(module.clientId)}
+                        onDragEnd={() => setDraggingModuleId(null)}
+                        className={`rounded-xl border bg-black/25 p-3 transition ${draggingModuleId === module.clientId ? "z-20 border-[#FF7C73]/70 shadow-[0_0_0_1px_rgba(255,124,115,0.4),0_16px_40px_rgba(0,0,0,0.55)]" : "border-white/10"}`}
+                      >
                         <button
                           type="button"
                           onClick={() => setModule(moduleIndex, "isOpen", !module.isOpen)}
@@ -654,7 +688,7 @@ export const AdminCourses = () => {
                               </div>
                               {errors[`module-${moduleIndex}-title`] && <p className="mt-1 text-xs text-rose-300">{errors[`module-${moduleIndex}-title`]}</p>}
 
-                              <div className="mt-4 space-y-2">
+                              <div className={`mt-4 space-y-2 rounded-lg border p-2 transition ${draggingLessonId ? "border-[#FF7C73]/35" : "border-white/5"}`}>
                                 <div className="flex items-center justify-between">
                                   <h5 className="text-sm font-semibold text-zinc-100">Lessons</h5>
                                   <div className="flex gap-2">
@@ -665,14 +699,15 @@ export const AdminCourses = () => {
                                   </div>
                                 </div>
 
-                                <AnimatePresence>
+                                <Reorder.Group axis="y" values={module.lessons} onReorder={(nextLessonsOrder) => reorderLessons(moduleIndex, nextLessonsOrder)} className="space-y-2">
                                   {module.lessons.map((lesson, lessonIndex) => (
-                                    <motion.div
-                                      key={`${moduleIndex}-${lessonIndex}`}
-                                      initial={{ opacity: 0, y: 8 }}
-                                      animate={{ opacity: 1, y: 0 }}
-                                      exit={{ opacity: 0, y: -8 }}
-                                      className="rounded-lg border border-white/10 bg-black/25 p-3"
+                                    <Reorder.Item
+                                      key={lesson.clientId}
+                                      value={lesson}
+                                      layout
+                                      onDragStart={() => setDraggingLessonId(lesson.clientId)}
+                                      onDragEnd={() => setDraggingLessonId(null)}
+                                      className={`rounded-lg border bg-black/25 p-3 transition ${draggingLessonId === lesson.clientId ? "z-20 border-[#FF7C73]/70 shadow-[0_0_0_1px_rgba(255,124,115,0.45),0_10px_24px_rgba(0,0,0,0.45)]" : "border-white/10"}`}
                                     >
                                       <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
                                         <input value={lesson.title} onChange={(event) => setLesson(moduleIndex, lessonIndex, "title", event.target.value)} placeholder="Lesson title" className="rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs text-zinc-100" />
@@ -687,16 +722,16 @@ export const AdminCourses = () => {
                                       {errors[`module-${moduleIndex}-lesson-${lessonIndex}-title`] && (
                                         <p className="mt-1 text-xs text-rose-300">{errors[`module-${moduleIndex}-lesson-${lessonIndex}-title`]}</p>
                                       )}
-                                    </motion.div>
+                                    </Reorder.Item>
                                   ))}
-                                </AnimatePresence>
+                                </Reorder.Group>
                               </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
-                      </motion.div>
+                      </Reorder.Item>
                     ))}
-                  </div>
+                  </Reorder.Group>
                 </section>
               </div>
 
