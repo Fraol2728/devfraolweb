@@ -38,7 +38,16 @@ const readCourses = async () => {
 };
 
 const writeCourses = async (courses) => {
-  await fs.writeFile(coursesPath, `${JSON.stringify(courses, null, 2)}\n`, "utf-8");
+  try {
+    await fs.writeFile(coursesPath, `${JSON.stringify(courses, null, 2)}\n`, "utf-8");
+  } catch (error) {
+    console.error("[coursesController] Failed to write courses file", {
+      path: coursesPath,
+      message: error?.message,
+      code: error?.code,
+    });
+    throw error;
+  }
 };
 
 const normalizeLesson = (lesson = {}, courseId, moduleId, lessonIndex = 0) => ({
@@ -145,6 +154,7 @@ export const getCourseById = async (req, res) => {
 };
 
 export const createCourse = async (req, res) => {
+  console.log("Incoming body:", req.body);
   const courses = await readCourses();
   const course = normalizeCourse(req.body || {});
   const validationMessage = validateCourse(course);

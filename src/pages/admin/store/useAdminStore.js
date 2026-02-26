@@ -85,14 +85,35 @@ export const useAdminStore = create((set, get) => ({
   createCourse: async (courseData) => {
     set({ isSavingCourse: true });
     try {
-      const payload = await apiFetch("/api/courses", {
+      const payload = {
+        ...courseData,
+        title: String(courseData?.title || "").trim(),
+        slug: String(courseData?.slug || "").trim(),
+      };
+
+      console.log("[AddCourse] API URL:", "http://localhost:5000/api/courses");
+      console.log("[AddCourse] Outgoing payload:", payload);
+
+      const res = await fetch("http://localhost:5000/api/courses", {
         method: "POST",
-        body: JSON.stringify(courseData),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
-      const created = payload?.data ?? payload;
+
+      console.log("STATUS:", res.status);
+
+      const text = await res.text();
+      console.log("RAW RESPONSE:", text);
+
+      if (!res.ok) {
+        throw new Error(text || "Request failed");
+      }
+
+      const parsed = text ? JSON.parse(text) : {};
+      const created = parsed?.data ?? parsed;
       set((state) => ({
         courses: created ? [created, ...state.courses] : state.courses,
-        recentActivity: appendActivity(state, "created", created || courseData),
+        recentActivity: appendActivity(state, "created", created || payload),
       }));
       notifyCourseRefresh({ courseId: created?.id, slug: created?.slug, action: "created" });
       return created;
