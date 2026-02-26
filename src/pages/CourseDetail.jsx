@@ -4,6 +4,15 @@ import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { apiFetch } from "@/lib/api";
 import { CourseOutline } from "@/features/course/CourseOutline";
 
+const COURSE_REFRESH_EVENT = "course:updated";
+
+const toEmbedUrl = (videoUrl = "") => {
+  if (!videoUrl) return "https://www.youtube.com/embed/dQw4w9WgXcQ";
+  if (!videoUrl.includes("youtube.com") && !videoUrl.includes("youtu.be")) return videoUrl;
+  const videoId = videoUrl.split("v=")[1]?.split("&")[0] || videoUrl.split("/").pop();
+  return `https://www.youtube.com/embed/${videoId || "dQw4w9WgXcQ"}`;
+};
+
 export const CourseDetail = () => {
   const { slug } = useParams();
   const [course, setCourse] = useState(null);
@@ -33,9 +42,12 @@ export const CourseDetail = () => {
     };
 
     loadCourse();
+    const onCourseUpdate = () => loadCourse();
+    window.addEventListener(COURSE_REFRESH_EVENT, onCourseUpdate);
 
     return () => {
       cancelled = true;
+      window.removeEventListener(COURSE_REFRESH_EVENT, onCourseUpdate);
     };
   }, [slug]);
 
@@ -81,7 +93,7 @@ export const CourseDetail = () => {
               <div className="relative w-full pb-[56.25%]">
                 <iframe
                   className="absolute left-0 top-0 h-full w-full"
-                  src={`https://www.youtube.com/embed/${selectedLesson?.youtube_video_id || "dQw4w9WgXcQ"}`}
+                  src={toEmbedUrl(selectedLesson?.videoUrl || selectedLesson?.youtubeVideoId || selectedLesson?.youtube_video_id)}
                   title={selectedLesson?.title || "Course preview"}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen

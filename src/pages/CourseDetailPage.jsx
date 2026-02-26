@@ -7,17 +7,17 @@ import { useSeoMeta } from "@/hooks/useSeoMeta";
 
 const COURSE_REFRESH_EVENT = "course:updated";
 
-const toEmbedUrl = (youtubeVideoId = "") => {
-  const videoId = youtubeVideoId.includes("youtube.com") || youtubeVideoId.includes("youtu.be")
-    ? youtubeVideoId.split("v=")[1]?.split("&")[0] || youtubeVideoId.split("/").pop()
-    : youtubeVideoId;
+const toEmbedUrl = (videoUrl = "") => {
+  const videoId = videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be")
+    ? videoUrl.split("v=")[1]?.split("&")[0] || videoUrl.split("/").pop()
+    : videoUrl;
 
   return `https://www.youtube.com/embed/${videoId || "dQw4w9WgXcQ"}`;
 };
 
 const findFirstLesson = (modules = []) => {
   for (const module of modules) {
-    const preferred = module.lessons?.find((lesson) => lesson.isPreview) || module.lessons?.[0];
+    const preferred = module.lessons?.find((lesson) => lesson.freePreview || lesson.isPreview) || module.lessons?.[0];
     if (preferred) return preferred;
   }
   return null;
@@ -141,7 +141,7 @@ export const CourseDetailPage = () => {
                   <div className="relative w-full pb-[56.25%]">
                     <iframe
                       className="absolute left-0 top-0 h-full w-full"
-                      src={toEmbedUrl(selectedLesson?.youtubeVideoId)}
+                      src={toEmbedUrl(selectedLesson?.videoUrl || selectedLesson?.youtubeVideoId)}
                       title={selectedLesson?.title || "Course preview"}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
@@ -197,7 +197,7 @@ export const CourseDetailPage = () => {
                                     className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition ${isSelected ? "bg-[#ff3b30]/20 text-white" : "hover:bg-white/5 text-white/80"}`}
                                   >
                                     <span className="inline-flex items-center gap-2 text-sm"><PlayCircle className="h-4 w-4" />{lesson.title}</span>
-                                    {lesson.isPreview ? <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">Free Preview</span> : null}
+                                    {lesson.freePreview || lesson.isPreview ? <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">Free Preview</span> : null}
                                   </button>
                                 </motion.li>
                               );

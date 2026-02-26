@@ -46,8 +46,10 @@ const normalizeLesson = (lesson = {}, courseId, moduleId, lessonIndex = 0) => ({
   title: String(lesson?.title || "").trim(),
   description: String(lesson?.description || "").trim(),
   duration: String(lesson?.duration || "").trim(),
-  youtubeVideoId: String(lesson?.youtubeVideoId || lesson?.youtube_video_id || "").trim(),
-  isPreview: Boolean(lesson?.isPreview ?? lesson?.is_preview ?? lessonIndex === 0),
+  videoUrl: String(lesson?.videoUrl || lesson?.video_url || lesson?.youtubeVideoId || lesson?.youtube_video_id || "").trim(),
+  youtubeVideoId: String(lesson?.youtubeVideoId || lesson?.youtube_video_id || lesson?.videoUrl || lesson?.video_url || "").trim(),
+  freePreview: Boolean(lesson?.freePreview ?? lesson?.isPreview ?? lesson?.is_preview ?? lessonIndex === 0),
+  isPreview: Boolean(lesson?.isPreview ?? lesson?.is_preview ?? lesson?.freePreview ?? lessonIndex === 0),
 });
 
 const normalizeModule = (module = {}, courseId, moduleIndex = 0) => {

@@ -5,6 +5,7 @@ import { useSeoMeta } from "@/hooks/useSeoMeta";
 import { apiFetch } from "@/lib/api";
 
 const CATEGORY_ORDER = ["Programming", "Graphics Design", "Operate Computer"];
+const COURSE_REFRESH_EVENT = "course:updated";
 
 const CourseSkeleton = () => (
   <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0d0d13]/90">
@@ -48,10 +49,13 @@ export const CoursesPage = () => {
 
     loadCourses(true);
     const intervalId = setInterval(() => loadCourses(false), 12000);
+    const onCourseUpdate = () => loadCourses(false);
+    window.addEventListener(COURSE_REFRESH_EVENT, onCourseUpdate);
 
     return () => {
       cancelled = true;
       clearInterval(intervalId);
+      window.removeEventListener(COURSE_REFRESH_EVENT, onCourseUpdate);
     };
   }, []);
 
