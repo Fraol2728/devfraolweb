@@ -1,8 +1,8 @@
 export const courses = [
   {
     id: "python",
-    title: "Python",
-    instructor: "Academy Team",
+    title: "Python Programming: From Fundamentals to Practical Development",
+    instructor: "Dev Fraol",
     category: "Programming",
     level: "Beginner",
     duration: "6 Weeks",
