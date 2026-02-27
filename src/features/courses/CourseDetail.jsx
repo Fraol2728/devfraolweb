@@ -4,8 +4,38 @@ import { AnimatePresence, motion } from "framer-motion";
 import { CourseOutline } from "@/features/courses/CourseOutline";
 import { LessonPanel } from "@/features/courses/LessonPanel";
 import { mockCourses } from "@/features/courses/mockCourses";
+import { courses as fallbackCourses } from "@/data/courses";
 
 const getFirstLesson = (course) => course?.modules?.[0]?.lessons?.[0] ?? null;
+
+const normalizeSyllabusToModules = (course) => {
+  const modules = (course?.syllabus ?? []).map((syllabusItem, moduleIndex) => ({
+    id: `${course.id}-module-${moduleIndex + 1}`,
+    title: `Module ${moduleIndex + 1}: ${syllabusItem.title}`,
+    lessons: (syllabusItem.topics ?? []).map((topic, lessonIndex) => ({
+      id: `${course.id}-lesson-${moduleIndex + 1}-${lessonIndex + 1}`,
+      title: topic,
+      duration: "10 min",
+      definition: `Learn ${topic.toLowerCase()} as part of ${course.title}.`,
+      content: [
+        { type: "heading", text: topic },
+        { type: "paragraph", text: `${course.description}` },
+        {
+          type: "tip",
+          text: `Focus on practicing ${topic.toLowerCase()} through small exercises to build confidence faster.`,
+        },
+      ],
+    })),
+  }));
+
+  return {
+    id: `${course.id}-fallback-detail`,
+    slug: course.id,
+    title: course.title,
+    description: course.description,
+    modules,
+  };
+};
 
 export const CourseDetail = () => {
   const { slug } = useParams();
@@ -16,11 +46,20 @@ export const CourseDetail = () => {
 
   const normalizedSlug = String(slug ?? "").toLowerCase();
 
-  const course = useMemo(
-    () =>
-      mockCourses.find((entry) => String(entry.slug).toLowerCase() === String(slug ?? "").toLowerCase()) ?? null,
-    [slug],
-  );
+  const course = useMemo(() => {
+    const normalizedRouteSlug = String(slug ?? "").toLowerCase();
+    const matchedMockCourse =
+      mockCourses.find((entry) => String(entry.slug).toLowerCase() === normalizedRouteSlug) ?? null;
+
+    if (matchedMockCourse) {
+      return matchedMockCourse;
+    }
+
+    const matchedFallbackCourse =
+      fallbackCourses.find((entry) => String(entry.id).toLowerCase() === normalizedRouteSlug) ?? null;
+
+    return matchedFallbackCourse ? normalizeSyllabusToModules(matchedFallbackCourse) : null;
+  }, [slug]);
 
   useEffect(() => {
     setIsResolvingCourse(true);
