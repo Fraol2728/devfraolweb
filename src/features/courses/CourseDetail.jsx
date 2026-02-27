@@ -12,8 +12,24 @@ export const CourseDetail = () => {
   const [activeModuleId, setActiveModuleId] = useState(null);
   const [activeLessonId, setActiveLessonId] = useState(null);
   const [isMobilePanelOpen, setIsMobilePanelOpen] = useState(false);
+  const [isResolvingCourse, setIsResolvingCourse] = useState(true);
 
-  const course = useMemo(() => mockCourses.find((entry) => entry.slug === slug) ?? null, [slug]);
+  const normalizedSlug = String(slug ?? "").toLowerCase();
+
+  const course = useMemo(
+    () =>
+      mockCourses.find((entry) => String(entry.slug).toLowerCase() === String(slug ?? "").toLowerCase()) ?? null,
+    [slug],
+  );
+
+  useEffect(() => {
+    setIsResolvingCourse(true);
+    const timeoutId = window.setTimeout(() => {
+      setIsResolvingCourse(false);
+    }, 180);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [normalizedSlug]);
 
   const allLessons = useMemo(() => {
     if (!course) return [];
@@ -51,18 +67,34 @@ export const CourseDetail = () => {
     setActiveLessonId(lesson.id);
   };
 
+  if (isResolvingCourse) {
+    return (
+      <section className="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8" aria-live="polite" aria-busy="true">
+        <div className="mb-6 animate-pulse">
+          <div className="h-3 w-24 rounded bg-white/15" />
+          <div className="mt-4 h-10 w-full max-w-xl rounded bg-white/15" />
+          <div className="mt-4 h-4 w-full max-w-3xl rounded bg-white/10" />
+        </div>
+        <div className="grid gap-5 lg:grid-cols-[minmax(290px,33%)_minmax(0,67%)]">
+          <div className="h-[360px] rounded-3xl border border-white/10 bg-[#121826]/60" />
+          <div className="h-[360px] rounded-3xl border border-white/10 bg-[#121826]/60" />
+        </div>
+      </section>
+    );
+  }
+
   if (!course) {
     return (
-      <section className="mx-auto w-full max-w-[900px] px-4 py-14 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-white/15 bg-[#121826]/70 p-8 text-center shadow-[0_20px_50px_rgba(3,8,18,0.45)]">
+      <section className="flex min-h-[70vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <div className="w-full max-w-xl rounded-3xl border border-white/15 bg-[#121826]/75 p-8 text-center shadow-[0_20px_50px_rgba(3,8,18,0.45)]">
           <p className="text-xs uppercase tracking-[0.18em] text-cyan-300/90">Course Detail</p>
           <h1 className="mt-3 text-3xl font-bold text-white">Course Not Found</h1>
-          <p className="mt-3 text-white/70">The requested course does not exist or may have been moved.</p>
+          <p className="mt-3 text-white/70">The requested course doesn’t exist.</p>
           <Link
             to="/courses"
             className="mt-6 inline-flex rounded-xl bg-gradient-to-r from-[#ff564c] to-[#ff3b30] px-4 py-2.5 text-sm font-semibold text-white"
           >
-            Browse Available Courses
+            Back to Courses
           </Link>
         </div>
       </section>
