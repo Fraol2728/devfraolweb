@@ -28,7 +28,7 @@ export const CourseCard = ({ course }) => {
         </div>
 
         <Link
-          to={`/course/${course.slug}`}
+          to={`/courses/${course.slug}`}
           className="inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#ff564c] to-[#ff3b30] px-3 py-2 text-sm font-semibold text-white transition hover:shadow-[0_10px_20px_rgba(255,59,48,0.4)]"
         >
           View Course
