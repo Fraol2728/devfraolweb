@@ -11,12 +11,64 @@ import { CourseOutline } from "@/components/ui/CourseOutline";
 import { WhatYouLearn } from "@/components/ui/WhatYouLearn";
 import { InstructorSection } from "@/components/ui/InstructorSection";
 import { RelatedCourses } from "@/components/ui/RelatedCourses";
+import { LessonContentPanel } from "@/components/ui/LessonContentPanel";
 
 const fallbackInstructor = {
   id: "dev-fraol",
   name: "Dev Fraol",
   bio: "Dev Fraol helps learners turn fundamentals into real-world projects with practical and modern workflows.",
   profile_image: "/profile-logo.png",
+};
+
+const lessonSectionFactory = (lesson, moduleTitle, moduleIndex, lessonIndex) => ({
+  intro: `In this lesson, you'll work through ${lesson.title.toLowerCase()} in the context of ${moduleTitle.toLowerCase()} and build practical confidence with guided examples.`,
+  sections: [
+    {
+      type: "definition",
+      title: "Key definition",
+      text: `${lesson.title} is a practical concept inside ${moduleTitle} that helps you move from understanding theory to applying repeatable implementation patterns.`,
+    },
+    {
+      type: "list",
+      title: "What you will cover",
+      items: [
+        "Understand the core idea in plain language",
+        "Apply the concept through guided workflows",
+        "Identify common pitfalls and how to avoid them",
+        "Use implementation patterns in real project scenarios",
+      ],
+    },
+    {
+      type: "paragraph",
+      title: "Lesson walkthrough",
+      text: `This module sequence (${moduleIndex + 1}.${lessonIndex + 1}) is focused on clean decision-making. You'll review the why behind each step, then implement with modern conventions so that your output remains maintainable and scalable as your project grows.`,
+    },
+    {
+      type: "code",
+      title: "Reference snippet",
+      code: `// ${lesson.title}\nfunction executeLessonFlow(context) {\n  const checklist = ["plan", "build", "review"];\n  return checklist.map((step) => step + ": " + context).join("\\n");\n}`,
+    },
+  ],
+});
+
+const withStructuredLessonContent = (bundle) => {
+  if (!bundle?.modules?.length) return bundle;
+
+  const modules = bundle.modules.map((module, moduleIndex) => ({
+    ...module,
+    lessons: (module.lessons || []).map((lesson, lessonIndex) => ({
+      ...lesson,
+      moduleTitle: module.title,
+      duration: lesson.duration || "08 min",
+      content: lesson.content || lessonSectionFactory(lesson, module.title, moduleIndex, lessonIndex),
+    })),
+  }));
+
+  return {
+    ...bundle,
+    modules,
+    lessons: modules.flatMap((module) => module.lessons),
+  };
 };
 
 const buildFallbackData = (slug) => {
@@ -38,7 +90,7 @@ const buildFallbackData = (slug) => {
     })),
   }));
 
-  return {
+  return withStructuredLessonContent({
     course: {
       ...baseCourse,
       slug: baseCourse.slug || baseCourse.id,
@@ -53,7 +105,7 @@ const buildFallbackData = (slug) => {
     instructor: fallbackInstructor,
     modules,
     lessons: modules.flatMap((module) => module.lessons),
-  };
+  });
 };
 
 const mapApiCoursePayload = (payload, slug) => {
@@ -73,7 +125,7 @@ const mapApiCoursePayload = (payload, slug) => {
 
   const modules = Array.from(modulesMap.values());
 
-  return {
+  return withStructuredLessonContent({
     course: {
       ...payload.course,
       total_lessons: lessons.length,
@@ -84,7 +136,7 @@ const mapApiCoursePayload = (payload, slug) => {
     instructor: payload.instructor || fallbackInstructor,
     modules,
     lessons,
-  };
+  });
 };
 
 export const CourseDetailPage = () => {
@@ -94,6 +146,7 @@ export const CourseDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [courseBundle, setCourseBundle] = useState(null);
   const [activeLesson, setActiveLesson] = useState(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [openModuleId, setOpenModuleId] = useState(null);
   const [showLockedModal, setShowLockedModal] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -130,7 +183,7 @@ export const CourseDetailPage = () => {
   useEffect(() => {
     if (!courseBundle?.modules?.length) return;
     setOpenModuleId(courseBundle.modules[0].id);
-    setOutlineOpenModuleId(`${courseBundle.modules[0].id}-outline-1`);
+    setOutlineOpenModuleId(courseBundle.modules[0].id);
     const firstPreview = courseBundle.lessons.find((lesson) => lesson.is_preview);
     setActiveLesson(firstPreview || courseBundle.lessons[0]);
   }, [courseBundle]);
@@ -166,6 +219,17 @@ export const CourseDetailPage = () => {
     }
     setActiveLesson(lesson);
     setIsDrawerOpen(false);
+  };
+
+  const handleOutlineLessonSelect = (lesson, moduleId) => {
+    setOutlineOpenModuleId(moduleId);
+    setActiveLesson(lesson);
+    setIsPanelOpen(true);
+  };
+
+  const closePanel = () => {
+    setIsPanelOpen(false);
+    setActiveLesson(null);
   };
 
   const learningOutcomes = [
@@ -267,7 +331,11 @@ export const CourseDetailPage = () => {
             modules={courseBundle.modules}
             openModuleId={outlineOpenModuleId}
             onToggleModule={setOutlineOpenModuleId}
+            activeLessonId={activeLesson?.id}
+            onSelectLesson={handleOutlineLessonSelect}
           />
+
+          <LessonContentPanel isOpen={isPanelOpen} lesson={activeLesson} onClose={closePanel} />
 
           <WhatYouLearn outcomes={learningOutcomes} />
 
