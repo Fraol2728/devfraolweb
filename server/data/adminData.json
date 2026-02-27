@@ -1,0 +1,63 @@
+{
+  "apps": [
+    {
+      "id": "file-converter",
+      "title": "File Converter",
+      "description": "Convert supported documents instantly.",
+      "icon": "FileCog",
+      "category": "Converters",
+      "endpoint": "/api/convert",
+      "featured": true,
+      "tool": "converter"
+    },
+    {
+      "id": "youtube-downloader",
+      "title": "Video Downloader",
+      "description": "Download social videos quickly.",
+      "icon": "Video",
+      "category": "Downloaders",
+      "endpoint": "/api/video/download",
+      "featured": true,
+      "tool": "downloader"
+    }
+  ],
+  "resources": [
+    {
+      "id": "mdn-web-docs",
+      "title": "MDN Web Docs",
+      "description": "Comprehensive docs for web technologies.",
+      "category": "web",
+      "link": "https://developer.mozilla.org",
+      "icon": "book"
+    },
+    {
+      "id": "nodejs-docs",
+      "title": "Node.js Docs",
+      "description": "Official Node.js API and guides.",
+      "category": "backend",
+      "link": "https://nodejs.org/docs/latest/api/",
+      "icon": "server"
+    }
+  ],
+  "users": [
+    {
+      "id": "u1",
+      "name": "Sahil Sharma",
+      "email": "sahil@example.com",
+      "role": "admin",
+      "progress": 100,
+      "favorites": 4,
+      "badges": 6
+    },
+    {
+      "id": "u2",
+      "name": "Aarav Mehta",
+      "email": "aarav@example.com",
+      "role": "student",
+      "progress": 62,
+      "favorites": 2,
+      "badges": 3
+    }
+  ],
+  "activity": []
+}
