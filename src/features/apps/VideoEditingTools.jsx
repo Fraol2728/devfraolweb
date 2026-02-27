@@ -1,0 +1,131 @@
+import { motion } from "framer-motion";
+import { ArrowUpRight, Clapperboard, Music2, Video } from "lucide-react";
+const formatWebsiteMeta = (link) => {
+  try {
+    return new URL(link).hostname.replace(/^www\./, "");
+  } catch {
+    return link;
+  }
+};
+
+
+const videoEditingCategories = [
+  {
+    id: "templates-effects",
+    title: "Templates & Effects",
+    icon: Clapperboard,
+    apps: [
+      {
+        id: "mixkit",
+        name: "Mixkit",
+        description: "Free video templates, transitions, and stock footage.",
+        link: "https://mixkit.co/",
+      },
+      {
+        id: "videvo",
+        name: "Videvo",
+        description: "Free motion graphics and stock clips.",
+        link: "https://www.videvo.net/",
+      },
+      {
+        id: "rocketstock-free-packs",
+        name: "RocketStock Free Packs",
+        description: "After Effects templates and free motion design packs.",
+        link: "https://www.rocketstock.com/free-after-effects-templates/",
+      },
+    ],
+  },
+  {
+    id: "music-sound-effects",
+    title: "Music & Sound Effects",
+    icon: Music2,
+    apps: [
+      {
+        id: "freesound",
+        name: "FreeSound",
+        description: "Huge library of downloadable sound effects.",
+        link: "https://freesound.org/",
+      },
+      {
+        id: "bensound",
+        name: "Bensound",
+        description: "Free royalty-free music for video projects.",
+        link: "https://www.bensound.com/",
+      },
+      {
+        id: "incompetech",
+        name: "Incompetech",
+        description: "Background music tracks for videos and creators.",
+        link: "https://incompetech.com/music/",
+      },
+    ],
+  },
+  {
+    id: "stock-footage",
+    title: "Stock Footage",
+    icon: Video,
+    apps: [
+      {
+        id: "pexels-videos",
+        name: "Pexels Videos",
+        description: "Free stock clips for personal and commercial use.",
+        link: "https://www.pexels.com/videos/",
+      },
+      {
+        id: "coverr",
+        name: "Coverr",
+        description: "Free stock video for commercial use.",
+        link: "https://coverr.co/",
+      },
+    ],
+  },
+];
+
+export const VideoEditingTools = () => {
+  return (
+    <article className="rounded-2xl border border-border/70 bg-card/45 p-5 backdrop-blur-xl">
+      <h3 className="text-xl font-bold text-foreground">Video Editing Tools</h3>
+      <p className="mt-2 text-sm text-foreground/70">Explore categories below. Each app opens the official website in a new tab.</p>
+
+      <div className="mt-5 space-y-5">
+        {videoEditingCategories.map((category, categoryIndex) => {
+          const CategoryIcon = category.icon;
+
+          return (
+            <section key={category.id} className="rounded-xl border border-border/70 bg-background/30 p-4">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex rounded-lg bg-[#FF3B30]/15 p-2 text-[#FF3B30]">
+                  <CategoryIcon className="h-4 w-4" />
+                </span>
+                <h4 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">{category.title}</h4>
+              </div>
+
+              <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {category.apps.map((app, appIndex) => (
+                  <motion.a
+                    key={app.id}
+                    href={app.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: categoryIndex * 0.05 + appIndex * 0.04 }}
+                    className="group rounded-2xl border border-border/70 bg-background/40 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-[#FF3B30]/70 hover:shadow-[0_16px_32px_rgba(255,59,48,0.22)]"
+                  >
+                    <h5 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">{app.name}</h5>
+                    <p className="mt-2 text-sm leading-relaxed text-foreground/75">{app.description}</p>
+                    <p className="mt-1 text-xs text-foreground/60">Official website: {formatWebsiteMeta(app.link)} · Opens in a new tab.</p>
+                    <span className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[#FF3B30]/15 px-3 py-1.5 text-sm font-semibold text-[#FF3B30]">
+                      Visit Website
+                      <ArrowUpRight className="h-3.5 w-3.5" />
+                    </span>
+                  </motion.a>
+                ))}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+    </article>
+  );
+};
