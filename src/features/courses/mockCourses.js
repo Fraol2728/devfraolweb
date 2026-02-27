@@ -4,6 +4,9 @@ export const mockCourses = [
     slug: "python",
     title: "Python Programming",
     description: "Learn Python from beginner to advanced by building scripts, automation tasks, and mini projects.",
+
+    introVideoId: "rfscVS0vtbw",
+    videoTagline: "Build real Python skills from first syntax to practical automation.",
     modules: [
       {
         id: "python-module-1",
@@ -55,6 +58,7 @@ export const mockCourses = [
             id: "python-lesson-4",
             title: "Writing Reusable Functions",
             duration: "16 min",
+            unlocked: false,
             definition: "Organize logic into reusable functions with parameters and return values.",
             content: [
               { type: "heading", text: "Function Basics" },
