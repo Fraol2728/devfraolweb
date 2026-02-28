@@ -2,20 +2,17 @@ export const microsoftWindowsCourseContent = [
   {
     id: "microsoft-windows-course",
     slug: "microsoft-windows",
-    title: "Microsoft Windows Mastery",
-    instructor: "Dev Fraol",
+    title: "Microsoft Windows",
     modules: [
       {
         title: "Module 1: Windows Basics",
         lessons: [
           {
             title: "Lesson 1: Desktop and Taskbar",
-            lessonOverview:
+            overview:
               "In this lesson, you will learn what the desktop and taskbar are and how they help you use Windows easily.",
-            definition: [
-              "Desktop: The main screen you see after turning on your computer. It contains icons, shortcuts, and open windows.",
-              "Taskbar: A bar (usually at the bottom of the screen) that shows open apps, the Start menu, and system icons.",
-            ],
+            definition:
+              "Desktop: The main screen you see after turning on your computer. It contains icons, shortcuts, and open windows. Taskbar: A bar (usually at the bottom of the screen) that shows open apps, the Start menu, and system icons.",
             examples: [
               "Clicking the Start button from the taskbar",
               "Opening Recycle Bin from the desktop",
@@ -30,7 +27,7 @@ export const microsoftWindowsCourseContent = [
               "Click the Start button on the taskbar",
               "Right-click on the desktop to see options",
               "Drag icons to arrange them",
-              "Right-click an app and select Pin to taskbar",
+              "Right-click an app → Pin to taskbar",
             ],
             tips: [
               "Keep only important icons on the desktop",
@@ -44,7 +41,7 @@ export const microsoftWindowsCourseContent = [
             ],
             quickSummary:
               "The desktop and taskbar help you access apps, manage tasks, and work faster in Windows.",
-            practiceTask: ["Change your desktop wallpaper", "Pin two apps to the taskbar"],
+            practiceTasks: ["Change your desktop wallpaper", "Pin two apps to the taskbar"],
             quiz: [
               "What is the desktop used for?",
               "Where is the taskbar usually located?",
@@ -53,15 +50,11 @@ export const microsoftWindowsCourseContent = [
           },
           {
             title: "Lesson 2: File Manager",
-            lessonOverview:
+            overview:
               "This lesson teaches you how to find, organize, and manage files and folders on your computer.",
             definition:
               "File Manager (File Explorer) is a tool used to view, create, move, and delete files and folders.",
-            examples: [
-              "Opening Documents folder",
-              "Creating a new folder",
-              "Searching for a file",
-            ],
+            examples: ["Opening Documents folder", "Creating a new folder", "Searching for a file"],
             keyPoints: [
               "Files store information",
               "Folders help organize files",
@@ -70,7 +63,7 @@ export const microsoftWindowsCourseContent = [
             howToUse: [
               "Click File Explorer from the taskbar",
               "Open any folder (Documents, Downloads)",
-              "Right-click and select New Folder",
+              "Right-click → New Folder",
               "Drag files into folders",
             ],
             tips: [
@@ -84,7 +77,7 @@ export const microsoftWindowsCourseContent = [
               "Forgetting where files are saved",
             ],
             quickSummary: "File Explorer helps you organize and manage your files easily.",
-            practiceTask: ["Create a folder named 'My Files'", "Move two files into it"],
+            practiceTasks: ["Create a folder named “My Files”", "Move two files into it"],
             quiz: [
               "What is File Explorer used for?",
               "Why are folders important?",
@@ -93,17 +86,11 @@ export const microsoftWindowsCourseContent = [
           },
           {
             title: "Lesson 3: Settings and User Management",
-            lessonOverview:
+            overview:
               "This lesson explains how to change basic system settings and manage user accounts.",
-            definition: [
-              "Settings: A place where you control how Windows looks and works.",
-              "User Account: A profile that stores personal files and settings.",
-            ],
-            examples: [
-              "Changing screen brightness",
-              "Adding a new user",
-              "Changing system language",
-            ],
+            definition:
+              "Settings: A place where you control how Windows looks and works. User Account: A profile that stores personal files and settings.",
+            examples: ["Changing screen brightness", "Adding a new user", "Changing system language"],
             keyPoints: [
               "Settings control system behavior",
               "Each user can have their own account",
@@ -127,7 +114,7 @@ export const microsoftWindowsCourseContent = [
             ],
             quickSummary:
               "Settings and user accounts help personalize and secure your computer.",
-            practiceTask: ["Open Settings", "Check how many users are on your PC"],
+            practiceTasks: ["Open Settings", "Check how many users are on your PC"],
             quiz: [
               "What are Settings used for?",
               "Why are user accounts important?",
@@ -141,50 +128,27 @@ export const microsoftWindowsCourseContent = [
         lessons: [
           {
             title: "Lesson 1: Keyboard Shortcuts",
-            lessonOverview:
-              "In this lesson, you will learn common keyboard shortcuts that help you perform tasks faster without using the mouse.",
+            overview:
+              "This lesson teaches common keyboard shortcuts to perform tasks faster.",
             definition:
               "Keyboard shortcuts are key combinations that quickly perform actions such as copying, pasting, or switching between applications.",
             examples: [
-              "Ctrl + C: Copy selected item",
-              "Ctrl + X: Cut selected item",
-              "Ctrl + V: Paste copied or cut item",
-              "Ctrl + Z: Undo the last action",
-              "Ctrl + Y: Redo the last action",
-              "Ctrl + A: Select all items",
-              "Ctrl + S: Save the current document",
-              "Ctrl + P: Print the current page or document",
-              "Ctrl + F: Open Find dialog",
-              "Ctrl + N: Open a new window or document",
-              "Alt + F4: Close the current window",
-              "Alt + Tab: Switch between open apps",
-              "Alt + Enter: Display properties of selected file or folder",
-              "F2: Rename selected item",
-              "F5: Refresh the active window",
-              "Windows + D: Show or hide desktop",
-              "Windows + E: Open File Explorer",
-              "Windows + L: Lock your computer",
-              "Windows + R: Open the Run dialog box",
-              "Windows + I: Open Settings",
-              "Windows + S: Open search",
-              "PrtSc: Take a screenshot",
-              "Windows + PrtSc: Take a screenshot and save it",
-              "Ctrl + Shift + Esc: Open Task Manager",
+              "Ctrl + C (Copy)",
+              "Ctrl + V (Paste)",
+              "Ctrl + Z (Undo)",
+              "Alt + Tab (Switch apps)",
+              "Windows + E (Open File Explorer)",
             ],
-            keyPoints: [
-              "Shortcuts save time",
-              "Reduce mouse usage",
-              "Easy to learn and remember",
-            ],
+            keyPoints: ["Shortcuts save time", "Reduce mouse usage", "Easy to learn and remember"],
             howToUse: [
-              "Hold down the first key (Ctrl, Alt, or Windows)",
+              "Hold down the first key",
               "Press the second key",
               "Release both keys",
             ],
             tips: [
-              "Start by learning 5 to 6 common shortcuts",
+              "Start by learning 5–6 common shortcuts",
               "Practice daily to remember them",
-              "Use shortcuts for copy, paste, and undo",
+              "Use shortcuts for copy, paste, undo",
             ],
             commonMistakes: [
               "Pressing keys too fast",
@@ -192,9 +156,9 @@ export const microsoftWindowsCourseContent = [
               "Trying to memorize too many at once",
             ],
             quickSummary: "Keyboard shortcuts make everyday tasks faster and easier.",
-            practiceTask: [
-              "Practice Ctrl + C, Ctrl + V, Ctrl + Z, and Alt + Tab in a document and between open apps",
-              "Use Windows + E to open File Explorer and Windows + L to lock your screen",
+            practiceTasks: [
+              "Practice Ctrl + C, Ctrl + V, Ctrl + Z while editing text",
+              "Use Alt + Tab to switch between open apps",
             ],
             quiz: [
               "What is a keyboard shortcut?",
@@ -204,7 +168,7 @@ export const microsoftWindowsCourseContent = [
           },
           {
             title: "Lesson 2: Task Manager",
-            lessonOverview:
+            overview:
               "This lesson teaches you how to view running programs and fix frozen or slow applications.",
             definition:
               "Task Manager is a tool that shows which programs and processes are currently running on your computer.",
@@ -234,9 +198,8 @@ export const microsoftWindowsCourseContent = [
               "Closing apps without saving work",
               "Opening Task Manager too late",
             ],
-            quickSummary:
-              "Task Manager helps you monitor and control running programs.",
-            practiceTask: [
+            quickSummary: "Task Manager helps you monitor and control running programs.",
+            practiceTasks: [
               "Open Task Manager with Ctrl + Shift + Esc",
               "Find an app in the list and review its CPU and memory usage",
             ],
@@ -248,7 +211,7 @@ export const microsoftWindowsCourseContent = [
           },
           {
             title: "Lesson 3: Storage Optimization",
-            lessonOverview:
+            overview:
               "This lesson explains how to free up space and keep your computer storage organized.",
             definition:
               "Storage optimization means managing disk space by removing unnecessary files and organizing data properly.",
@@ -279,7 +242,7 @@ export const microsoftWindowsCourseContent = [
               "Never cleaning disk space",
             ],
             quickSummary: "Storage optimization keeps your system clean and fast.",
-            practiceTask: [
+            practiceTasks: [
               "Open Settings > System > Storage and review used space",
               "Delete temporary or unneeded files and empty Recycle Bin",
             ],
@@ -291,7 +254,7 @@ export const microsoftWindowsCourseContent = [
           },
           {
             title: "Lesson 4: Keyboard Language Settings",
-            lessonOverview:
+            overview:
               "This lesson teaches how to add and switch between different keyboard languages.",
             definition:
               "Keyboard language settings control how text is typed based on selected language layouts.",
@@ -322,7 +285,7 @@ export const microsoftWindowsCourseContent = [
             ],
             quickSummary:
               "Keyboard language settings help you type in different languages easily.",
-            practiceTask: [
+            practiceTasks: [
               "Add one additional keyboard language in Time & Language settings",
               "Switch between two keyboard layouts using the language shortcut",
             ],
@@ -334,15 +297,11 @@ export const microsoftWindowsCourseContent = [
           },
           {
             title: "Lesson 5: Application Software Installation",
-            lessonOverview:
+            overview:
               "This lesson explains how to safely install and remove software on a Windows computer.",
             definition:
               "Application software includes programs like browsers, media players, and office tools that you install to perform tasks.",
-            examples: [
-              "Installing a browser",
-              "Removing unused applications",
-              "Updating installed software",
-            ],
+            examples: ["Installing a browser", "Removing unused applications", "Updating installed software"],
             keyPoints: [
               "Software should be installed from trusted sources",
               "Unused apps should be removed",
@@ -366,7 +325,7 @@ export const microsoftWindowsCourseContent = [
             ],
             quickSummary:
               "Installing software correctly keeps your computer safe and organized.",
-            practiceTask: [
+            practiceTasks: [
               "Install one trusted application and verify it opens correctly",
               "Uninstall one app you no longer use from Windows settings",
             ],
@@ -383,16 +342,12 @@ export const microsoftWindowsCourseContent = [
         lessons: [
           {
             title: "Lesson 1: Windows Updates",
-            lessonOverview:
+            overview:
               "In this lesson, you will learn why updates are important and how to keep Windows up to date.",
             definition:
               "Windows Updates are improvements released to fix problems, add features, and protect your computer from security risks.",
             examples: ["Security updates", "Bug fixes", "Performance improvements"],
-            keyPoints: [
-              "Updates improve safety",
-              "Fix system problems",
-              "Keep Windows working smoothly",
-            ],
+            keyPoints: ["Updates improve safety", "Fix system problems", "Keep Windows working smoothly"],
             howToUse: [
               "Open Settings",
               "Click Windows Update",
@@ -410,7 +365,7 @@ export const microsoftWindowsCourseContent = [
               "Shutting down during updates",
             ],
             quickSummary: "Windows updates protect and improve your computer.",
-            practiceTask: [
+            practiceTasks: [
               "Open Windows Update settings and check for available updates",
               "Review update history to see recently installed updates",
             ],
@@ -422,7 +377,7 @@ export const microsoftWindowsCourseContent = [
           },
           {
             title: "Lesson 2: Security Basics",
-            lessonOverview:
+            overview:
               "This lesson explains how to protect your computer from viruses, malware, and online threats.",
             definition:
               "Computer security means protecting your system, files, and personal information from harm.",
@@ -453,7 +408,7 @@ export const microsoftWindowsCourseContent = [
               "Downloading from unsafe sites",
             ],
             quickSummary: "Basic security habits keep your computer safe.",
-            practiceTask: [
+            practiceTasks: [
               "Run a quick antivirus scan",
               "Update one password to a stronger password using letters, numbers, and symbols",
             ],
@@ -465,8 +420,7 @@ export const microsoftWindowsCourseContent = [
           },
           {
             title: "Lesson 3: Backup Options",
-            lessonOverview:
-              "This lesson teaches how to protect important files by creating backups.",
+            overview: "This lesson teaches how to protect important files by creating backups.",
             definition:
               "A backup is a copy of your files saved in another location so they are not lost if something goes wrong.",
             examples: [
@@ -496,7 +450,7 @@ export const microsoftWindowsCourseContent = [
               "Forgetting where backups are saved",
             ],
             quickSummary: "Backups protect your important data from loss.",
-            practiceTask: [
+            practiceTasks: [
               "Choose a backup location (external drive or cloud)",
               "Enable backup for one important folder and confirm it runs",
             ],
