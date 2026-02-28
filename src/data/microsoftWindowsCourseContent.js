@@ -192,6 +192,10 @@ export const microsoftWindowsCourseContent = [
               "Trying to memorize too many at once",
             ],
             quickSummary: "Keyboard shortcuts make everyday tasks faster and easier.",
+            practiceTask: [
+              "Practice Ctrl + C, Ctrl + V, Ctrl + Z, and Alt + Tab in a document and between open apps",
+              "Use Windows + E to open File Explorer and Windows + L to lock your screen",
+            ],
             quiz: [
               "What is a keyboard shortcut?",
               "Which shortcut is used to paste?",
@@ -232,6 +236,10 @@ export const microsoftWindowsCourseContent = [
             ],
             quickSummary:
               "Task Manager helps you monitor and control running programs.",
+            practiceTask: [
+              "Open Task Manager with Ctrl + Shift + Esc",
+              "Find an app in the list and review its CPU and memory usage",
+            ],
             quiz: [
               "What is Task Manager used for?",
               "Can it close frozen apps?",
@@ -271,6 +279,10 @@ export const microsoftWindowsCourseContent = [
               "Never cleaning disk space",
             ],
             quickSummary: "Storage optimization keeps your system clean and fast.",
+            practiceTask: [
+              "Open Settings > System > Storage and review used space",
+              "Delete temporary or unneeded files and empty Recycle Bin",
+            ],
             quiz: [
               "Why is free storage important?",
               "Where can you check disk usage?",
@@ -310,6 +322,10 @@ export const microsoftWindowsCourseContent = [
             ],
             quickSummary:
               "Keyboard language settings help you type in different languages easily.",
+            practiceTask: [
+              "Add one additional keyboard language in Time & Language settings",
+              "Switch between two keyboard layouts using the language shortcut",
+            ],
             quiz: [
               "What are keyboard languages used for?",
               "Can you add multiple languages?",
@@ -350,6 +366,10 @@ export const microsoftWindowsCourseContent = [
             ],
             quickSummary:
               "Installing software correctly keeps your computer safe and organized.",
+            practiceTask: [
+              "Install one trusted application and verify it opens correctly",
+              "Uninstall one app you no longer use from Windows settings",
+            ],
             quiz: [
               "What is application software?",
               "Why should apps come from trusted sources?",
@@ -390,6 +410,10 @@ export const microsoftWindowsCourseContent = [
               "Shutting down during updates",
             ],
             quickSummary: "Windows updates protect and improve your computer.",
+            practiceTask: [
+              "Open Windows Update settings and check for available updates",
+              "Review update history to see recently installed updates",
+            ],
             quiz: [
               "Why are updates important?",
               "Can updates improve security?",
@@ -429,6 +453,10 @@ export const microsoftWindowsCourseContent = [
               "Downloading from unsafe sites",
             ],
             quickSummary: "Basic security habits keep your computer safe.",
+            practiceTask: [
+              "Run a quick antivirus scan",
+              "Update one password to a stronger password using letters, numbers, and symbols",
+            ],
             quiz: [
               "What is computer security?",
               "Are unknown links safe?",
@@ -468,6 +496,10 @@ export const microsoftWindowsCourseContent = [
               "Forgetting where backups are saved",
             ],
             quickSummary: "Backups protect your important data from loss.",
+            practiceTask: [
+              "Choose a backup location (external drive or cloud)",
+              "Enable backup for one important folder and confirm it runs",
+            ],
             quiz: [
               "What is a backup?",
               "Why are backups important?",
