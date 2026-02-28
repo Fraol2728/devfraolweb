@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, CheckCircle2, Circle, Lock, Star, Check, BookOpen, Clock3, Award, FileText } from "lucide-react";
+import { ChevronDown, CheckCircle2, Circle, Lock, Star, Check, BookOpen, Clock3, FileText } from "lucide-react";
 import { mockCourses } from "@/features/courses/mockCourses";
 import { courses as fallbackCourses } from "@/data/courses";
 
@@ -87,66 +87,9 @@ const requirements = [
   "A notebook (or digital notes) for implementation checklists",
 ];
 
-const reviews = [
-  {
-    id: 1,
-    name: "Amina Yusuf",
-    rating: 5,
-    avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=160&q=80",
-    text:
-      "The structure is excellent and the pacing feels premium. Every module leads naturally into the next with practical lessons I could apply immediately at work.",
-  },
-  {
-    id: 2,
-    name: "Daniel Okafor",
-    rating: 5,
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=160&q=80",
-    text:
-      "Clear explanations, polished delivery, and zero fluff. The progress indicators and module flow kept me motivated throughout the full curriculum.",
-  },
-  {
-    id: 3,
-    name: "Lydia Mensah",
-    rating: 4,
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=160&q=80",
-    text:
-      "I loved the clarity of each lesson summary and the modern interface. It feels like a premium product and made studying on mobile much easier.",
-  },
-];
-
-const ReviewCard = ({ review }) => {
-  const [expanded, setExpanded] = useState(false);
-  const isLong = review.text.length > 140;
-
-  return (
-    <article className="rounded-2xl border border-[#232326] bg-[#151518] p-6 transition duration-300 hover:-translate-y-0.5 hover:border-[#E10600]/40">
-      <div className="flex items-center gap-3">
-        <img src={review.avatar} alt={review.name} className="h-11 w-11 rounded-full object-cover" />
-        <div>
-          <p className="text-base font-semibold text-white">{review.name}</p>
-          <div className="mt-1 flex items-center gap-1 text-[#E10600]">
-            {Array.from({ length: review.rating }).map((_, index) => (
-              <Star key={`${review.id}-star-${index}`} className="h-3.5 w-3.5 fill-current" />
-            ))}
-          </div>
-        </div>
-      </div>
-      <p className="mt-4 text-sm leading-7 text-[#A1A1AA]">{expanded || !isLong ? review.text : `${review.text.slice(0, 140)}...`}</p>
-      {isLong ? (
-        <button
-          type="button"
-          onClick={() => setExpanded((state) => !state)}
-          className="mt-3 text-sm font-medium text-[#E10600] transition hover:text-[#ff4d48]"
-        >
-          {expanded ? "Read less" : "Read more"}
-        </button>
-      ) : null}
-    </article>
-  );
-};
-
 export const CourseDetail = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [openModuleId, setOpenModuleId] = useState(null);
 
   const normalizedSlug = String(slug ?? "").toLowerCase();
@@ -200,6 +143,7 @@ export const CourseDetail = () => {
                   <motion.button
                     whileTap={{ scale: 0.97 }}
                     type="button"
+                    onClick={() => navigate(`/courses/${course.slug}/learn`)}
                     className="rounded-xl bg-[#E10600] px-5 py-3 text-sm font-semibold text-white transition hover:shadow-[0_0_22px_rgba(225,6,0,0.35)]"
                   >
                     Enroll Now
@@ -358,23 +302,16 @@ export const CourseDetail = () => {
             </ul>
           </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold text-white">Reviews</h2>
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              {reviews.map((review) => (
-                <ReviewCard key={review.id} review={review} />
-              ))}
-            </div>
-          </section>
         </div>
 
         <aside className="hidden lg:block lg:sticky lg:top-24">
           <div className="rounded-2xl border border-[#232326] bg-[#151518] p-6">
             <p className="text-sm text-[#A1A1AA]">Full access</p>
-            <p className="mt-1 text-4xl font-bold text-white">$89</p>
+            <p className="mt-1 text-4xl font-bold text-white">Free</p>
             <motion.button
               whileTap={{ scale: 0.97 }}
               type="button"
+              onClick={() => navigate(`/courses/${course.slug}/learn`)}
               className="mt-5 w-full rounded-xl bg-[#E10600] px-4 py-3 text-sm font-semibold text-white transition hover:shadow-[0_0_24px_rgba(225,6,0,0.35)]"
             >
               Enroll Now
@@ -385,9 +322,8 @@ export const CourseDetail = () => {
 
             <ul className="mt-6 space-y-3 text-sm text-[#A1A1AA]">
               <li className="flex items-center gap-2"><BookOpen className="h-4 w-4 text-[#E10600]" /> Lifetime access</li>
-              <li className="flex items-center gap-2"><Award className="h-4 w-4 text-[#E10600]" /> Certificate of completion</li>
-              <li className="flex items-center gap-2"><FileText className="h-4 w-4 text-[#E10600]" /> Downloadable resources</li>
-              <li className="flex items-center gap-2"><Clock3 className="h-4 w-4 text-[#E10600]" /> {formatDuration(course.totalMinutes)} on-demand content</li>
+              <li className="flex items-center gap-2"><FileText className="h-4 w-4 text-[#E10600]" /> Text-based lesson notes</li>
+              <li className="flex items-center gap-2"><Clock3 className="h-4 w-4 text-[#E10600]" /> {formatDuration(course.totalMinutes)} self-paced content</li>
             </ul>
 
             {firstLesson ? <p className="mt-6 text-xs text-[#A1A1AA]">Start with: {firstLesson.title}</p> : null}
@@ -399,11 +335,12 @@ export const CourseDetail = () => {
         <div className="mx-auto flex w-full max-w-[1240px] items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-xs text-[#A1A1AA]">Premium access</p>
-            <p className="text-lg font-bold text-white">$89</p>
+            <p className="text-lg font-bold text-white">Free</p>
           </div>
           <motion.button
             whileTap={{ scale: 0.97 }}
             type="button"
+            onClick={() => navigate(`/courses/${course.slug}/learn`)}
             className="rounded-xl bg-[#E10600] px-4 py-3 text-sm font-semibold text-white"
           >
             Enroll Now

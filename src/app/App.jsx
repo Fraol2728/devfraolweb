@@ -24,6 +24,7 @@ const Apps = lazy(() => import("@/pages/Apps").then((m) => ({ default: m.Apps })
 const AppDetail = lazy(() => import("@/pages/AppDetail").then((m) => ({ default: m.AppDetail })));
 const CoursesPage = lazy(() => import("@/pages/CoursesPage").then((m) => ({ default: m.CoursesPage })));
 const CourseDetailPage = lazy(() => import("@/pages/CourseDetailPage").then((m) => ({ default: m.CourseDetailPage })));
+const LearningPage = lazy(() => import("@/pages/LearningPage").then((m) => ({ default: m.LearningPage })));
 const PythonCodeEditor = lazy(() => import("@/pages/CodeEditor").then((m) => ({ default: m.CodeEditor })));
 const Admin = lazy(() => import("@/pages/Admin").then((m) => ({ default: m.Admin })));
 const Login = lazy(() => import("@/pages/Login").then((m) => ({ default: m.Login })));
@@ -86,6 +87,7 @@ function App() {
                   <Route path="/settings" element={<SimplePlaceholderPage title="Settings" />} />
                 </Route>
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/courses/:slug/learn" element={<LearningPage />} />
                 <Route path="/home" element={<Navigate to="/" replace />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
