@@ -1,17 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, CheckCircle2, Circle, Lock, Star, Check, BookOpen, Clock3, Award, FileText } from "lucide-react";
 import { mockCourses } from "@/features/courses/mockCourses";
 import { courses as fallbackCourses } from "@/data/courses";
-import { HeroSection } from "@/features/courses/HeroSection";
-import { IntroductionVideo } from "@/features/courses/IntroductionVideo";
-import { CourseOutline } from "@/features/courses/CourseOutline";
-import { LessonPanel } from "@/features/courses/LessonPanel";
-import { InstructorCard } from "@/features/courses/InstructorCard";
-import { RelatedCourses } from "@/features/courses/RelatedCourses";
-import { CourseFAQ } from "@/features/courses/CourseFAQ";
 
 const getFirstLesson = (course) => course?.modules?.[0]?.lessons?.find((lesson) => lesson.unlocked !== false) ?? null;
+
+const durationToMinutes = (duration = "") => {
+  const result = Number.parseInt(duration, 10);
+  return Number.isNaN(result) ? 12 : result;
+};
 
 const normalizeCourse = (course) => {
   const modules = (course.modules ?? course.syllabus ?? []).map((module, moduleIndex) => {
@@ -28,58 +27,127 @@ const normalizeCourse = (course) => {
             duration: "12 min",
             unlocked: lessonIndex < 3,
             definition: `This lesson introduces ${lesson.toLowerCase()} in ${course.title}.`,
-            content: [
-              { type: "heading", text: lesson },
-              { type: "paragraph", text: course.description },
-              { type: "tip", text: "Take notes and practice each concept with a mini challenge." },
-            ],
+            completed: lessonIndex === 0,
           };
         }
 
         return {
           ...lesson,
           unlocked: lesson.unlocked ?? true,
+          completed: lesson.completed ?? lessonIndex === 0,
         };
       }),
     };
   });
 
   const lessonCount = modules.reduce((total, module) => total + module.lessons.length, 0);
+  const totalMinutes = modules.reduce((total, module) => total + module.lessons.reduce((sum, lesson) => sum + durationToMinutes(lesson.duration), 0), 0);
+  const modulesCount = modules.length;
+  const level = course.level ?? "Intermediate";
 
   return {
     ...course,
     slug: course.slug ?? course.id,
     modules,
-    introVideoId: course.introVideoId ?? "dQw4w9WgXcQ",
-    videoTagline: course.videoTagline ?? "Get a quick tour of your learning journey before diving in.",
+    lessonCount,
+    totalMinutes,
+    modulesCount,
+    level,
+    rating: course.rating ?? 4.8,
+    students: course.students ?? 18240,
+    category: course.category ?? "Programming",
+    thumbnail:
+      course.thumbnail ??
+      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1400&q=80",
     instructor: course.instructor ?? {
-      name: "Dev Fraol",
-      title: "Instructor",
-      bio: "Helping learners grow practical digital skills through engaging, project-based lessons.",
-      avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=300&q=80",
-      socials: [
-        { type: "github", url: "https://github.com" },
-        { type: "linkedin", url: "https://linkedin.com" },
-      ],
+      name: course.instructor ?? "Dev Fraol",
+      title: "Senior Instructor",
+      bio: "Mentor focused on practical workflows, production-ready habits, and portfolio outcomes for modern developers.",
+      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
+      rating: 4.9,
     },
-    faqs: course.faqs ?? [
-      { question: "Do I need prior experience?", answer: "No. The course starts from fundamentals and gradually increases in depth." },
-      { question: "How long will this course take?", answer: "Most learners complete it in 4 to 6 weeks at a steady pace." },
-    ],
-    stats: [
-      { label: "Modules", value: String(modules.length) },
-      { label: "Lessons", value: String(lessonCount) },
-      { label: "Duration", value: `${Math.max(lessonCount * 12, 60)} mins` },
-    ],
   };
+};
+
+const formatDuration = (minutes) => {
+  const hrs = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${hrs}h ${String(mins).padStart(2, "0")}m`;
+};
+
+const buildLearningPoints = (modules) =>
+  modules
+    .flatMap((module) => module.lessons.slice(0, 2).map((lesson) => `Confidently apply ${lesson.title.toLowerCase()} in real scenarios.`))
+    .slice(0, 8);
+
+const requirements = [
+  "A laptop or desktop with stable internet access",
+  "Basic familiarity with browsing and installing tools",
+  "Consistency: at least 3 focused sessions per week",
+  "A notebook (or digital notes) for implementation checklists",
+];
+
+const reviews = [
+  {
+    id: 1,
+    name: "Amina Yusuf",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=160&q=80",
+    text:
+      "The structure is excellent and the pacing feels premium. Every module leads naturally into the next with practical lessons I could apply immediately at work.",
+  },
+  {
+    id: 2,
+    name: "Daniel Okafor",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=160&q=80",
+    text:
+      "Clear explanations, polished delivery, and zero fluff. The progress indicators and module flow kept me motivated throughout the full curriculum.",
+  },
+  {
+    id: 3,
+    name: "Lydia Mensah",
+    rating: 4,
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=160&q=80",
+    text:
+      "I loved the clarity of each lesson summary and the modern interface. It feels like a premium product and made studying on mobile much easier.",
+  },
+];
+
+const ReviewCard = ({ review }) => {
+  const [expanded, setExpanded] = useState(false);
+  const isLong = review.text.length > 140;
+
+  return (
+    <article className="rounded-2xl border border-[#232326] bg-[#151518] p-6 transition duration-300 hover:-translate-y-0.5 hover:border-[#E10600]/40">
+      <div className="flex items-center gap-3">
+        <img src={review.avatar} alt={review.name} className="h-11 w-11 rounded-full object-cover" />
+        <div>
+          <p className="text-base font-semibold text-white">{review.name}</p>
+          <div className="mt-1 flex items-center gap-1 text-[#E10600]">
+            {Array.from({ length: review.rating }).map((_, index) => (
+              <Star key={`${review.id}-star-${index}`} className="h-3.5 w-3.5 fill-current" />
+            ))}
+          </div>
+        </div>
+      </div>
+      <p className="mt-4 text-sm leading-7 text-[#A1A1AA]">{expanded || !isLong ? review.text : `${review.text.slice(0, 140)}...`}</p>
+      {isLong ? (
+        <button
+          type="button"
+          onClick={() => setExpanded((state) => !state)}
+          className="mt-3 text-sm font-medium text-[#E10600] transition hover:text-[#ff4d48]"
+        >
+          {expanded ? "Read less" : "Read more"}
+        </button>
+      ) : null}
+    </article>
+  );
 };
 
 export const CourseDetail = () => {
   const { slug } = useParams();
-  const [activeModuleId, setActiveModuleId] = useState(null);
-  const [activeLessonId, setActiveLessonId] = useState(null);
-  const [isMobileLessonOpen, setIsMobileLessonOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [openModuleId, setOpenModuleId] = useState(null);
 
   const normalizedSlug = String(slug ?? "").toLowerCase();
 
@@ -92,74 +160,256 @@ export const CourseDetail = () => {
   }, [normalizedSlug]);
 
   useEffect(() => {
-    setIsLoading(true);
-    const id = window.setTimeout(() => setIsLoading(false), 160);
-    return () => window.clearTimeout(id);
-  }, [normalizedSlug]);
-
-  const allLessons = useMemo(() => {
-    if (!course) return [];
-    return course.modules.flatMap((module) => module.lessons.map((lesson) => ({ ...lesson, moduleId: module.id })));
+    setOpenModuleId(course?.modules?.[0]?.id ?? null);
   }, [course]);
-
-  const activeLesson = allLessons.find((lesson) => lesson.id === activeLessonId) ?? null;
-
-  useEffect(() => {
-    const firstLesson = getFirstLesson(course);
-    setActiveModuleId(course?.modules?.[0]?.id ?? null);
-    setActiveLessonId(firstLesson?.id ?? null);
-    setIsMobileLessonOpen(false);
-  }, [course]);
-
-  const handleSelectLesson = (lesson, moduleId) => {
-    if (lesson.unlocked === false) return;
-    setActiveModuleId(moduleId);
-    setActiveLessonId(lesson.id);
-    setIsMobileLessonOpen(true);
-  };
-
-  if (isLoading) {
-    return <div className="mx-auto mt-6 h-72 w-full max-w-[1280px] animate-pulse rounded-3xl border border-white/10 bg-white/5" />;
-  }
 
   if (!course) {
     return (
-      <section className="flex min-h-[70vh] items-center justify-center px-4 py-12">
-        <div className="rounded-3xl border border-white/10 bg-[#121826]/80 p-8 text-center">
-          <h1 className="text-3xl font-bold text-white">Course Not Found — The requested course does not exist.</h1>
-          <Link to="/courses" className="mt-5 inline-block rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900">
-            Back to Courses
+      <section className="mx-auto flex min-h-[60vh] w-full max-w-[1240px] items-center justify-center px-4 py-16 sm:px-6">
+        <div className="rounded-3xl border border-[#232326] bg-[#151518] p-8 text-center">
+          <h1 className="text-3xl font-bold text-white">Course not found.</h1>
+          <Link to="/courses" className="mt-4 inline-flex rounded-xl border border-[#E10600] px-4 py-2 text-sm font-medium text-[#E10600]">
+            Back to courses
           </Link>
         </div>
       </section>
     );
   }
 
-  const relatedCourses = mockCourses.filter((item) => item.slug !== course.slug).slice(0, 6);
+  const firstLesson = getFirstLesson(course);
+  const learningPoints = buildLearningPoints(course.modules);
+  const metaRow = `${course.modulesCount} Modules • ${course.lessonCount} Lessons • ${formatDuration(course.totalMinutes)} • ${course.level}`;
 
   return (
-    <section className="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
-      <AnimatePresence mode="wait">
-        <motion.div key={course.slug} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <HeroSection course={course} stats={course.stats} />
-          <IntroductionVideo videoId={course.introVideoId} tagline={course.videoTagline} />
+    <section className="mx-auto w-full max-w-[1240px] px-4 pb-28 pt-8 text-left sm:px-6 lg:px-8">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+        <div className="space-y-8">
+          <header className="rounded-[24px] border border-[#232326] bg-[#151518] p-6 sm:p-8">
+            <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+              <div>
+                <span className="inline-flex rounded-full bg-[#E10600]/20 px-3 py-1 text-sm font-medium text-[#ff8f8b]">{course.category}</span>
+                <h1 className="mt-4 text-4xl font-bold tracking-[-0.02em] text-white sm:text-[44px]">{course.title}</h1>
+                <p className="mt-4 max-w-2xl text-base font-medium leading-8 text-[#A1A1AA]">{course.description}</p>
+                <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-[#A1A1AA]">
+                  <span>By {course.instructor.name}</span>
+                  <span className="inline-flex items-center gap-1 text-[#E10600]">
+                    <Star className="h-4 w-4 fill-current" /> {course.rating}
+                  </span>
+                </div>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    type="button"
+                    className="rounded-xl bg-[#E10600] px-5 py-3 text-sm font-semibold text-white transition hover:shadow-[0_0_22px_rgba(225,6,0,0.35)]"
+                  >
+                    Enroll Now
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    type="button"
+                    className="rounded-xl border border-[#E10600] px-5 py-3 text-sm font-semibold text-[#E10600] transition hover:bg-[#E10600]/10"
+                  >
+                    Preview Syllabus
+                  </motion.button>
+                </div>
+              </div>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(300px,34%)_minmax(0,66%)] lg:items-start">
-            <CourseOutline
-              modules={course.modules}
-              activeModuleId={activeModuleId}
-              activeLessonId={activeLessonId}
-              onToggleModule={setActiveModuleId}
-              onSelectLesson={handleSelectLesson}
-            />
-            <LessonPanel lesson={activeLesson} isMobileOpen={isMobileLessonOpen} onCloseMobile={() => setIsMobileLessonOpen(false)} />
+              <article className="rounded-2xl border border-[#232326] bg-[#0E0E10] p-4 shadow-[0_10px_34px_rgba(0,0,0,0.28)]">
+                <img src={course.thumbnail} alt={course.title} className="h-56 w-full rounded-xl object-cover" />
+              </article>
+            </div>
+          </header>
+
+          <div className="rounded-2xl border border-[#232326] bg-[#151518] px-6 py-4 text-sm text-[#A1A1AA]">{metaRow}</div>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-white">Course Content</h2>
+            <div className="mt-4 space-y-4">
+              {course.modules.map((module) => {
+                const isOpen = module.id === openModuleId;
+                const completedCount = module.lessons.filter((lesson) => lesson.completed).length;
+                const progress = Math.round((completedCount / module.lessons.length) * 100);
+
+                return (
+                  <motion.article
+                    key={module.id}
+                    whileHover={{ y: -3 }}
+                    className="overflow-hidden rounded-2xl border border-[#232326] bg-[#151518] transition"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenModuleId(isOpen ? null : module.id)}
+                      className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+                      aria-expanded={isOpen}
+                      aria-controls={`module-panel-${module.id}`}
+                    >
+                      <div>
+                        <h3 className="text-xl font-semibold text-white">{module.title}</h3>
+                        <p className="mt-1 text-sm text-[#A1A1AA]">{module.lessons.length} lessons • {module.lessons.reduce((t, l) => t + durationToMinutes(l.duration), 0)} min</p>
+                      </div>
+                      <ChevronDown className={`h-5 w-5 text-[#E10600] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+                    </button>
+
+                    <AnimatePresence initial={false}>
+                      {isOpen ? (
+                        <motion.div
+                          id={`module-panel-${module.id}`}
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25, ease: "easeInOut" }}
+                          className="overflow-hidden"
+                        >
+                          <ul className="border-t border-[#232326] px-4 pb-3 pt-2">
+                            {module.lessons.map((lesson) => (
+                              <li key={lesson.id} className="border-b border-[#232326] last:border-b-0">
+                                <button
+                                  type="button"
+                                  className="group flex w-full items-center justify-between gap-4 rounded-lg border-l-2 border-transparent px-3 py-3 text-left transition hover:border-l-[#E10600] hover:bg-[#19191d]"
+                                >
+                                  <div>
+                                    <p className="text-base font-semibold text-white">{lesson.title}</p>
+                                    <p className="text-sm text-[#A1A1AA] line-clamp-1">{lesson.definition}</p>
+                                  </div>
+                                  <div className="flex items-center gap-3 text-sm text-[#A1A1AA]">
+                                    <span>{lesson.duration}</span>
+                                    {lesson.unlocked === false ? <Lock className="h-4 w-4 text-[#E10600]" /> : null}
+                                    {lesson.completed ? (
+                                      <motion.span
+                                        initial={{ scale: 0.6, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        className="text-[#E10600]"
+                                      >
+                                        <CheckCircle2 className="h-4 w-4" />
+                                      </motion.span>
+                                    ) : (
+                                      <Circle className="h-4 w-4 text-[#A1A1AA]" />
+                                    )}
+                                  </div>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
+
+                    <div className="px-6 pb-5 pt-1">
+                      <div className="mb-2 flex items-center justify-between text-xs text-[#A1A1AA]">
+                        <span>Progress</span>
+                        <span>{progress}%</span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-[#232326]">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${progress}%` }}
+                          transition={{ duration: 0.5 }}
+                          className="h-full rounded-full bg-[#E10600]"
+                        />
+                      </div>
+                    </div>
+                  </motion.article>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-[#232326] bg-[#151518] p-6">
+            <h2 className="text-2xl font-semibold text-white">Instructor</h2>
+            <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex items-center gap-4">
+                <img src={course.instructor.avatar} alt={course.instructor.name} className="h-16 w-16 rounded-full object-cover" />
+                <div>
+                  <p className="text-lg font-bold text-white">{course.instructor.name}</p>
+                  <p className="text-sm text-[#A1A1AA]">{course.instructor.title}</p>
+                  <p className="mt-1 inline-flex items-center gap-1 text-sm text-[#E10600]"><Star className="h-4 w-4 fill-current" /> {course.instructor.rating ?? 4.9}</p>
+                </div>
+              </div>
+
+              <div className="max-w-xl">
+                <p className="line-clamp-4 text-sm leading-7 text-[#A1A1AA]">{course.instructor.bio}</p>
+                <button type="button" className="mt-4 rounded-xl border border-[#E10600] px-4 py-2 text-sm font-medium text-[#E10600] transition hover:bg-[#E10600]/10">
+                  View Profile
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-white">What You&apos;ll Learn</h2>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              {learningPoints.map((point) => (
+                <article key={point} className="rounded-xl border border-[#232326] bg-[#151518] p-4">
+                  <p className="flex items-start gap-3 text-sm text-[#A1A1AA]">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#E10600]" />
+                    <span>{point}</span>
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-[#232326] bg-[#151518] p-6">
+            <h2 className="text-2xl font-semibold text-white">Requirements</h2>
+            <ul className="mt-4 list-disc space-y-2 pl-6 text-sm text-[#A1A1AA]">
+              {requirements.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-white">Reviews</h2>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              {reviews.map((review) => (
+                <ReviewCard key={review.id} review={review} />
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <aside className="hidden lg:block lg:sticky lg:top-24">
+          <div className="rounded-2xl border border-[#232326] bg-[#151518] p-6">
+            <p className="text-sm text-[#A1A1AA]">Full access</p>
+            <p className="mt-1 text-4xl font-bold text-white">$89</p>
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              type="button"
+              className="mt-5 w-full rounded-xl bg-[#E10600] px-4 py-3 text-sm font-semibold text-white transition hover:shadow-[0_0_24px_rgba(225,6,0,0.35)]"
+            >
+              Enroll Now
+            </motion.button>
+            <button type="button" className="mt-3 w-full rounded-xl border border-[#E10600] px-4 py-3 text-sm font-semibold text-[#E10600] transition hover:bg-[#E10600]/10">
+              Add to Wishlist
+            </button>
+
+            <ul className="mt-6 space-y-3 text-sm text-[#A1A1AA]">
+              <li className="flex items-center gap-2"><BookOpen className="h-4 w-4 text-[#E10600]" /> Lifetime access</li>
+              <li className="flex items-center gap-2"><Award className="h-4 w-4 text-[#E10600]" /> Certificate of completion</li>
+              <li className="flex items-center gap-2"><FileText className="h-4 w-4 text-[#E10600]" /> Downloadable resources</li>
+              <li className="flex items-center gap-2"><Clock3 className="h-4 w-4 text-[#E10600]" /> {formatDuration(course.totalMinutes)} on-demand content</li>
+            </ul>
+
+            {firstLesson ? <p className="mt-6 text-xs text-[#A1A1AA]">Start with: {firstLesson.title}</p> : null}
           </div>
+        </aside>
+      </div>
 
-          <InstructorCard instructor={course.instructor} />
-          <RelatedCourses courses={relatedCourses} />
-          <CourseFAQ faqs={course.faqs} />
-        </motion.div>
-      </AnimatePresence>
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-[#232326] bg-[#151518] p-3 lg:hidden">
+        <div className="mx-auto flex w-full max-w-[1240px] items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-[#A1A1AA]">Premium access</p>
+            <p className="text-lg font-bold text-white">$89</p>
+          </div>
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            type="button"
+            className="rounded-xl bg-[#E10600] px-4 py-3 text-sm font-semibold text-white"
+          >
+            Enroll Now
+          </motion.button>
+        </div>
+      </div>
     </section>
   );
 };
