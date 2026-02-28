@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Menu } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { getLearningCourse } from "@/features/learning/learningData";
-import { Sidebar } from "@/features/learning/components/Sidebar";
+import { SidebarModules } from "@/features/learning/components/SidebarModules";
 import { LessonContent } from "@/features/learning/components/LessonContent";
-import { ProgressBar } from "@/features/learning/components/ProgressBar";
 import { NavigationFooter } from "@/features/learning/components/NavigationFooter";
 
 const flattenLessons = (modules) =>
-  modules.flatMap((module) => module.lessons.map((lesson) => ({ lesson, moduleId: module.id, moduleTitle: module.title })));
+  modules.flatMap((module, moduleIndex) =>
+    module.lessons.map((lesson) => ({ lesson, moduleId: module.id, moduleName: `Module ${moduleIndex + 1}` })),
+  );
 
 export const LearningInterface = () => {
   const { slug } = useParams();
@@ -19,7 +21,6 @@ export const LearningInterface = () => {
   const [completedLessonIds, setCompletedLessonIds] = useState(() => new Set());
   const [openModuleIds, setOpenModuleIds] = useState(() => (course?.modules ?? []).map((module) => module.id));
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [readProgress, setReadProgress] = useState(0);
 
   useEffect(() => {
     setActiveLessonId(lessonMap[0]?.lesson?.id ?? null);
@@ -29,21 +30,6 @@ export const LearningInterface = () => {
 
   const activeIndex = lessonMap.findIndex((entry) => entry.lesson.id === activeLessonId);
   const activeEntry = activeIndex >= 0 ? lessonMap[activeIndex] : null;
-
-  useEffect(() => {
-    const scrollNode = document.getElementById("lesson-content-scroll");
-    if (!scrollNode) return;
-
-    const updateProgress = () => {
-      const max = scrollNode.scrollHeight - scrollNode.clientHeight;
-      const value = max > 0 ? Math.round((scrollNode.scrollTop / max) * 100) : 0;
-      setReadProgress(value);
-    };
-
-    updateProgress();
-    scrollNode.addEventListener("scroll", updateProgress, { passive: true });
-    return () => scrollNode.removeEventListener("scroll", updateProgress);
-  }, [activeLessonId]);
 
   if (!course || !activeEntry) {
     return (
@@ -82,7 +68,7 @@ export const LearningInterface = () => {
   return (
     <main className="h-screen overflow-hidden bg-[#0E0E10] text-white">
       <div className="flex h-full">
-        <Sidebar
+        <SidebarModules
           modules={course.modules}
           openModuleIds={openModuleIds}
           onToggleModule={(moduleId) =>
@@ -111,10 +97,18 @@ export const LearningInterface = () => {
             <Link to={`/courses/${course.slug}`} className="text-sm font-medium text-[#E10600] hover:text-[#ff4b44]">Exit</Link>
           </header>
 
-          <ProgressBar progress={readProgress} />
-
           <div id="lesson-content-scroll" className="min-h-0 flex-1 overflow-y-auto">
-            <LessonContent lesson={activeEntry.lesson} moduleTitle={activeEntry.moduleTitle} />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeEntry.lesson.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.22, ease: "easeOut" }}
+              >
+                <LessonContent lesson={activeEntry.lesson} moduleTitle={activeEntry.moduleName} />
+              </motion.div>
+            </AnimatePresence>
           </div>
 
           <NavigationFooter
