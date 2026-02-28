@@ -5,15 +5,17 @@ export const LessonItem = ({ lesson, index, isActive, isCompleted, onSelect }) =
     <button
       type="button"
       onClick={onSelect}
-      className={`group relative flex w-full items-center gap-3 border-l-2 px-3 py-3 text-left transition duration-200 ${
+      className={`group relative flex w-full items-center gap-3 rounded-md border-l-2 px-3 py-3 text-left transition duration-200 ${
         isActive
-          ? "border-l-[#E10600] bg-[#1B1B1F]"
-          : "border-l-transparent hover:border-l-[#E10600]/80 hover:bg-[#19191d]"
+          ? "border-l-[#E10600] bg-[#211414]"
+          : "border-l-transparent hover:border-l-[#E10600]/70 hover:bg-[#1A1A1F]"
       }`}
       aria-current={isActive ? "true" : undefined}
     >
       <span
-        className={`absolute left-0 top-0 h-full w-[3px] bg-[#E10600] transition-opacity ${isActive ? "opacity-100" : "opacity-0"}`}
+        className={`absolute left-0 top-1.5 h-[calc(100%-12px)] w-[3px] rounded-full bg-[#E10600] transition-opacity ${
+          isActive ? "opacity-100" : "opacity-0"
+        }`}
         aria-hidden="true"
       />
       <div className="min-w-0 flex-1">

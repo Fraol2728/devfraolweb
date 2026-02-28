@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, CheckCircle2, Circle, Lock, Star, Check, BookOpen, Clock3, FileText } from "lucide-react";
+import { motion } from "framer-motion";
+import { Star, Check, BookOpen, Clock3, FileText } from "lucide-react";
 import { mockCourses } from "@/features/courses/mockCourses";
 import { courses as fallbackCourses } from "@/data/courses";
+import { CourseDetailModules } from "@/features/courses/CourseDetailModules";
 
 const getFirstLesson = (course) => course?.modules?.[0]?.lessons?.find((lesson) => lesson.unlocked !== false) ?? null;
 
@@ -91,6 +92,7 @@ export const CourseDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [openModuleId, setOpenModuleId] = useState(null);
+  const [activeLessonId, setActiveLessonId] = useState(null);
 
   const normalizedSlug = String(slug ?? "").toLowerCase();
 
@@ -104,6 +106,7 @@ export const CourseDetail = () => {
 
   useEffect(() => {
     setOpenModuleId(course?.modules?.[0]?.id ?? null);
+    setActiveLessonId(course?.modules?.[0]?.lessons?.[0]?.id ?? null);
   }, [course]);
 
   if (!course) {
@@ -166,97 +169,13 @@ export const CourseDetail = () => {
 
           <div className="rounded-2xl border border-[#232326] bg-[#151518] px-6 py-4 text-sm text-[#A1A1AA]">{metaRow}</div>
 
-          <section>
-            <h2 className="text-2xl font-semibold text-white">Course Content</h2>
-            <div className="mt-4 space-y-4">
-              {course.modules.map((module) => {
-                const isOpen = module.id === openModuleId;
-                const completedCount = module.lessons.filter((lesson) => lesson.completed).length;
-                const progress = Math.round((completedCount / module.lessons.length) * 100);
-
-                return (
-                  <motion.article
-                    key={module.id}
-                    whileHover={{ y: -3 }}
-                    className="overflow-hidden rounded-2xl border border-[#232326] bg-[#151518] transition"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setOpenModuleId(isOpen ? null : module.id)}
-                      className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
-                      aria-expanded={isOpen}
-                      aria-controls={`module-panel-${module.id}`}
-                    >
-                      <div>
-                        <h3 className="text-xl font-semibold text-white">{module.title}</h3>
-                        <p className="mt-1 text-sm text-[#A1A1AA]">{module.lessons.length} lessons • {module.lessons.reduce((t, l) => t + durationToMinutes(l.duration), 0)} min</p>
-                      </div>
-                      <ChevronDown className={`h-5 w-5 text-[#E10600] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
-                    </button>
-
-                    <AnimatePresence initial={false}>
-                      {isOpen ? (
-                        <motion.div
-                          id={`module-panel-${module.id}`}
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.25, ease: "easeInOut" }}
-                          className="overflow-hidden"
-                        >
-                          <ul className="border-t border-[#232326] px-4 pb-3 pt-2">
-                            {module.lessons.map((lesson) => (
-                              <li key={lesson.id} className="border-b border-[#232326] last:border-b-0">
-                                <button
-                                  type="button"
-                                  className="group flex w-full items-center justify-between gap-4 rounded-lg border-l-2 border-transparent px-3 py-3 text-left transition hover:border-l-[#E10600] hover:bg-[#19191d]"
-                                >
-                                  <div>
-                                    <p className="text-base font-semibold text-white">{lesson.title}</p>
-                                    <p className="text-sm text-[#A1A1AA] line-clamp-1">{lesson.definition}</p>
-                                  </div>
-                                  <div className="flex items-center gap-3 text-sm text-[#A1A1AA]">
-                                    <span>{lesson.duration}</span>
-                                    {lesson.unlocked === false ? <Lock className="h-4 w-4 text-[#E10600]" /> : null}
-                                    {lesson.completed ? (
-                                      <motion.span
-                                        initial={{ scale: 0.6, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        className="text-[#E10600]"
-                                      >
-                                        <CheckCircle2 className="h-4 w-4" />
-                                      </motion.span>
-                                    ) : (
-                                      <Circle className="h-4 w-4 text-[#A1A1AA]" />
-                                    )}
-                                  </div>
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        </motion.div>
-                      ) : null}
-                    </AnimatePresence>
-
-                    <div className="px-6 pb-5 pt-1">
-                      <div className="mb-2 flex items-center justify-between text-xs text-[#A1A1AA]">
-                        <span>Progress</span>
-                        <span>{progress}%</span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-[#232326]">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${progress}%` }}
-                          transition={{ duration: 0.5 }}
-                          className="h-full rounded-full bg-[#E10600]"
-                        />
-                      </div>
-                    </div>
-                  </motion.article>
-                );
-              })}
-            </div>
-          </section>
+          <CourseDetailModules
+            modules={course.modules}
+            openModuleId={openModuleId}
+            onToggleModule={(moduleId) => setOpenModuleId((prev) => (prev === moduleId ? null : moduleId))}
+            activeLessonId={activeLessonId}
+            onSelectLesson={setActiveLessonId}
+          />
 
           <section className="rounded-2xl border border-[#232326] bg-[#151518] p-6">
             <h2 className="text-2xl font-semibold text-white">Instructor</h2>
