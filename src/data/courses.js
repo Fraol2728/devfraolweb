@@ -6,7 +6,7 @@ export const courses = [
     category: "Programming",
     level: "Beginner",
     duration: "6 Weeks",
-    thumbnail: "/projects/project1.png",
+    thumbnail: "/projects/project1.jpg",
     description: "Build strong programming foundations with Python syntax, problem-solving patterns, and real mini projects.",
     syllabus: [
       { title: "Python Basics", topics: ["Variables and data types", "Conditionals and loops", "Functions"] },
@@ -21,7 +21,7 @@ export const courses = [
     category: "Programming",
     level: "Beginner",
     duration: "5 Weeks",
-    thumbnail: "/projects/project2.png",
+    thumbnail: "/projects/project2.jpg",
     description: "Create modern, responsive websites from scratch using semantic HTML and flexible CSS layouts.",
     syllabus: [
       { title: "Markup Essentials", topics: ["Semantic HTML", "Forms", "Accessibility basics"] },
@@ -36,7 +36,7 @@ export const courses = [
     category: "Programming",
     level: "Beginner",
     duration: "6 Weeks",
-    thumbnail: "/projects/project3.png",
+    thumbnail: "/projects/project3.jpg",
     description: "Learn JavaScript fundamentals to build interactive interfaces and logic-driven web apps.",
     syllabus: [
       { title: "Language Fundamentals", topics: ["Variables and scope", "Functions", "Arrays and objects"] },
@@ -51,7 +51,7 @@ export const courses = [
     category: "Programming",
     level: "Beginner",
     duration: "6 Weeks",
-    thumbnail: "/projects/project4.png",
+    thumbnail: "/projects/project4.jpg",
     description: "Build server-side web applications with PHP, routing fundamentals, and database connectivity.",
     syllabus: [
       { title: "PHP Foundations", topics: ["Syntax", "Control flow", "Functions"] },
@@ -66,7 +66,7 @@ export const courses = [
     category: "Programming",
     level: "Beginner",
     duration: "4 Weeks",
-    thumbnail: "/projects/project5.png",
+    thumbnail: "/projects/project5.jpg",
     description: "Design relational databases and write practical SQL queries for real application scenarios.",
     syllabus: [
       { title: "Database Basics", topics: ["Tables and relationships", "Data types", "Constraints"] },
@@ -81,7 +81,7 @@ export const courses = [
     category: "Programming",
     level: "Intermediate",
     duration: "7 Weeks",
-    thumbnail: "/projects/project6.png",
+    thumbnail: "/projects/project6.jpg",
     description: "Develop component-driven frontends with React, hooks, routing, and reusable UI architecture.",
     syllabus: [
       { title: "React Core", topics: ["JSX and components", "Props and state", "Hooks"] },
@@ -96,7 +96,7 @@ export const courses = [
     category: "Graphic Design",
     level: "Beginner",
     duration: "5 Weeks",
-    thumbnail: "/projects/project7.png",
+    thumbnail: "/projects/project7.jpg",
     description: "Master photo editing, compositing, and visual retouching workflows with Adobe Photoshop.",
     syllabus: [
       { title: "Photoshop Workflow", topics: ["Workspace setup", "Layers", "Selections"] },
@@ -111,7 +111,7 @@ export const courses = [
     category: "Graphic Design",
     level: "Intermediate",
     duration: "6 Weeks",
-    thumbnail: "/projects/project8.png",
+    thumbnail: "/projects/project8.jpg",
     description: "Create vector illustrations, brand assets, and scalable design systems in Illustrator.",
     syllabus: [
       { title: "Vector Basics", topics: ["Shapes and paths", "Pen tool", "Color systems"] },
@@ -126,7 +126,7 @@ export const courses = [
     category: "Graphic Design",
     level: "Intermediate",
     duration: "5 Weeks",
-    thumbnail: "/projects/project9.png",
+    thumbnail: "/projects/project9.jpg",
     description: "Build polished multi-page layouts for brochures, magazines, and marketing collateral.",
     syllabus: [
       { title: "Layout Foundations", topics: ["Master pages", "Grids", "Paragraph styles"] },
@@ -141,7 +141,7 @@ export const courses = [
     category: "Graphic Design",
     level: "Beginner",
     duration: "4 Weeks",
-    thumbnail: "/projects/project10.png",
+    thumbnail: "/projects/project10.jpg",
     description: "Design and prototype user experiences for web and mobile products using Adobe XD.",
     syllabus: [
       { title: "UX Basics", topics: ["Wireframing", "Layout planning", "Components"] },
@@ -156,7 +156,7 @@ export const courses = [
     category: "Graphic Design",
     level: "Beginner",
     duration: "4 Weeks",
-    thumbnail: "/projects/project11.png",
+    thumbnail: "/projects/project11.jpg",
     description: "Collaborate in real-time while creating modern UI systems, prototypes, and design documentation.",
     syllabus: [
       { title: "Figma Fundamentals", topics: ["Frames and constraints", "Components", "Styles"] },
@@ -171,7 +171,7 @@ export const courses = [
     category: "Graphic Design",
     level: "Beginner",
     duration: "3 Weeks",
-    thumbnail: "/projects/project12.png",
+    thumbnail: "/projects/project12.jpg",
     description: "Produce social media posts, presentations, and branded visuals quickly with Canva.",
     syllabus: [
       { title: "Canva Essentials", topics: ["Templates", "Brand kit", "Asset library"] },
@@ -186,7 +186,7 @@ export const courses = [
     category: "Computer Fundamentals",
     level: "Beginner",
     duration: "3 Weeks",
-    thumbnail: "/projects/project13.png",
+    thumbnail: "/projects/project13.jpg",
     description: "Understand Windows navigation, configuration, and productivity features for daily computer use.",
     syllabus: [
       { title: "Windows Basics", topics: ["Desktop and Taskbar", "File Manager", "Settings and User Management"] },
@@ -210,7 +210,7 @@ export const courses = [
     category: "Computer Fundamentals",
     level: "Beginner",
     duration: "5 Weeks",
-    thumbnail: "/projects/project14.png",
+    thumbnail: "/projects/project14.jpg",
     description: "Gain practical skills in Word, Excel, and PowerPoint for academic and workplace productivity.",
     syllabus: [
       { title: "Word and Documents", topics: ["Formatting", "Templates", "Collaboration"] },
@@ -225,7 +225,7 @@ export const courses = [
     category: "Computer Fundamentals",
     level: "Intermediate",
     duration: "4 Weeks",
-    thumbnail: "/projects/project15.png",
+    thumbnail: "/projects/project15.jpg",
     description: "Learn core networking concepts, internet safety, and troubleshooting essentials.",
     syllabus: [
       {
@@ -253,7 +253,7 @@ export const courses = [
     category: "Computer Fundamentals",
     level: "Intermediate",
     duration: "4 Weeks",
-    thumbnail: "/projects/project16.png",
+    thumbnail: "/projects/project16.jpg",
     description: "Explore how operating systems manage processes, memory, files, and system resources.",
     syllabus: [
       { title: "OS Principles", topics: ["Kernel overview", "Process management", "Memory concepts"] },
