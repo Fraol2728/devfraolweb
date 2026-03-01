@@ -4,9 +4,11 @@ import { microsoftWindowsCourseContent } from "@/data/microsoftWindowsCourseCont
 import { networkingInternetBasicsCourseContent } from "@/data/networkingInternetBasicsCourseContent";
 import { operatingSystemsFundamentalsCourseContent } from "@/data/operatingSystemsFundamentalsCourseContent";
 import rj45Image from "@/assets/rj45.png";
+import windowsDesktopImage from "@/assets/windows-desktop.svg";
 
 const lessonImageMap = {
   rj45: rj45Image,
+  windowsDesktop: windowsDesktopImage,
 };
 
 const fallbackLessonBlocks = (lessonTitle, courseTitle) => [
@@ -81,6 +83,14 @@ const lessonSectionsToBlocks = (lesson) => {
   if (lesson.definition) {
     blocks.push({ type: "h2", text: "Definition" });
     blocks.push({ type: "paragraph", text: lesson.definition });
+
+    if (lesson.definitionImageKey && lessonImageMap[lesson.definitionImageKey]) {
+      blocks.push({
+        type: "image",
+        src: lessonImageMap[lesson.definitionImageKey],
+        alt: lesson.definitionImageAlt ?? "Definition reference image",
+      });
+    }
   }
 
   if (lesson.examples?.length) {
