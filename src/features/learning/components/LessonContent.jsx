@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Keyboard } from "lucide-react";
 
 const DEFAULT_PASSING_SCORE = 60;
 const DEFAULT_EXAM_DURATION_SECONDS = 40 * 60;
@@ -30,6 +31,27 @@ const parseCliCommandItem = (item) => {
   }
 
   return { command, description: details, example: null };
+};
+
+const parseShortcutListItem = (item) => {
+  if (typeof item !== "string") return null;
+
+  const [rawShortcut, ...rest] = item.split(":");
+  const description = rest.join(":").trim();
+  if (!rawShortcut || !description) return null;
+
+  const keys = rawShortcut
+    .split("+")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (!keys.length) return null;
+
+  return {
+    rawShortcut: rawShortcut.trim(),
+    keys,
+    description,
+  };
 };
 
 const renderCliCommandList = (items, index) => {
@@ -70,6 +92,47 @@ const renderCliCommandList = (items, index) => {
   );
 };
 
+const renderKeyboardShortcutList = (items, index) => {
+  const shortcuts = items.map(parseShortcutListItem);
+  const hasShortcutItems = shortcuts.filter(Boolean).length >= 3;
+
+  if (!hasShortcutItems || shortcuts.some((shortcut) => !shortcut)) return null;
+
+  return (
+    <section
+      key={index}
+      className="mt-6 rounded-2xl border border-white/10 bg-gradient-to-b from-[#15141b] to-[#0f1015] p-4 shadow-[0_20px_70px_rgba(0,0,0,0.45)] md:p-6"
+    >
+      <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#60A5FA]/35 bg-[#60A5FA]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#BFDBFE]">
+        <Keyboard className="h-3.5 w-3.5" />
+        Keyboard Shortcuts
+      </div>
+
+      <div className="grid gap-3">
+        {shortcuts.map((shortcut) => (
+          <article
+            key={`${shortcut.rawShortcut}-${shortcut.description}`}
+            className="group rounded-xl border border-white/10 bg-black/35 p-4 transition-colors hover:border-[#60A5FA]/35"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              {shortcut.keys.map((key, keyIndex) => (
+                <div key={`${shortcut.rawShortcut}-${key}-${keyIndex}`} className="flex items-center gap-2">
+                  <kbd className="min-w-8 rounded-md border border-white/15 bg-[#171923] px-2 py-1 text-center font-mono text-[13px] font-semibold text-[#E4E4E7] shadow-[inset_0_-2px_0_rgba(255,255,255,0.08)]">
+                    {key}
+                  </kbd>
+                  {keyIndex < shortcut.keys.length - 1 ? <span className="text-sm text-[#9CA3AF]">+</span> : null}
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-3 text-[15px] leading-relaxed text-[#D4D4D8]">{shortcut.description}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+};
+
 const renderBlock = (block, index) => {
   if (block.type === "h2") return <h2 key={index} className="mt-12 text-3xl font-semibold text-white">{block.text}</h2>;
   if (block.type === "h3") return <h3 key={index} className="mt-8 text-2xl font-semibold text-white">{block.text}</h3>;
@@ -92,6 +155,9 @@ const renderBlock = (block, index) => {
   }
 
   if (block.type === "list") {
+    const keyboardShortcutList = renderKeyboardShortcutList(block.items, index);
+    if (keyboardShortcutList) return keyboardShortcutList;
+
     const cliCommandList = renderCliCommandList(block.items, index);
     if (cliCommandList) return cliCommandList;
 
