@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 
 const DEFAULT_PASSING_SCORE = 60;
+const EXAM_DURATION_SECONDS = 30 * 60;
+
+const formatTimeRemaining = (seconds) => {
+  const safeSeconds = Math.max(seconds, 0);
+  const minutes = String(Math.floor(safeSeconds / 60)).padStart(2, "0");
+  const remainingSeconds = String(safeSeconds % 60).padStart(2, "0");
+
+  return `${minutes}:${remainingSeconds}`;
+};
 
 const renderBlock = (block, index) => {
   if (block.type === "h2") return <h2 key={index} className="mt-12 text-3xl font-semibold text-white">{block.text}</h2>;
@@ -41,13 +50,33 @@ const LessonExam = ({ exam }) => {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(EXAM_DURATION_SECONDS);
   const passingScore = exam.passingScore ?? DEFAULT_PASSING_SCORE;
 
   useEffect(() => {
     setQuestionIndex(0);
     setAnswers({});
     setShowResult(false);
+    setTimeRemaining(EXAM_DURATION_SECONDS);
   }, [exam]);
+
+  useEffect(() => {
+    if (showResult) return undefined;
+
+    const timer = window.setInterval(() => {
+      setTimeRemaining((previous) => {
+        if (previous <= 1) {
+          window.clearInterval(timer);
+          setShowResult(true);
+          return 0;
+        }
+
+        return previous - 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [showResult]);
 
   const currentQuestion = exam.questions[questionIndex];
   const selectedAnswer = answers[currentQuestion.id];
@@ -73,6 +102,9 @@ const LessonExam = ({ exam }) => {
         <p className="text-sm text-[#A1A1AA]">Final Exam</p>
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-white md:text-[38px]">{exam.title}</h1>
         <p className="mt-4 text-sm text-[#A1A1AA]">Passing Score: {passingScore}%</p>
+        <p className={`mt-2 text-sm font-medium ${timeRemaining <= 300 ? "text-[#ff6767]" : "text-[#A1A1AA]"}`}>
+          Time Remaining: {formatTimeRemaining(timeRemaining)}
+        </p>
       </header>
 
       {showResult ? (
@@ -85,12 +117,41 @@ const LessonExam = ({ exam }) => {
             {result.passed ? "Status: Passed" : "Status: Not Passed"}
           </p>
 
+          <div className="mt-7 border-t border-[#232326] pt-5">
+            <h3 className="text-xl font-semibold text-white">Incorrect Answers Review</h3>
+            {exam.questions.filter((question) => answers[question.id] !== question.correctAnswer).length === 0 ? (
+              <p className="mt-3 text-[#D4D4D8]">Great job! You answered every question correctly.</p>
+            ) : (
+              <ul className="mt-4 space-y-4">
+                {exam.questions
+                  .filter((question) => answers[question.id] !== question.correctAnswer)
+                  .map((question) => {
+                    const selectedOption = question.options.find((option) => option.id === answers[question.id]);
+                    const correctOption = question.options.find((option) => option.id === question.correctAnswer);
+
+                    return (
+                      <li key={question.id} className="rounded-lg border border-[#2a2a2d] bg-[#141418] p-4 text-[#D4D4D8]">
+                        <p className="font-semibold text-white">{question.text}</p>
+                        <p className="mt-2 text-sm text-[#ff9999]">
+                          Your answer: {selectedOption ? `${selectedOption.id}. ${selectedOption.text}` : "Not answered"}
+                        </p>
+                        <p className="mt-1 text-sm text-emerald-300">
+                          Correct answer: {correctOption ? `${correctOption.id}. ${correctOption.text}` : question.correctAnswer}
+                        </p>
+                      </li>
+                    );
+                  })}
+              </ul>
+            )}
+          </div>
+
           <button
             type="button"
             onClick={() => {
               setQuestionIndex(0);
               setAnswers({});
               setShowResult(false);
+              setTimeRemaining(EXAM_DURATION_SECONDS);
             }}
             className="mt-6 rounded-lg border border-[#E10600] px-4 py-2 text-sm font-medium text-[#E10600] hover:bg-[#E10600] hover:text-white"
           >
