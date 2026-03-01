@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
-const PASSING_SCORE = 60;
+const DEFAULT_PASSING_SCORE = 60;
 
 const renderBlock = (block, index) => {
   if (block.type === "h2") return <h2 key={index} className="mt-12 text-3xl font-semibold text-white">{block.text}</h2>;
@@ -41,6 +41,7 @@ const LessonExam = ({ exam }) => {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
+  const passingScore = exam.passingScore ?? DEFAULT_PASSING_SCORE;
 
   useEffect(() => {
     setQuestionIndex(0);
@@ -62,16 +63,16 @@ const LessonExam = ({ exam }) => {
     return {
       correctAnswers,
       score,
-      passed: score >= PASSING_SCORE,
+      passed: score >= passingScore,
     };
-  }, [answers, exam.questions]);
+  }, [answers, exam.questions, passingScore]);
 
   return (
     <article className="mx-auto w-full max-w-[800px] px-6 pb-24 pt-10 text-left md:px-10">
       <header className="mb-10 border-b border-[#232326] pb-7">
         <p className="text-sm text-[#A1A1AA]">Final Exam</p>
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-white md:text-[38px]">{exam.title}</h1>
-        <p className="mt-4 text-sm text-[#A1A1AA]">Passing Score: {PASSING_SCORE}%</p>
+        <p className="mt-4 text-sm text-[#A1A1AA]">Passing Score: {passingScore}%</p>
       </header>
 
       {showResult ? (
