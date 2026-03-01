@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 const DEFAULT_PASSING_SCORE = 60;
-const EXAM_DURATION_SECONDS = 30 * 60;
+const DEFAULT_EXAM_DURATION_SECONDS = 40 * 60;
 
 const formatTimeRemaining = (seconds) => {
   const safeSeconds = Math.max(seconds, 0);
@@ -58,15 +58,16 @@ const LessonExam = ({ exam }) => {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(EXAM_DURATION_SECONDS);
+  const examDurationSeconds = exam.durationMinutes ? exam.durationMinutes * 60 : DEFAULT_EXAM_DURATION_SECONDS;
+  const [timeRemaining, setTimeRemaining] = useState(examDurationSeconds);
   const passingScore = exam.passingScore ?? DEFAULT_PASSING_SCORE;
 
   useEffect(() => {
     setQuestionIndex(0);
     setAnswers({});
     setShowResult(false);
-    setTimeRemaining(EXAM_DURATION_SECONDS);
-  }, [exam]);
+    setTimeRemaining(examDurationSeconds);
+  }, [exam, examDurationSeconds]);
 
   useEffect(() => {
     if (showResult) return undefined;
@@ -159,7 +160,7 @@ const LessonExam = ({ exam }) => {
               setQuestionIndex(0);
               setAnswers({});
               setShowResult(false);
-              setTimeRemaining(EXAM_DURATION_SECONDS);
+              setTimeRemaining(examDurationSeconds);
             }}
             className="mt-6 rounded-lg border border-[#E10600] px-4 py-2 text-sm font-medium text-[#E10600] hover:bg-[#E10600] hover:text-white"
           >
