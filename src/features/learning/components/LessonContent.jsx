@@ -43,6 +43,14 @@ const renderBlock = (block, index) => {
     return <blockquote key={index} className="mt-7 border-l-2 border-[#E10600] pl-4 text-[16px] italic leading-[1.7] text-[#D4D4D8]">{block.text}</blockquote>;
   }
 
+  if (block.type === "image") {
+    return (
+      <figure key={index} className="mt-8 overflow-hidden rounded-xl border border-[#232326] bg-[#0E0E10] p-3">
+        <img src={block.src} alt={block.alt} className="w-full rounded-lg object-cover" loading="lazy" />
+      </figure>
+    );
+  }
+
   return <p key={index} className="mt-6 text-[16px] leading-[1.7] text-[#D4D4D8]">{block.text}</p>;
 };
 

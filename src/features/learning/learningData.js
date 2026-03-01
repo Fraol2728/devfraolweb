@@ -2,6 +2,11 @@ import { mockCourses } from "@/features/courses/mockCourses";
 import { courses as fallbackCourses } from "@/data/courses";
 import { microsoftWindowsCourseContent } from "@/data/microsoftWindowsCourseContent";
 import { networkingInternetBasicsCourseContent } from "@/data/networkingInternetBasicsCourseContent";
+import rj45Image from "@/assets/rj45.png";
+
+const lessonImageMap = {
+  rj45: rj45Image,
+};
 
 const fallbackLessonBlocks = (lessonTitle, courseTitle) => [
   {
@@ -47,6 +52,7 @@ const normalizeBlock = (block) => {
   if (block.type === "paragraph") return { type: "paragraph", text: block.text ?? "" };
   if (block.type === "quote") return { type: "quote", text: block.text ?? "" };
   if (block.type === "list") return { type: "list", items: block.items ?? [] };
+  if (block.type === "image") return { type: "image", src: block.src ?? "", alt: block.alt ?? "Lesson image" };
 
   return { type: "paragraph", text: block.text ?? "" };
 };
@@ -89,6 +95,14 @@ const lessonSectionsToBlocks = (lesson) => {
   if (lesson.howToUse?.length) {
     blocks.push({ type: "h2", text: "How to Use (Simple Steps)" });
     blocks.push(...toListBlock(lesson.howToUse, true));
+
+    if (lesson.howToUseImageKey && lessonImageMap[lesson.howToUseImageKey]) {
+      blocks.push({
+        type: "image",
+        src: lessonImageMap[lesson.howToUseImageKey],
+        alt: lesson.howToUseImageAlt ?? "How to use reference image",
+      });
+    }
   }
 
   if (lesson.tips?.length) {

@@ -210,6 +210,8 @@ export const networkingInternetBasicsCourseContent = [
               "Test both ends with cable tester and confirm all 8 lines",
               "Connect PC to switch/router and verify connectivity",
             ],
+            howToUseImageKey: "rj45",
+            howToUseImageAlt: "RJ45 connector reference",
             tips: [
               "Label cables when multiple devices are involved",
               "Keep cable paths neat and avoid sharp bends",
