@@ -1,5 +1,6 @@
 import { mockCourses } from "@/features/courses/mockCourses";
 import { courses as fallbackCourses } from "@/data/courses";
+import { microsoftWindowsCourseContent } from "@/data/microsoftWindowsCourseContent";
 
 const fallbackLessonBlocks = (lessonTitle, courseTitle) => [
   {
@@ -49,6 +50,74 @@ const normalizeBlock = (block) => {
   return { type: "paragraph", text: block.text ?? "" };
 };
 
+const toListBlock = (items = [], ordered = false) => {
+  const normalizedItems = items.filter(Boolean);
+  if (!normalizedItems.length) return [];
+
+  return [
+    {
+      type: ordered ? "ordered-list" : "list",
+      ordered,
+      items: normalizedItems,
+    },
+  ];
+};
+
+const lessonSectionsToBlocks = (lesson) => {
+  if (!lesson || typeof lesson !== "object") return [];
+
+  const blocks = [];
+
+  if (lesson.overview) blocks.push({ type: "paragraph", text: lesson.overview });
+
+  if (lesson.definition) {
+    blocks.push({ type: "h2", text: "Definition" });
+    blocks.push({ type: "paragraph", text: lesson.definition });
+  }
+
+  if (lesson.examples?.length) {
+    blocks.push({ type: "h2", text: "Examples" });
+    blocks.push(...toListBlock(lesson.examples));
+  }
+
+  if (lesson.keyPoints?.length) {
+    blocks.push({ type: "h2", text: "Key Points" });
+    blocks.push(...toListBlock(lesson.keyPoints));
+  }
+
+  if (lesson.howToUse?.length) {
+    blocks.push({ type: "h2", text: "How to Use (Simple Steps)" });
+    blocks.push(...toListBlock(lesson.howToUse, true));
+  }
+
+  if (lesson.tips?.length) {
+    blocks.push({ type: "h2", text: "Tips" });
+    blocks.push(...toListBlock(lesson.tips));
+  }
+
+  if (lesson.commonMistakes?.length) {
+    blocks.push({ type: "h2", text: "Common Mistakes" });
+    blocks.push(...toListBlock(lesson.commonMistakes));
+  }
+
+  if (lesson.quickSummary) {
+    blocks.push({ type: "h2", text: "Quick Summary" });
+    blocks.push({ type: "paragraph", text: lesson.quickSummary });
+  }
+
+  if (lesson.practiceTasks?.length) {
+    blocks.push({ type: "h2", text: "Practice Task" });
+    blocks.push(...toListBlock(lesson.practiceTasks));
+  }
+
+  if (lesson.quiz?.length) {
+    blocks.push({ type: "h2", text: "Quiz" });
+    blocks.push(...toListBlock(lesson.quiz));
+  }
+
+  return blocks;
+};
+
 const normalizeCourse = (course) => {
   const modules = (course.modules ?? course.syllabus ?? []).map((module, moduleIndex) => {
     const sourceLessons = module.lessons ?? module.topics ?? [];
@@ -68,11 +137,13 @@ const normalizeCourse = (course) => {
         }
 
         const normalizedContent = (lesson.content ?? []).map(normalizeBlock).filter(Boolean);
+        const structuredBlocks = lessonSectionsToBlocks(lesson);
+        const content = normalizedContent.length ? normalizedContent : structuredBlocks;
 
         return {
           id: lesson.id ?? lessonId,
           title: lesson.title ?? `Lesson ${lessonIndex + 1}`,
-          content: normalizedContent.length ? normalizedContent : fallbackLessonBlocks(lesson.title ?? `Lesson ${lessonIndex + 1}`, course.title),
+          content: content.length ? content : fallbackLessonBlocks(lesson.title ?? `Lesson ${lessonIndex + 1}`, course.title),
         };
       }),
     };
@@ -88,6 +159,9 @@ const normalizeCourse = (course) => {
 
 export const getLearningCourse = (slug) => {
   const normalizedSlug = String(slug ?? "").toLowerCase();
+
+  const windowsMatch = microsoftWindowsCourseContent.find((course) => String(course.slug).toLowerCase() === normalizedSlug);
+  if (windowsMatch) return normalizeCourse(windowsMatch);
 
   const mockMatch = mockCourses.find((course) => String(course.slug).toLowerCase() === normalizedSlug);
   if (mockMatch) return normalizeCourse(mockMatch);

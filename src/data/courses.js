@@ -189,9 +189,18 @@ export const courses = [
     thumbnail: "/projects/project4.png",
     description: "Understand Windows navigation, configuration, and productivity features for daily computer use.",
     syllabus: [
-      { title: "Windows Basics", topics: ["Desktop and file explorer", "Settings", "User management"] },
-      { title: "System Productivity", topics: ["Shortcuts", "Task management", "Storage organization"] },
-      { title: "Maintenance", topics: ["Updates", "Security basics", "Backup options"] },
+      { title: "Windows Basics", topics: ["Desktop and Taskbar", "File Manager", "Settings and User Management"] },
+      {
+        title: "System Productivity",
+        topics: [
+          "Keyboard Shortcuts",
+          "Task Manager",
+          "Storage Optimization",
+          "Keyboard Language Settings",
+          "Application Software Installation",
+        ],
+      },
+      { title: "System Maintenance", topics: ["Windows Updates", "Security Basics", "Backup Options"] },
     ],
   },
   {
