@@ -97,6 +97,14 @@ const lessonSectionsToBlocks = (lesson) => {
     blocks.push({ type: "h2", text: "How to Use (Simple Steps)" });
     blocks.push(...toListBlock(lesson.howToUse, true));
 
+    if (lesson.howToUseVideoUrl) {
+      blocks.push({
+        type: "video",
+        title: lesson.howToUseVideoTitle ?? "How-to video",
+        url: lesson.howToUseVideoUrl,
+      });
+    }
+
     if (lesson.howToUseImageKey && lessonImageMap[lesson.howToUseImageKey]) {
       blocks.push({
         type: "image",

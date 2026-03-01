@@ -51,6 +51,24 @@ const renderBlock = (block, index) => {
     );
   }
 
+  if (block.type === "video") {
+    return (
+      <section key={index} className="mt-8 space-y-3">
+        {block.title ? <h3 className="text-xl font-semibold text-white">{block.title}</h3> : null}
+        <div className="aspect-video overflow-hidden rounded-xl border border-[#232326] bg-[#0E0E10]">
+          <iframe
+            src={block.url}
+            title={block.title ?? "Lesson video"}
+            className="h-full w-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          />
+        </div>
+      </section>
+    );
+  }
+
   return <p key={index} className="mt-6 text-[16px] leading-[1.7] text-[#D4D4D8]">{block.text}</p>;
 };
 

@@ -54,6 +54,8 @@ export const operatingSystemsFundamentalsCourseContent = [
               "Choose language and region.",
               "Wait while Windows installs.",
             ],
+            howToUseVideoTitle: "Watch: Windows 10 Installation Walkthrough",
+            howToUseVideoUrl: "https://www.youtube.com/embed/l9GnWYKyyYo?start=573",
             keyPoints: [
               "Installation is mostly automatic.",
               "Follow instructions carefully.",
