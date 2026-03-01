@@ -13,6 +13,8 @@ export const microsoftWindowsCourseContent = [
               "In this lesson, you will learn what the desktop and taskbar are and how they help you use Windows easily.",
             definition:
               "Desktop: The main screen you see after turning on your computer. It contains icons, shortcuts, and open windows. Taskbar: A bar (usually at the bottom of the screen) that shows open apps, the Start menu, and system icons.",
+            definitionImageKey: "windowsDesktop",
+            definitionImageAlt: "Windows desktop with taskbar and default wallpaper",
             examples: [
               "Clicking the Start button from the taskbar",
               "Opening Recycle Bin from the desktop",
