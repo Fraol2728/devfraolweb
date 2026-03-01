@@ -74,6 +74,23 @@ const renderBlock = (block, index) => {
   if (block.type === "h2") return <h2 key={index} className="mt-12 text-3xl font-semibold text-white">{block.text}</h2>;
   if (block.type === "h3") return <h3 key={index} className="mt-8 text-2xl font-semibold text-white">{block.text}</h3>;
 
+  if (block.type === "tips-list") {
+    return (
+      <section
+        key={index}
+        className="mt-4 rounded-2xl border border-[#F43F5E]/35 bg-gradient-to-br from-[#1A1115] via-[#120f14] to-[#101317] p-5 shadow-[0_18px_50px_rgba(244,63,94,0.12)] md:p-6"
+      >
+        <div className="mb-4 inline-flex items-center rounded-full border border-[#F43F5E]/40 bg-[#F43F5E]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#FFB4C0]">
+          Pro Tips
+        </div>
+
+        <ul className="list-disc space-y-2 pl-6 text-[16px] leading-[1.7] text-[#F4F4F5] marker:text-[#FB7185]">
+          {block.items.map((item) => <li key={item}>{item}</li>)}
+        </ul>
+      </section>
+    );
+  }
+
   if (block.type === "list") {
     const cliCommandList = renderCliCommandList(block.items, index);
     if (cliCommandList) return cliCommandList;

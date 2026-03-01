@@ -116,7 +116,7 @@ const lessonSectionsToBlocks = (lesson) => {
 
   if (lesson.tips?.length) {
     blocks.push({ type: "h2", text: "Tips" });
-    blocks.push(...toListBlock(lesson.tips));
+    blocks.push({ type: "tips-list", items: lesson.tips.filter(Boolean) });
   }
 
   if (lesson.commonMistakes?.length) {
