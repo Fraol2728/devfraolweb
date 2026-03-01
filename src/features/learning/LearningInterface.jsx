@@ -118,6 +118,7 @@ export const LearningInterface = () => {
             hasNext={hasNext}
             onPrevious={handlePrevious}
             onNext={handleNext}
+            courseSlug={course.slug}
           />
         </section>
       </div>
