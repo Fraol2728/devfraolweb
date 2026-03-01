@@ -46,7 +46,7 @@ const renderBlock = (block, index) => {
   if (block.type === "image") {
     return (
       <figure key={index} className="mt-8 overflow-hidden rounded-xl border border-[#232326] bg-[#0E0E10] p-3">
-        <img src={block.src} alt={block.alt} className="w-full rounded-lg object-cover" loading="lazy" />
+        <img src={block.src} alt={block.alt} className="mx-auto w-full max-w-[620px] rounded-lg object-cover" loading="lazy" />
       </figure>
     );
   }
