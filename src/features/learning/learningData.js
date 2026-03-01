@@ -1,6 +1,7 @@
 import { mockCourses } from "@/features/courses/mockCourses";
 import { courses as fallbackCourses } from "@/data/courses";
 import { microsoftWindowsCourseContent } from "@/data/microsoftWindowsCourseContent";
+import { networkingInternetBasicsCourseContent } from "@/data/networkingInternetBasicsCourseContent";
 
 const fallbackLessonBlocks = (lessonTitle, courseTitle) => [
   {
@@ -162,6 +163,11 @@ export const getLearningCourse = (slug) => {
 
   const windowsMatch = microsoftWindowsCourseContent.find((course) => String(course.slug).toLowerCase() === normalizedSlug);
   if (windowsMatch) return normalizeCourse(windowsMatch);
+
+  const networkingMatch = networkingInternetBasicsCourseContent.find(
+    (course) => String(course.slug).toLowerCase() === normalizedSlug,
+  );
+  if (networkingMatch) return normalizeCourse(networkingMatch);
 
   const mockMatch = mockCourses.find((course) => String(course.slug).toLowerCase() === normalizedSlug);
   if (mockMatch) return normalizeCourse(mockMatch);
