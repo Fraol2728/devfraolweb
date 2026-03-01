@@ -144,6 +144,7 @@ const normalizeCourse = (course) => {
         return {
           id: lesson.id ?? lessonId,
           title: lesson.title ?? `Lesson ${lessonIndex + 1}`,
+          exam: lesson.exam,
           content: content.length ? content : fallbackLessonBlocks(lesson.title ?? `Lesson ${lessonIndex + 1}`, course.title),
         };
       }),
