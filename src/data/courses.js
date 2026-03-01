@@ -16,7 +16,7 @@ export const courses = [
   },
   {
     id: "html-css",
-    title: "HTML & CSS",
+    title: "HTML & CSS From Fundamentals For Web Development",
     instructor: "Academy Team",
     category: "Programming",
     level: "Beginner",
@@ -31,7 +31,7 @@ export const courses = [
   },
   {
     id: "javascript",
-    title: "JavaScript",
+    title: "JavaScript From Fundamentals For Web Development",
     instructor: "Academy Team",
     category: "Programming",
     level: "Beginner",
@@ -46,7 +46,7 @@ export const courses = [
   },
   {
     id: "php",
-    title: "PHP",
+    title: "PHP From Fundamentals For Backend Development",
     instructor: "Academy Team",
     category: "Programming",
     level: "Beginner",
@@ -61,7 +61,7 @@ export const courses = [
   },
   {
     id: "mysql",
-    title: "MySQL",
+    title: "MySQLDatabase Managment For Backend",
     instructor: "Academy Team",
     category: "Programming",
     level: "Beginner",
@@ -76,7 +76,7 @@ export const courses = [
   },
   {
     id: "react-js",
-    title: "React.js",
+    title: "React.js From Fundamentals For Frontend Development",
     instructor: "Academy Team",
     category: "Programming",
     level: "Intermediate",
@@ -91,7 +91,7 @@ export const courses = [
   },
   {
     id: "adobe-photoshop",
-    title: "Adobe Photoshop",
+    title: "Adobe Photoshop Essential Course ",
     instructor: "Design Faculty",
     category: "Graphic Design",
     level: "Beginner",
@@ -106,7 +106,7 @@ export const courses = [
   },
   {
     id: "adobe-illustrator",
-    title: "Adobe Illustrator",
+    title: "Adobe Illustrator Essential Course",
     instructor: "Design Faculty",
     category: "Graphic Design",
     level: "Intermediate",
@@ -121,12 +121,12 @@ export const courses = [
   },
   {
     id: "adobe-indesign",
-    title: "Adobe InDesign",
+    title: "Adobe InDesign Essential Course",
     instructor: "Design Faculty",
     category: "Graphic Design",
     level: "Intermediate",
     duration: "5 Weeks",
-    thumbnail: "/projects/project.png",
+    thumbnail: "/projects/project9.png",
     description: "Build polished multi-page layouts for brochures, magazines, and marketing collateral.",
     syllabus: [
       { title: "Layout Foundations", topics: ["Master pages", "Grids", "Paragraph styles"] },
@@ -136,12 +136,12 @@ export const courses = [
   },
   {
     id: "adobe-xd",
-    title: "Adobe XD",
+    title: "Adobe XD Essential Course",
     instructor: "Design Faculty",
     category: "Graphic Design",
     level: "Beginner",
     duration: "4 Weeks",
-    thumbnail: "/projects/project1.png",
+    thumbnail: "/projects/project10.png",
     description: "Design and prototype user experiences for web and mobile products using Adobe XD.",
     syllabus: [
       { title: "UX Basics", topics: ["Wireframing", "Layout planning", "Components"] },
@@ -151,12 +151,12 @@ export const courses = [
   },
   {
     id: "figma",
-    title: "Figma",
+    title: "Figma Essential Course",
     instructor: "Design Faculty",
     category: "Graphic Design",
     level: "Beginner",
     duration: "4 Weeks",
-    thumbnail: "/projects/project2.png",
+    thumbnail: "/projects/project11.png",
     description: "Collaborate in real-time while creating modern UI systems, prototypes, and design documentation.",
     syllabus: [
       { title: "Figma Fundamentals", topics: ["Frames and constraints", "Components", "Styles"] },
@@ -166,12 +166,12 @@ export const courses = [
   },
   {
     id: "canva",
-    title: "Canva",
+    title: "Canva Essential Course For Digital Marketing course",
     instructor: "Design Faculty",
     category: "Graphic Design",
     level: "Beginner",
     duration: "3 Weeks",
-    thumbnail: "/projects/project3.png",
+    thumbnail: "/projects/project12.png",
     description: "Produce social media posts, presentations, and branded visuals quickly with Canva.",
     syllabus: [
       { title: "Canva Essentials", topics: ["Templates", "Brand kit", "Asset library"] },
@@ -181,12 +181,12 @@ export const courses = [
   },
   {
     id: "microsoft-windows",
-    title: "Microsoft Windows",
+    title: "Microsoft Windows For Bignners",
     instructor: "IT Faculty",
     category: "Computer Fundamentals",
     level: "Beginner",
     duration: "3 Weeks",
-    thumbnail: "/projects/project4.png",
+    thumbnail: "/projects/project13.png",
     description: "Understand Windows navigation, configuration, and productivity features for daily computer use.",
     syllabus: [
       { title: "Windows Basics", topics: ["Desktop and Taskbar", "File Manager", "Settings and User Management"] },
@@ -205,12 +205,12 @@ export const courses = [
   },
   {
     id: "microsoft-office",
-    title: "Microsoft Office",
+    title: "Microsoft Office For Bignners",
     instructor: "IT Faculty",
     category: "Computer Fundamentals",
     level: "Beginner",
     duration: "5 Weeks",
-    thumbnail: "/projects/project5.png",
+    thumbnail: "/projects/project14.png",
     description: "Gain practical skills in Word, Excel, and PowerPoint for academic and workplace productivity.",
     syllabus: [
       { title: "Word and Documents", topics: ["Formatting", "Templates", "Collaboration"] },
@@ -225,7 +225,7 @@ export const courses = [
     category: "Computer Fundamentals",
     level: "Intermediate",
     duration: "4 Weeks",
-    thumbnail: "/projects/project6.png",
+    thumbnail: "/projects/project15.png",
     description: "Learn core networking concepts, internet safety, and troubleshooting essentials.",
     syllabus: [
       {
@@ -253,7 +253,7 @@ export const courses = [
     category: "Computer Fundamentals",
     level: "Intermediate",
     duration: "4 Weeks",
-    thumbnail: "/projects/project7.png",
+    thumbnail: "/projects/project16.png",
     description: "Explore how operating systems manage processes, memory, files, and system resources.",
     syllabus: [
       { title: "OS Principles", topics: ["Kernel overview", "Process management", "Memory concepts"] },
