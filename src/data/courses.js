@@ -228,9 +228,22 @@ export const courses = [
     thumbnail: "/projects/project6.png",
     description: "Learn core networking concepts, internet safety, and troubleshooting essentials.",
     syllabus: [
-      { title: "Networking Concepts", topics: ["IP addressing", "Routers and switches", "LAN vs WAN"] },
-      { title: "Internet Essentials", topics: ["DNS basics", "Web protocols", "Secure browsing"] },
-      { title: "Troubleshooting", topics: ["Connectivity checks", "Common errors", "Performance tips"] },
+      {
+        title: "Module 1: Networking Fundamentals",
+        topics: [
+          "IP Addressing",
+          "Routers and Switches",
+          "LAN and WAN",
+          "Network Hand Tools",
+          "Build a Small Wireless LAN (Wi-Fi)",
+          "Building a Local Area Network (LAN)",
+        ],
+      },
+      { title: "Module 2: Internet Fundamentals", topics: ["DNS Basics", "Web Protocols", "Access and Use the Internet"] },
+      {
+        title: "Module 3: Network Troubleshooting & Performance",
+        topics: ["Connectivity Checks", "Common Network Errors", "Performance Tips"],
+      },
     ],
   },
   {
