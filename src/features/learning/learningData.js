@@ -2,6 +2,7 @@ import { mockCourses } from "@/features/courses/mockCourses";
 import { courses as fallbackCourses } from "@/data/courses";
 import { microsoftWindowsCourseContent } from "@/data/microsoftWindowsCourseContent";
 import { networkingInternetBasicsCourseContent } from "@/data/networkingInternetBasicsCourseContent";
+import { operatingSystemsFundamentalsCourseContent } from "@/data/operatingSystemsFundamentalsCourseContent";
 import rj45Image from "@/assets/rj45.png";
 
 const lessonImageMap = {
@@ -183,6 +184,11 @@ export const getLearningCourse = (slug) => {
     (course) => String(course.slug).toLowerCase() === normalizedSlug,
   );
   if (networkingMatch) return normalizeCourse(networkingMatch);
+
+  const operatingSystemsMatch = operatingSystemsFundamentalsCourseContent.find(
+    (course) => String(course.slug).toLowerCase() === normalizedSlug,
+  );
+  if (operatingSystemsMatch) return normalizeCourse(operatingSystemsMatch);
 
   const mockMatch = mockCourses.find((course) => String(course.slug).toLowerCase() === normalizedSlug);
   if (mockMatch) return normalizeCourse(mockMatch);
