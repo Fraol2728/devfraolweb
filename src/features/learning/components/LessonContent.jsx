@@ -11,11 +11,73 @@ const formatTimeRemaining = (seconds) => {
   return `${minutes}:${remainingSeconds}`;
 };
 
+const CLI_COMMAND_PATTERN = /^CLI command\s+\d+[a-z]?:\s*([^—-]+)\s*[—-]\s*(.+)$/i;
+
+const parseCliCommandItem = (item) => {
+  const match = item.match(CLI_COMMAND_PATTERN);
+  if (!match) return null;
+
+  const command = match[1].trim();
+  const details = match[2].trim();
+  const exampleMatch = details.match(/\(example:\s*([^)]*)\)/i);
+
+  if (exampleMatch) {
+    return {
+      command,
+      description: details.replace(exampleMatch[0], "").trim().replace(/[,.;]\s*$/, ""),
+      example: exampleMatch[1].trim(),
+    };
+  }
+
+  return { command, description: details, example: null };
+};
+
+const renderCliCommandList = (items, index) => {
+  const commands = items.map(parseCliCommandItem);
+  if (commands.some((command) => !command)) return null;
+
+  return (
+    <section key={index} className="mt-8 overflow-hidden rounded-2xl border border-[#302426] bg-gradient-to-b from-[#141217] to-[#0e0f13] shadow-[0_25px_80px_rgba(0,0,0,0.4)]">
+      <header className="flex items-center justify-between border-b border-white/10 bg-black/30 px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+        </div>
+        <span className="text-xs uppercase tracking-[0.18em] text-[#A1A1AA]">CLI Quick Reference</span>
+      </header>
+
+      <div className="space-y-3 p-4 md:p-5">
+        {commands.map((commandItem) => (
+          <article key={`${commandItem.command}-${commandItem.description}`} className="rounded-xl border border-white/10 bg-black/35 p-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-sm text-[#9CA3AF]">$</span>
+              <code className="rounded-md border border-[#E10600]/35 bg-[#220f12] px-2 py-1 font-mono text-sm font-semibold text-[#FF6A65]">
+                {commandItem.command}
+              </code>
+              <p className="text-[15px] leading-relaxed text-[#D4D4D8]">{commandItem.description}</p>
+            </div>
+
+            {commandItem.example ? (
+              <p className="mt-3 border-t border-white/10 pt-3 text-sm text-[#A1A1AA]">
+                Example: <code className="font-mono text-[#F4F4F5]">{commandItem.example}</code>
+              </p>
+            ) : null}
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+};
+
 const renderBlock = (block, index) => {
   if (block.type === "h2") return <h2 key={index} className="mt-12 text-3xl font-semibold text-white">{block.text}</h2>;
   if (block.type === "h3") return <h3 key={index} className="mt-8 text-2xl font-semibold text-white">{block.text}</h3>;
 
   if (block.type === "list") {
+    const cliCommandList = renderCliCommandList(block.items, index);
+    if (cliCommandList) return cliCommandList;
+
     return (
       <ul key={index} className="mt-4 list-disc space-y-2 pl-6 text-[16px] leading-[1.7] text-[#D4D4D8]">
         {block.items.map((item) => <li key={item}>{item}</li>)}
