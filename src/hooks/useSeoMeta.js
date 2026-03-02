@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const SITE_URL = "https://devfraol.com";
+const SITE_URL = "https://devfraol.com.et";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 const ensureMetaTag = (selector, attributeName, key, content) => {
@@ -68,6 +68,7 @@ export const useSeoMeta = ({
     ensureMetaTag(`meta[property='og:image']`, "property", "og:image", ogImage);
     ensureMetaTag(`meta[property='og:url']`, "property", "og:url", canonicalUrl);
     ensureMetaTag(`meta[property='og:type']`, "property", "og:type", "website");
+    ensureMetaTag(`meta[property='og:site_name']`, "property", "og:site_name", "Dev Fraol Academy");
     ensureMetaTag(`meta[name='twitter:card']`, "name", "twitter:card", "summary_large_image");
     ensureMetaTag(`meta[name='twitter:title']`, "name", "twitter:title", activeTitle);
     ensureMetaTag(`meta[name='twitter:description']`, "name", "twitter:description", activeDescription);

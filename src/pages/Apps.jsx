@@ -9,6 +9,9 @@ export const Apps = () => {
     keywords: [
       "Devfraol Apps",
       "Devfraol app tools",
+      "devfraol apps",
+      "devfraol apps ethiopia",
+      "devfraol.com.et apps",
       "developer tools",
       "SEO tools",
       "design resources",
@@ -20,11 +23,11 @@ export const Apps = () => {
       "@type": "CollectionPage",
       name: "Devfraol Apps",
       description: "Curated collection of development, design, and marketing tools by Devfraol.",
-      url: "https://devfraol.com/apps",
+      url: "https://devfraol.com.et/apps",
       isPartOf: {
         "@type": "WebSite",
         name: "Dev Fraol Academy",
-        url: "https://devfraol.com",
+        url: "https://devfraol.com.et",
       },
     },
   });
