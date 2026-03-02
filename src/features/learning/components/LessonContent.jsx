@@ -12,25 +12,27 @@ const formatTimeRemaining = (seconds) => {
   return `${minutes}:${remainingSeconds}`;
 };
 
-const CLI_COMMAND_PATTERN = /^CLI command\s+\d+[a-z]?:\s*([^—-]+)\s*[—-]\s*(.+)$/i;
+const CLI_COMMAND_PATTERN = /^(CLI command\s+\d+[a-z]?):\s*([^—-]+)\s*[—-]\s*(.+)$/i;
 
 const parseCliCommandItem = (item) => {
   const match = item.match(CLI_COMMAND_PATTERN);
   if (!match) return null;
 
-  const command = match[1].trim();
-  const details = match[2].trim();
+  const label = match[1].trim();
+  const command = match[2].trim();
+  const details = match[3].trim();
   const exampleMatch = details.match(/\(example:\s*([^)]*)\)/i);
 
   if (exampleMatch) {
     return {
       command,
+      label,
       description: details.replace(exampleMatch[0], "").trim().replace(/[,.;]\s*$/, ""),
       example: exampleMatch[1].trim(),
     };
   }
 
-  return { command, description: details, example: null };
+  return { command, label, description: details, example: null };
 };
 
 const parseShortcutListItem = (item) => {
@@ -59,31 +61,42 @@ const renderCliCommandList = (items, index) => {
   if (commands.some((command) => !command)) return null;
 
   return (
-    <section key={index} className="mt-8 overflow-hidden rounded-2xl border border-[#302426] bg-gradient-to-b from-[#141217] to-[#0e0f13] shadow-[0_25px_80px_rgba(0,0,0,0.4)]">
-      <header className="flex items-center justify-between border-b border-white/10 bg-black/30 px-4 py-3">
+    <section key={index} className="mt-8 overflow-hidden rounded-2xl border border-[#31253b] bg-gradient-to-b from-[#14131d] via-[#11121a] to-[#0b0d12] shadow-[0_28px_90px_rgba(0,0,0,0.48)]">
+      <header className="flex items-center justify-between border-b border-white/10 bg-black/35 px-4 py-3">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
         </div>
-        <span className="text-xs uppercase tracking-[0.18em] text-[#A1A1AA]">CLI Quick Reference</span>
+        <span className="rounded-full border border-[#A855F7]/30 bg-[#A855F7]/10 px-2 py-0.5 text-[11px] uppercase tracking-[0.18em] text-[#E9D5FF]">
+          Terminal · CLI Quick Reference
+        </span>
       </header>
 
-      <div className="space-y-3 p-4 md:p-5">
+      <div className="space-y-4 p-4 md:p-5">
         {commands.map((commandItem) => (
-          <article key={`${commandItem.command}-${commandItem.description}`} className="rounded-xl border border-white/10 bg-black/35 p-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm text-[#9CA3AF]">$</span>
-              <code className="rounded-md border border-[#E10600]/35 bg-[#220f12] px-2 py-1 font-mono text-sm font-semibold text-[#FF6A65]">
-                {commandItem.command}
-              </code>
-              <p className="text-[15px] leading-relaxed text-[#D4D4D8]">{commandItem.description}</p>
+          <article
+            key={`${commandItem.command}-${commandItem.description}`}
+            className="rounded-xl border border-[#334155]/45 bg-[#05070d]/80 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+          >
+            <div className="mb-3 flex items-center justify-between gap-3 border-b border-white/10 pb-3">
+              <span className="rounded-md border border-[#64748B]/40 bg-[#0B1220] px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#BFDBFE]">
+                {commandItem.label}
+              </span>
+              <span className="text-xs font-medium text-[#64748B]">Windows CMD</span>
             </div>
 
+            <div className="flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-[#020409] px-3 py-2">
+              <span className="font-mono text-sm text-[#22C55E]">C:\&gt;</span>
+              <code className="font-mono text-sm font-semibold text-[#E2E8F0]">{commandItem.command}</code>
+            </div>
+
+            <p className="mt-3 text-[15px] leading-relaxed text-[#D4D4D8]">{commandItem.description}</p>
+
             {commandItem.example ? (
-              <p className="mt-3 border-t border-white/10 pt-3 text-sm text-[#A1A1AA]">
-                Example: <code className="font-mono text-[#F4F4F5]">{commandItem.example}</code>
-              </p>
+              <div className="mt-3 rounded-lg border border-[#1D4ED8]/30 bg-[#0B1020] px-3 py-2 text-sm text-[#BFDBFE]">
+                Example: <code className="font-mono text-[#F8FAFC]">{commandItem.example}</code>
+              </div>
             ) : null}
           </article>
         ))}
