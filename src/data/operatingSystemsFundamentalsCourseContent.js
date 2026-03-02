@@ -5,10 +5,10 @@ export const operatingSystemsFundamentalsCourseContent = [
     title: "Operating Systems Fundamentals",
     modules: [
       {
-        title: "📘 Module 1: Operating System Basics",
+        title: "Module 1: Operating System Basics",
         lessons: [
           {
-            title: "📗 Lesson 1: What Is an Operating System?",
+            title: "Lesson 1: What Is an Operating System?",
             overview:
               "An Operating System (OS) is the main software that runs a computer.",
             examples: [
@@ -36,7 +36,7 @@ export const operatingSystemsFundamentalsCourseContent = [
             quiz: ["What is an operating system?", "Can a computer work without an OS?"],
           },
           {
-            title: "📗 Lesson 2: How to Install Microsoft Windows 10",
+            title: "Lesson 2: How to Install Microsoft Windows 10",
             overview:
               "This lesson explains what OS installation means and the basic idea of installing Windows 10.",
             definition:
@@ -65,7 +65,7 @@ export const operatingSystemsFundamentalsCourseContent = [
             quiz: ["What does installing an OS mean?", "Why should you back up files first?"],
           },
           {
-            title: "📗 Lesson 3: How to Optimize the Operating System",
+            title: "Lesson 3: How to Optimize the Operating System",
             overview:
               "Optimizing an OS means making the computer faster, cleaner, and more stable.",
             definition:
@@ -94,10 +94,10 @@ export const operatingSystemsFundamentalsCourseContent = [
         ],
       },
       {
-        title: "📘 Module 2: User Interfaces",
+        title: "Module 2: User Interfaces",
         lessons: [
           {
-            title: "📗 Lesson 1: GUI (Graphical User Interface)",
+            title: "Lesson 1: GUI (Graphical User Interface)",
             overview: "This lesson explains how users communicate with the OS using GUI.",
             definition:
               "A GUI allows users to control the computer using icons, windows, menus, mouse, and touchpad.",
@@ -113,7 +113,7 @@ export const operatingSystemsFundamentalsCourseContent = [
             quiz: ["What does GUI stand for?", "Is GUI good for beginners?"],
           },
           {
-            title: "📗 Lesson 2: CLI (Command Line Interface)",
+            title: "Lesson 2: CLI (Command Line Interface)",
             overview:
               "A CLI allows users to control the computer by typing text commands using the keyboard.",
             definition:
@@ -146,10 +146,10 @@ export const operatingSystemsFundamentalsCourseContent = [
         ],
       },
       {
-        title: "📘 Module 3: Application Software",
+        title: "Module 3: Application Software",
         lessons: [
           {
-            title: "📗 Lesson 1: What Is Application Software?",
+            title: "Lesson 1: What Is Application Software?",
             overview:
               "This module explains what applications are, how to install them, and how to keep them running well.",
             definition: "Application software is software that helps users do specific tasks.",
@@ -158,7 +158,7 @@ export const operatingSystemsFundamentalsCourseContent = [
             quiz: ["What is application software?", "Give one example."],
           },
           {
-            title: "📗 Lesson 2: How to Install Application Software",
+            title: "Lesson 2: How to Install Application Software",
             overview: "Simple installation steps for beginner users.",
             howToUse: [
               "Download from a trusted source.",
@@ -176,7 +176,7 @@ export const operatingSystemsFundamentalsCourseContent = [
             ],
           },
           {
-            title: "📗 Lesson 3: How to Optimize Applications",
+            title: "Lesson 3: How to Optimize Applications",
             overview:
               "Optimizing applications means making apps run faster and use less resources.",
             howToUse: [
@@ -189,10 +189,10 @@ export const operatingSystemsFundamentalsCourseContent = [
         ],
       },
       {
-        title: "📘 Module 4: Cybersecurity Basics",
+        title: "Module 4: Cybersecurity Basics",
         lessons: [
           {
-            title: "📗 Lesson 1: Cybersecurity Basics",
+            title: "Lesson 1: Cybersecurity Basics",
             overview:
               "This lesson explains what cybersecurity is, why it is important, common threats, and simple ways beginners can stay safe while using a computer and the internet.",
             definition:
@@ -241,7 +241,7 @@ export const operatingSystemsFundamentalsCourseContent = [
             ],
           },
           {
-            title: "📗 Lesson 2: How to Protect OS and Applications",
+            title: "Lesson 2: How to Protect OS and Applications",
             overview: "Basic protection methods for operating systems and applications.",
             howToUse: [
               "Install antivirus software.",
@@ -259,7 +259,7 @@ export const operatingSystemsFundamentalsCourseContent = [
             ],
           },
           {
-            title: "📗 Lesson 3: Final Exam",
+            title: "Lesson 3: Final Exam",
             exam: {
               title: "Operating Systems Fundamentals Final Exam",
               passingScore: 60,
