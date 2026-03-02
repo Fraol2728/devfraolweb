@@ -20,6 +20,8 @@ export const Home = () => {
     keywords: [
       "Dev Fraol Academy",
       "Devfraol Apps",
+      "devfraol.com.et",
+      "devfraol apps ethiopia",
       "web development",
       "graphic design",
       "learn coding online",
@@ -31,16 +33,16 @@ export const Home = () => {
         {
           "@type": "Organization",
           name: "Dev Fraol Academy",
-          url: "https://devfraol.com",
-          logo: "https://devfraol.com/logo.png",
+          url: "https://devfraol.com.et",
+          logo: "https://devfraol.com.et/logo.png",
         },
         {
           "@type": "WebSite",
           name: "Dev Fraol Academy",
-          url: "https://devfraol.com",
+          url: "https://devfraol.com.et",
           potentialAction: {
             "@type": "SearchAction",
-            target: "https://devfraol.com/apps",
+            target: "https://devfraol.com.et/apps?search={search_term_string}",
             "query-input": "required name=search_term_string",
           },
         },

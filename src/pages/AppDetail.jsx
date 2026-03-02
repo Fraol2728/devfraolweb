@@ -39,11 +39,11 @@ export const AppDetail = () => {
           applicationCategory: app.category || "DeveloperApplication",
           operatingSystem: "Web",
           description: app.description,
-          url: `https://devfraol.com/apps/${app.id}`,
+          url: `https://devfraol.com.et/apps/${app.id}`,
           publisher: {
             "@type": "Organization",
             name: "Dev Fraol Academy",
-            url: "https://devfraol.com",
+            url: "https://devfraol.com.et",
           },
         }
       : undefined,
