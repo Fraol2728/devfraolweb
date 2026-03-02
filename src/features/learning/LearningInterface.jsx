@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getLearningCourse } from "@/features/learning/learningData";
@@ -14,6 +14,7 @@ const flattenLessons = (modules) =>
 
 export const LearningInterface = () => {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
   const course = useMemo(() => getLearningCourse(slug), [slug]);
 
   const lessonMap = useMemo(() => flattenLessons(course?.modules ?? []), [course]);
@@ -22,11 +23,19 @@ export const LearningInterface = () => {
   const [openModuleIds, setOpenModuleIds] = useState(() => (course?.modules ?? []).map((module) => module.id));
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
+  const finalExamLessonId = useMemo(
+    () => lessonMap.find(({ lesson }) => String(lesson?.title ?? "").toLowerCase().includes("final exam"))?.lesson?.id ?? null,
+    [lessonMap],
+  );
+
   useEffect(() => {
-    setActiveLessonId(lessonMap[0]?.lesson?.id ?? null);
+    const shouldOpenFinalExam = searchParams.get("target") === "final-exam";
+    const defaultLessonId = shouldOpenFinalExam ? finalExamLessonId ?? lessonMap[0]?.lesson?.id ?? null : lessonMap[0]?.lesson?.id ?? null;
+
+    setActiveLessonId(defaultLessonId);
     setCompletedLessonIds(new Set());
     setOpenModuleIds((course?.modules ?? []).map((module) => module.id));
-  }, [course, lessonMap]);
+  }, [course, finalExamLessonId, lessonMap, searchParams]);
 
   const activeIndex = lessonMap.findIndex((entry) => entry.lesson.id === activeLessonId);
   const activeEntry = activeIndex >= 0 ? lessonMap[activeIndex] : null;

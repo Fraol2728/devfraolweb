@@ -154,9 +154,10 @@ export const CourseDetail = () => {
                   <motion.button
                     whileTap={{ scale: 0.97 }}
                     type="button"
+                    onClick={() => navigate(`/courses/${course.slug}/learn?target=final-exam`)}
                     className="rounded-xl border border-[#E10600] px-5 py-3 text-sm font-semibold text-[#E10600] transition hover:bg-[#E10600]/10"
                   >
-                    Preview Syllabus
+                    Exam
                   </motion.button>
                 </div>
               </div>
