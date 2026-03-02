@@ -235,9 +235,21 @@ const LessonExam = ({ exam }) => {
     return <DragOrderExam exam={exam} />;
   }
 
+  const shuffleQuestions = (questions) => {
+    const shuffled = [...questions];
+
+    for (let index = shuffled.length - 1; index > 0; index -= 1) {
+      const randomIndex = Math.floor(Math.random() * (index + 1));
+      [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+    }
+
+    return shuffled;
+  };
+
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
+  const [questions, setQuestions] = useState(() => shuffleQuestions(exam.questions));
   const examDurationSeconds = exam.durationMinutes ? exam.durationMinutes * 60 : DEFAULT_EXAM_DURATION_SECONDS;
   const [timeRemaining, setTimeRemaining] = useState(examDurationSeconds);
   const passingScore = exam.passingScore ?? DEFAULT_PASSING_SCORE;
@@ -246,6 +258,7 @@ const LessonExam = ({ exam }) => {
     setQuestionIndex(0);
     setAnswers({});
     setShowResult(false);
+    setQuestions(shuffleQuestions(exam.questions));
     setTimeRemaining(examDurationSeconds);
   }, [exam, examDurationSeconds]);
 
@@ -267,23 +280,23 @@ const LessonExam = ({ exam }) => {
     return () => window.clearInterval(timer);
   }, [showResult]);
 
-  const currentQuestion = exam.questions[questionIndex];
+  const currentQuestion = questions[questionIndex];
   const selectedAnswer = answers[currentQuestion.id];
-  const allAnswered = exam.questions.every((question) => answers[question.id]);
+  const allAnswered = questions.every((question) => answers[question.id]);
 
   const result = useMemo(() => {
-    const correctAnswers = exam.questions.reduce((count, question) => {
+    const correctAnswers = questions.reduce((count, question) => {
       return answers[question.id] === question.correctAnswer ? count + 1 : count;
     }, 0);
 
-    const score = Math.round((correctAnswers / exam.questions.length) * 100);
+    const score = Math.round((correctAnswers / questions.length) * 100);
 
     return {
       correctAnswers,
       score,
       passed: score >= passingScore,
     };
-  }, [answers, exam.questions, passingScore]);
+  }, [answers, questions, passingScore]);
 
   return (
     <article className="mx-auto w-full max-w-[800px] px-6 pb-24 pt-10 text-left md:px-10">
@@ -300,7 +313,7 @@ const LessonExam = ({ exam }) => {
         <div className="rounded-2xl border border-[#232326] bg-[#101013] p-6">
           <h2 className="text-2xl font-semibold text-white">Exam Result</h2>
           <p className="mt-4 text-lg text-[#D4D4D8]">
-            You scored <span className="font-bold text-white">{result.score}%</span> ({result.correctAnswers}/{exam.questions.length} correct)
+            You scored <span className="font-bold text-white">{result.score}%</span> ({result.correctAnswers}/{questions.length} correct)
           </p>
           <p className={`mt-3 text-lg font-semibold ${result.passed ? "text-emerald-400" : "text-[#ff6767]"}`}>
             {result.passed ? "Status: Passed" : "Status: Not Passed"}
@@ -308,11 +321,11 @@ const LessonExam = ({ exam }) => {
 
           <div className="mt-7 border-t border-[#232326] pt-5">
             <h3 className="text-xl font-semibold text-white">Incorrect Answers Review</h3>
-            {exam.questions.filter((question) => answers[question.id] !== question.correctAnswer).length === 0 ? (
+            {questions.filter((question) => answers[question.id] !== question.correctAnswer).length === 0 ? (
               <p className="mt-3 text-[#D4D4D8]">Great job! You answered every question correctly.</p>
             ) : (
               <ul className="mt-4 space-y-4">
-                {exam.questions
+                {questions
                   .filter((question) => answers[question.id] !== question.correctAnswer)
                   .map((question) => {
                     const selectedOption = question.options.find((option) => option.id === answers[question.id]);
@@ -340,6 +353,7 @@ const LessonExam = ({ exam }) => {
               setQuestionIndex(0);
               setAnswers({});
               setShowResult(false);
+              setQuestions(shuffleQuestions(exam.questions));
               setTimeRemaining(examDurationSeconds);
             }}
             className="mt-6 rounded-lg border border-[#E10600] px-4 py-2 text-sm font-medium text-[#E10600] hover:bg-[#E10600] hover:text-white"
@@ -351,9 +365,9 @@ const LessonExam = ({ exam }) => {
         <div className="space-y-6 rounded-2xl border border-[#232326] bg-[#101013] p-6">
           <div className="flex items-center justify-between text-sm text-[#A1A1AA]">
             <span>
-              Question {questionIndex + 1} of {exam.questions.length}
+              Question {questionIndex + 1} of {questions.length}
             </span>
-            <span>{Math.round(((questionIndex + 1) / exam.questions.length) * 100)}% completed</span>
+            <span>{Math.round(((questionIndex + 1) / questions.length) * 100)}% completed</span>
           </div>
 
           <h2 className="text-2xl font-semibold text-white">{currentQuestion.text}</h2>
@@ -389,7 +403,7 @@ const LessonExam = ({ exam }) => {
               Previous Question
             </button>
 
-            {questionIndex === exam.questions.length - 1 ? (
+            {questionIndex === questions.length - 1 ? (
               <button
                 type="button"
                 onClick={() => setShowResult(true)}
@@ -401,7 +415,7 @@ const LessonExam = ({ exam }) => {
             ) : (
               <button
                 type="button"
-                onClick={() => setQuestionIndex((prev) => Math.min(prev + 1, exam.questions.length - 1))}
+                onClick={() => setQuestionIndex((prev) => Math.min(prev + 1, questions.length - 1))}
                 className="rounded-lg border border-[#E10600] px-4 py-2 text-sm font-medium text-[#E10600] hover:bg-[#E10600] hover:text-white"
               >
                 Next Question
