@@ -231,6 +231,10 @@ const renderBlock = (block, index) => {
 };
 
 const LessonExam = ({ exam }) => {
+  if (exam.type === "drag_order") {
+    return <DragOrderExam exam={exam} />;
+  }
+
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
@@ -406,6 +410,266 @@ const LessonExam = ({ exam }) => {
           </div>
         </div>
       )}
+    </article>
+  );
+};
+
+const DragOrderExam = ({ exam }) => {
+  const examDurationSeconds = (exam.durationMinutes ?? 10) * 60;
+  const maxAttempts = exam.maxAttempts ?? 3;
+
+  const [timeRemaining, setTimeRemaining] = useState(examDurationSeconds);
+  const [attemptsUsed, setAttemptsUsed] = useState(0);
+  const [showResult, setShowResult] = useState(false);
+  const [passed, setPassed] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [bankItems, setBankItems] = useState(() => [...exam.items].sort(() => Math.random() - 0.5));
+  const [arrangedSlots, setArrangedSlots] = useState(() => Array(exam.items.length).fill(null));
+
+  useEffect(() => {
+    setTimeRemaining(examDurationSeconds);
+    setAttemptsUsed(0);
+    setShowResult(false);
+    setPassed(false);
+    setFeedback("");
+    setBankItems([...exam.items].sort(() => Math.random() - 0.5));
+    setArrangedSlots(Array(exam.items.length).fill(null));
+  }, [exam, examDurationSeconds]);
+
+  useEffect(() => {
+    if (showResult) return undefined;
+
+    const timer = window.setInterval(() => {
+      setTimeRemaining((previous) => {
+        if (previous <= 1) {
+          window.clearInterval(timer);
+          setShowResult(true);
+          setPassed(false);
+          setFeedback("Time is up. Review the correct arrangement and try again.");
+          return 0;
+        }
+
+        return previous - 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [showResult]);
+
+  const attemptsLeft = maxAttempts - attemptsUsed;
+
+  const parseDragPayload = (event) => {
+    try {
+      return JSON.parse(event.dataTransfer.getData("application/json"));
+    } catch {
+      return null;
+    }
+  };
+
+  const handleDropOnSlot = (event, slotIndex) => {
+    event.preventDefault();
+    if (showResult) return;
+
+    const payload = parseDragPayload(event);
+    if (!payload) return;
+
+    if (payload.origin === "bank") {
+      const draggedItem = bankItems.find((item) => item.id === payload.itemId);
+      if (!draggedItem) return;
+
+      setBankItems((previous) => previous.filter((item) => item.id !== payload.itemId));
+      setArrangedSlots((previous) => {
+        const next = [...previous];
+        const replacedItem = next[slotIndex];
+        next[slotIndex] = draggedItem;
+
+        if (replacedItem) {
+          setBankItems((bankPrevious) => [...bankPrevious, replacedItem]);
+        }
+
+        return next;
+      });
+    }
+
+    if (payload.origin === "slot") {
+      setArrangedSlots((previous) => {
+        const next = [...previous];
+        const draggedItem = next[payload.slotIndex];
+        if (!draggedItem) return previous;
+
+        const targetItem = next[slotIndex];
+        next[slotIndex] = draggedItem;
+        next[payload.slotIndex] = targetItem ?? null;
+
+        return next;
+      });
+    }
+  };
+
+  const handleDropOnBank = (event) => {
+    event.preventDefault();
+    if (showResult) return;
+
+    const payload = parseDragPayload(event);
+    if (!payload || payload.origin !== "slot") return;
+
+    setArrangedSlots((previous) => {
+      const next = [...previous];
+      const draggedItem = next[payload.slotIndex];
+      if (!draggedItem) return previous;
+
+      next[payload.slotIndex] = null;
+      setBankItems((bankPrevious) => [...bankPrevious, draggedItem]);
+
+      return next;
+    });
+  };
+
+  const handleSubmit = () => {
+    const allFilled = arrangedSlots.every(Boolean);
+    if (!allFilled) {
+      setFeedback("Please place all colors in the main box before submitting.");
+      return;
+    }
+
+    const isCorrect = arrangedSlots.every((item, index) => item?.id === exam.correctOrder[index]);
+
+    if (isCorrect) {
+      setPassed(true);
+      setShowResult(true);
+      setFeedback("Excellent! You arranged all colors in the correct T568B order.");
+      return;
+    }
+
+    const nextAttemptsUsed = attemptsUsed + 1;
+    setAttemptsUsed(nextAttemptsUsed);
+
+    if (nextAttemptsUsed >= maxAttempts) {
+      setPassed(false);
+      setShowResult(true);
+      setFeedback("No attempts left. Review the correct order below and retake the exam.");
+      return;
+    }
+
+    setFeedback(`Incorrect arrangement. You have ${maxAttempts - nextAttemptsUsed} attempt(s) left.`);
+  };
+
+  const handleReset = () => {
+    setTimeRemaining(examDurationSeconds);
+    setAttemptsUsed(0);
+    setShowResult(false);
+    setPassed(false);
+    setFeedback("");
+    setBankItems([...exam.items].sort(() => Math.random() - 0.5));
+    setArrangedSlots(Array(exam.items.length).fill(null));
+  };
+
+  return (
+    <article className="mx-auto w-full max-w-[900px] px-6 pb-24 pt-10 text-left md:px-10">
+      <header className="mb-10 border-b border-[#232326] pb-7">
+        <p className="text-sm text-[#A1A1AA]">Practical Exam</p>
+        <h1 className="mt-3 text-3xl font-bold tracking-tight text-white md:text-[38px]">{exam.title}</h1>
+        <p className="mt-4 text-sm text-[#A1A1AA]">Attempts Left: {Math.max(attemptsLeft, 0)} / {maxAttempts}</p>
+        <p className={`mt-2 text-sm font-medium ${timeRemaining <= 120 ? "text-[#ff6767]" : "text-[#A1A1AA]"}`}>
+          Time Remaining: {formatTimeRemaining(timeRemaining)}
+        </p>
+      </header>
+
+      <div className="rounded-2xl border border-[#232326] bg-[#101013] p-6">
+        <p className="mb-5 text-[#D4D4D8]">{exam.instructions}</p>
+
+        <h2 className="mb-3 text-lg font-semibold text-white">Main Box (Place colors in order)</h2>
+        <div className="grid gap-3 md:grid-cols-2">
+          {arrangedSlots.map((slotItem, index) => (
+            <div
+              key={`slot-${exam.correctOrder[index]}`}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => handleDropOnSlot(event, index)}
+              className="flex min-h-[58px] items-center gap-3 rounded-lg border border-dashed border-[#3b3b41] bg-[#16161c] px-4 py-3"
+            >
+              <span className="text-xs font-semibold text-[#A1A1AA]">{index + 1}.</span>
+              {slotItem ? (
+                <button
+                  type="button"
+                  draggable
+                  onDragStart={(event) => {
+                    event.dataTransfer.setData(
+                      "application/json",
+                      JSON.stringify({ origin: "slot", slotIndex: index, itemId: slotItem.id }),
+                    );
+                  }}
+                  className="flex w-full cursor-grab items-center justify-between rounded-md border border-[#2f2f35] bg-[#20202a] px-3 py-2 text-left text-sm text-white"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-full border border-black/40" style={{ backgroundColor: slotItem.swatch }} />
+                    {slotItem.label}
+                  </span>
+                  <span className="text-xs text-[#a5a5b0]">drag</span>
+                </button>
+              ) : (
+                <span className="text-sm text-[#7a7a85]">Drop color here</span>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <h2 className="mb-3 mt-8 text-lg font-semibold text-white">Color Box (Drag from here)</h2>
+        <div
+          onDragOver={(event) => event.preventDefault()}
+          onDrop={handleDropOnBank}
+          className="grid gap-3 rounded-xl border border-[#2a2a2f] bg-[#15151b] p-4 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {bankItems.length === 0 ? <p className="text-sm text-[#7a7a85]">All colors are placed. Drag an item back here to remove it.</p> : null}
+          {bankItems.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              draggable
+              onDragStart={(event) => {
+                event.dataTransfer.setData("application/json", JSON.stringify({ origin: "bank", itemId: item.id }));
+              }}
+              className="flex cursor-grab items-center gap-2 rounded-md border border-[#2f2f35] bg-[#20202a] px-3 py-2 text-left text-sm text-white"
+            >
+              <span className="h-3 w-3 rounded-full border border-black/40" style={{ backgroundColor: item.swatch }} />
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        {feedback ? <p className={`mt-5 text-sm ${passed ? "text-emerald-300" : "text-[#ff9999]"}`}>{feedback}</p> : null}
+
+        {showResult ? (
+          <div className="mt-6 rounded-xl border border-[#2a2a2f] bg-[#16161d] p-4">
+            <h3 className={`text-lg font-semibold ${passed ? "text-emerald-400" : "text-[#ff7676]"}`}>
+              {passed ? "Status: Passed" : "Status: Not Passed"}
+            </h3>
+            <p className="mt-3 text-sm text-[#D4D4D8]">Correct order:</p>
+            <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-white">
+              {exam.correctOrder.map((itemId) => {
+                const item = exam.items.find((entry) => entry.id === itemId);
+
+                return <li key={`correct-${itemId}`}>{item?.label ?? itemId}</li>;
+              })}
+            </ol>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="mt-5 rounded-lg border border-[#E10600] px-4 py-2 text-sm font-medium text-[#E10600] hover:bg-[#E10600] hover:text-white"
+            >
+              Retake Exam
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={attemptsLeft <= 0 || timeRemaining <= 0}
+            className="mt-6 rounded-lg border border-[#E10600] px-4 py-2 text-sm font-medium text-[#E10600] hover:bg-[#E10600] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Check Arrangement
+          </button>
+        )}
+      </div>
     </article>
   );
 };
